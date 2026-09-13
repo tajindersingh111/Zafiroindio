@@ -1,0 +1,184 @@
+{
+  "campaigns": [
+    {
+      "id": "1202039485012",
+      "name": "ZI - Mughal & Jaipuri Linens Sales",
+      "objective": "Sales",
+      "status": "Active",
+      "budget": "₹2,000 / day",
+      "spend": 12450,
+      "impressions": 84500,
+      "reach": 54200,
+      "clicks": 1820,
+      "ctr": 2.15,
+      "cpc": 6.84,
+      "cpm": 147.33,
+      "purchases": 54,
+      "costPerPurchase": 230.55,
+      "revenue": 118746,
+      "roas": 9.54,
+      "startDate": "2026-08-01",
+      "endDate": "Continuous"
+    },
+    {
+      "id": "1202039485013",
+      "name": "ZI - Indigo Collection Traffic Campaign",
+      "objective": "Traffic",
+      "status": "Active",
+      "budget": "₹1,000 / day",
+      "spend": 8200,
+      "impressions": 92100,
+      "reach": 68000,
+      "clicks": 3150,
+      "ctr": 3.42,
+      "cpc": 2.60,
+      "cpm": 89.03,
+      "purchases": 12,
+      "costPerPurchase": 683.33,
+      "revenue": 21540,
+      "roas": 2.63,
+      "startDate": "2026-08-10",
+      "endDate": "Continuous"
+    },
+    {
+      "id": "1202039485014",
+      "name": "ZI - Cart Abandoners Retargeting",
+      "objective": "Sales",
+      "status": "Paused",
+      "budget": "₹500 / day",
+      "spend": 4750,
+      "impressions": 18200,
+      "reach": 12400,
+      "clicks": 620,
+      "ctr": 3.41,
+      "cpc": 7.66,
+      "cpm": 260.98,
+      "purchases": 28,
+      "costPerPurchase": 169.64,
+      "revenue": 45890,
+      "roas": 9.66,
+      "startDate": "2026-08-15",
+      "endDate": "Continuous"
+    }
+  ],
+  "adsets": [
+    {
+      "id": "2202039485012",
+      "campaignId": "1202039485012",
+      "name": "Broad Targeting - India (Home Decor Interest)",
+      "audience": "Interests: Home Decor, Bedding, Interior Design",
+      "budget": "₹1,500 / day",
+      "schedule": "Continuous",
+      "placement": "Advantage+ Placements",
+      "spend": 9450,
+      "reach": 42100,
+      "impressions": 64800,
+      "clicks": 1210,
+      "purchases": 38,
+      "roas": 8.8
+    },
+    {
+      "id": "2202039485013",
+      "campaignId": "1202039485012",
+      "name": "Lookalike 1% - Zafiro Purchasers",
+      "audience": "LAL 1% (IN) Zafiro Buyers",
+      "budget": "₹500 / day",
+      "schedule": "Continuous",
+      "placement": "Advantage+ Placements",
+      "spend": 3000,
+      "reach": 12100,
+      "impressions": 19700,
+      "clicks": 610,
+      "purchases": 16,
+      "roas": 11.8
+    },
+    {
+      "id": "2202039485014",
+      "campaignId": "1202039485013",
+      "name": "Instagram Placement Only - Tier 1 Cities",
+      "audience": "Location: Delhi, Mumbai, Bangalore. Age: 25-54",
+      "budget": "₹1,000 / day",
+      "schedule": "Continuous",
+      "placement": "Instagram Feed & Stories",
+      "spend": 8200,
+      "reach": 68000,
+      "impressions": 92100,
+      "clicks": 3150,
+      "purchases": 12,
+      "roas": 2.63
+    }
+  ],
+  "ads": [
+    {
+      "id": "3202039485012",
+      "adsetId": "2202039485012",
+      "name": "Cleopatra Bedsheet Carousel Ad",
+      "campaign": "ZI - Mughal & Jaipuri Linens Sales",
+      "adSet": "Broad Targeting - India (Home Decor Interest)",
+      "creative": "Carousel (3 Mughal bedsheets)",
+      "status": "Active",
+      "spend": 6450,
+      "impressions": 44800,
+      "reach": 31200,
+      "clicks": 820,
+      "ctr": 1.83,
+      "purchases": 25,
+      "revenue": 64875,
+      "roas": 10.05
+    },
+    {
+      "id": "3202039485013",
+      "adsetId": "2202039485012",
+      "name": "Saffron Mughal Gardens Single Image Ad",
+      "campaign": "ZI - Mughal & Jaipuri Linens Sales",
+      "adSet": "Broad Targeting - India (Home Decor Interest)",
+      "creative": "Single Image (Saffron bedroom mockup)",
+      "status": "Active",
+      "spend": 3000,
+      "impressions": 20000,
+      "reach": 10900,
+      "clicks": 390,
+      "ctr": 1.95,
+      "purchases": 13,
+      "revenue": 33810,
+      "roas": 11.27
+    }
+  ],
+  "audiences": [
+    {
+      "id": "aud-1",
+      "name": "Zafiro Website Visitors (Last 30 Days)",
+      "type": "Custom Audience",
+      "size": "14,500",
+      "source": "Meta Pixel",
+      "lastUpdated": "2026-08-30"
+    },
+    {
+      "id": "aud-2",
+      "name": "Zafiro Lifetime Purchasers",
+      "type": "Custom Audience",
+      "size": "2,100",
+      "source": "Customer List Upload",
+      "lastUpdated": "2026-08-28"
+    },
+    {
+      "id": "aud-3",
+      "name": "Lookalike (1%) - Zafiro Lifetime Purchasers",
+      "type": "Lookalike Audience",
+      "size": "1,200,000",
+      "source": "Zafiro Lifetime Purchasers",
+      "lastUpdated": "2026-08-28"
+    }
+  ],
+  "events": [
+    { "name": "PageView", "source": "Browser (Pixel)", "status": "Active", "lastReceived": "1 minute ago", "count": 48200 },
+    { "name": "ViewContent", "source": "Browser & Server (CAPI)", "status": "Active", "lastReceived": "3 minutes ago", "count": 21400 },
+    { "name": "AddToCart", "source": "Browser & Server (CAPI)", "status": "Active", "lastReceived": "12 minutes ago", "count": 1820 },
+    { "name": "InitiateCheckout", "source": "Server (CAPI)", "status": "Active", "lastReceived": "15 minutes ago", "count": 420 },
+    { "name": "Purchase", "source": "Server (CAPI)", "status": "Active", "lastReceived": "28 minutes ago", "count": 94 }
+  ],
+  "diagnostics": {
+    "capiStatus": "Connected",
+    "deduplicationRate": "98%"
+  }
+}

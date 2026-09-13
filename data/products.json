@@ -1,0 +1,6887 @@
+[
+  {
+    "id": "prod-6659",
+    "name": "Zafiro Product #6659",
+    "slug": "product-6659",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #6659",
+    "shortDescription": "Zafiro Product #6659",
+    "sku": "MARILYN-1",
+    "price": 2899.0,
+    "salePrice": null,
+    "mrp": 4059,
+    "costPrice": 1160,
+    "categoryId": "cat-143",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-6698",
+    "name": "Zafiro Product #6698",
+    "slug": "product-6698",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #6698",
+    "shortDescription": "Zafiro Product #6698",
+    "sku": "MARILYN-2",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-143",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/04/Marilyn-Mist-108%E2%80%B3-x-108%E2%80%B3-Handblock-Printed-Cotton-Bed-Sheet-Set-Design.webp"
+    ],
+    "taxClass": "standard",
+    "stock": 0,
+    "stockStatus": "out_of_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-6699",
+    "name": "Zafiro Product #6699",
+    "slug": "product-6699",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #6699",
+    "shortDescription": "Zafiro Product #6699",
+    "sku": "MARILYN-3",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-143",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/04/Marilyn-Monarch-108%E2%80%B3-x-108%E2%80%B3-Handblock-Printed-Cotton-Bed-Sheet-Set-Design.webp"
+    ],
+    "taxClass": "standard",
+    "stock": 0,
+    "stockStatus": "out_of_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-6700",
+    "name": "Zafiro Product #6700",
+    "slug": "product-6700",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #6700",
+    "shortDescription": "Zafiro Product #6700",
+    "sku": "MARILYN-4",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-143",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/04/Marilyn-Mallow-108%E2%80%B3-x-108%E2%80%B3-Handblock-Printed-Cotton-Bed-Sheet-Set-Design.webp"
+    ],
+    "taxClass": "standard",
+    "stock": 0,
+    "stockStatus": "out_of_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-6702",
+    "name": "Zafiro Product #6702",
+    "slug": "product-6702",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #6702",
+    "shortDescription": "Zafiro Product #6702",
+    "sku": "MARILYN-6",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-143",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/04/Marilyn-Mimosa-108%E2%80%B3-x-108%E2%80%B3-Handblock-Printed-Cotton-Bed-Sheet-Set-Design.webp"
+    ],
+    "taxClass": "standard",
+    "stock": 0,
+    "stockStatus": "out_of_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7156",
+    "name": "Zafiro Product #7156",
+    "slug": "product-7156",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7156",
+    "shortDescription": "Zafiro Product #7156",
+    "sku": "THROW-1",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-153",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/05/lifestyle-studio-f2bd0f50-5f23-4808-b52b-d9f96af47bf9-1775736792855.png"
+    ],
+    "taxClass": "standard",
+    "stock": 1,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7171",
+    "name": "Zafiro Product #7171",
+    "slug": "product-7171",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7171",
+    "shortDescription": "Zafiro Product #7171",
+    "sku": "THROW-2",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-153",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/06/lifestyle-studio-ad435f19-e16f-485b-b8ba-29f61c3fd40e-1782374546346.png"
+    ],
+    "taxClass": "standard",
+    "stock": 5,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7172",
+    "name": "Zafiro Product #7172",
+    "slug": "product-7172",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7172",
+    "shortDescription": "Zafiro Product #7172",
+    "sku": "THROW-3",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-153",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/05/product_Sofa-Thrown_Botanical_Tassel_S_3.png"
+    ],
+    "taxClass": "standard",
+    "stock": 3,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7173",
+    "name": "Zafiro Product #7173",
+    "slug": "product-7173",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7173",
+    "shortDescription": "Zafiro Product #7173",
+    "sku": "THROW-4",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-153",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/05/product_Sofa_Serenity_With_Tassel_Flou_5.png"
+    ],
+    "taxClass": "standard",
+    "stock": 0,
+    "stockStatus": "out_of_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7181",
+    "name": "Zafiro Product #7181",
+    "slug": "product-7181",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7181",
+    "shortDescription": "Zafiro Product #7181",
+    "sku": "ZI-BS-7181",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-154",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/06/lifestyle-studio-373d1b3a-3eff-4a22-bfac-cd82fda9bfb9-1782492645677.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7182",
+    "name": "Teal Hand Block Cotton Rug - 4 ft * 6 ft",
+    "slug": "handblock-rugs-blossom-exclusive",
+    "type": "simple",
+    "status": "active",
+    "description": "Teal Hand Block Cotton Rug - 4 ft * 6 ft",
+    "shortDescription": "size: 4 ft * 6 ft",
+    "sku": "RUGS-1.1",
+    "price": 1999.0,
+    "salePrice": null,
+    "mrp": 2799,
+    "costPrice": 800,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-06-02T09:19:41",
+    "updatedAt": "2026-09-01T13:24:41"
+  },
+  {
+    "id": "prod-7183",
+    "name": "Teal Hand Block Cotton Rug - 3 ft * 5 ft",
+    "slug": "handblock-rugs-blossom-exclusive-2",
+    "type": "simple",
+    "status": "active",
+    "description": "Teal Hand Block Cotton Rug - 3 ft * 5 ft",
+    "shortDescription": "size: 3 ft * 5 ft",
+    "sku": "RUGS-1",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-06-02T09:21:00",
+    "updatedAt": "2026-09-01T13:24:41"
+  },
+  {
+    "id": "prod-7185",
+    "name": "Zafiro Product #7185",
+    "slug": "product-7185",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7185",
+    "shortDescription": "Zafiro Product #7185",
+    "sku": "ZI-BS-7185",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-154",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/06/lifestyle-studio-e8736349-b004-4abd-b0da-75e77480365d-1782492637121.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7186",
+    "name": "Blossom Hand Block Cotton Rug - 3 ft * 5 ft",
+    "slug": "handblock-rugs-blossom-exclusive-3",
+    "type": "simple",
+    "status": "active",
+    "description": "Blossom Hand Block Cotton Rug - 3 ft * 5 ft",
+    "shortDescription": "size: 3 ft * 5 ft",
+    "sku": "RUGS-2",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-06-02T09:38:32",
+    "updatedAt": "2026-09-01T13:23:44"
+  },
+  {
+    "id": "prod-7187",
+    "name": "Blossom Hand Block Cotton Rug - 4 ft * 6 ft",
+    "slug": "handblock-rugs-blossom-exclusive-4",
+    "type": "simple",
+    "status": "active",
+    "description": "Blossom Hand Block Cotton Rug - 4 ft * 6 ft",
+    "shortDescription": "size: 4 ft * 6 ft",
+    "sku": "RUGS-2.1",
+    "price": 1999.0,
+    "salePrice": null,
+    "mrp": 2799,
+    "costPrice": 800,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-06-02T09:38:32",
+    "updatedAt": "2026-09-01T13:23:44"
+  },
+  {
+    "id": "prod-7188",
+    "name": "Zafiro Product #7188",
+    "slug": "product-7188",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7188",
+    "shortDescription": "Zafiro Product #7188",
+    "sku": "ZI-BS-7188",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-154",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/06/lifestyle-studio-c3e49782-530e-407b-8039-8a08ef5440d5-1782492648661.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7189",
+    "name": "Camellia Hand Block Cotton Rug - 3 ft * 5 ft",
+    "slug": "handblock-rugs-blossom-exclusive-5",
+    "type": "simple",
+    "status": "active",
+    "description": "Camellia Hand Block Cotton Rug - 3 ft * 5 ft",
+    "shortDescription": "size: 3 ft * 5 ft",
+    "sku": "RUGS-3",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-06-02T09:43:32",
+    "updatedAt": "2026-09-01T13:22:58"
+  },
+  {
+    "id": "prod-7190",
+    "name": "Camellia Hand Block Cotton Rug - 4 ft * 6 ft",
+    "slug": "handblock-rugs-blossom-exclusive-6",
+    "type": "simple",
+    "status": "active",
+    "description": "Camellia Hand Block Cotton Rug - 4 ft * 6 ft",
+    "shortDescription": "size: 4 ft * 6 ft",
+    "sku": "RUGS-3.1",
+    "price": 1999.0,
+    "salePrice": null,
+    "mrp": 2799,
+    "costPrice": 800,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-06-02T09:43:32",
+    "updatedAt": "2026-09-01T13:22:58"
+  },
+  {
+    "id": "prod-7194",
+    "name": "Zafiro Product #7194",
+    "slug": "product-7194",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7194",
+    "shortDescription": "Zafiro Product #7194",
+    "sku": "ZI-BS-7194",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-154",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/06/lifestyle-studio-94179336-09d7-4dd7-8ad8-a687b8dab288-1782492645236.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7195",
+    "name": "Floral Hand Block Cotton Rug - 3 ft * 5 ft",
+    "slug": "handblock-rugs-blossom-exclusive-7",
+    "type": "simple",
+    "status": "active",
+    "description": "Floral Hand Block Cotton Rug - 3 ft * 5 ft",
+    "shortDescription": "size: 3 ft * 5 ft",
+    "sku": "RUGS-4",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-06-02T09:54:32",
+    "updatedAt": "2026-09-01T13:22:25"
+  },
+  {
+    "id": "prod-7196",
+    "name": "Floral Hand Block Cotton Rug - 4 ft * 6 ft",
+    "slug": "handblock-rugs-blossom-exclusive-8",
+    "type": "simple",
+    "status": "active",
+    "description": "Floral Hand Block Cotton Rug - 4 ft * 6 ft",
+    "shortDescription": "size: 4 ft * 6 ft",
+    "sku": "RUGS-4.1",
+    "price": 1999.0,
+    "salePrice": null,
+    "mrp": 2799,
+    "costPrice": 800,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-06-02T09:54:32",
+    "updatedAt": "2026-09-01T13:22:25"
+  },
+  {
+    "id": "prod-7197",
+    "name": "Zafiro Product #7197",
+    "slug": "product-7197",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7197",
+    "shortDescription": "Zafiro Product #7197",
+    "sku": "ZI-BS-7197",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-154",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/06/lifestyle-studio-731c2d4c-3e8f-49e7-b169-ccfe9bc412b6-1782492649562.png"
+    ],
+    "taxClass": "standard",
+    "stock": 5,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7198",
+    "name": "Amber Hand Block Cotton Rug - 3 ft * 5 ft",
+    "slug": "handblock-rugs-blossom-exclusive-9",
+    "type": "simple",
+    "status": "active",
+    "description": "Amber Hand Block Cotton Rug - 3 ft * 5 ft",
+    "shortDescription": "size: 3 ft * 5 ft",
+    "sku": "RUGS-5",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 0,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-06-02T09:56:30",
+    "updatedAt": "2026-09-06T09:40:35"
+  },
+  {
+    "id": "prod-7199",
+    "name": "Amber Hand Block Cotton Rug - 4 ft * 6 ft",
+    "slug": "handblock-rugs-blossom-exclusive-10",
+    "type": "simple",
+    "status": "active",
+    "description": "Amber Hand Block Cotton Rug - 4 ft * 6 ft",
+    "shortDescription": "size: 4 ft * 6 ft",
+    "sku": "RUGS-5.1",
+    "price": 1999.0,
+    "salePrice": null,
+    "mrp": 2799,
+    "costPrice": 800,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 0,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-06-02T09:56:30",
+    "updatedAt": "2026-09-06T09:40:35"
+  },
+  {
+    "id": "prod-7216",
+    "name": "Zafiro Product #7216",
+    "slug": "product-7216",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7216",
+    "shortDescription": "Zafiro Product #7216",
+    "sku": "ZI-BS-7216",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-154",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/06/lifestyle-studio-4ea1246b-94e1-4d64-b66a-36ceba43b2b8-1782494106376.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7217",
+    "name": "Desert Rose Hand Block Cotton Rug - 3 ft * 5 ft",
+    "slug": "handblock-rugs-blossom-exclusive-11",
+    "type": "simple",
+    "status": "active",
+    "description": "Desert Rose Hand Block Cotton Rug - 3 ft * 5 ft",
+    "shortDescription": "size: 3 ft * 5 ft",
+    "sku": "RUGS-6",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-06-24T10:30:01",
+    "updatedAt": "2026-09-01T13:21:10"
+  },
+  {
+    "id": "prod-7218",
+    "name": "Desert Rose Hand Block Cotton Rug - 4 ft * 6 ft",
+    "slug": "handblock-rugs-blossom-exclusive-12",
+    "type": "simple",
+    "status": "active",
+    "description": "Desert Rose Hand Block Cotton Rug - 4 ft * 6 ft",
+    "shortDescription": "size: 4 ft * 6 ft",
+    "sku": "RUGS-5.1-6",
+    "price": 1999.0,
+    "salePrice": null,
+    "mrp": 2799,
+    "costPrice": 800,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-06-24T10:30:01",
+    "updatedAt": "2026-09-01T13:21:10"
+  },
+  {
+    "id": "prod-7222",
+    "name": "Zafiro Product #7222",
+    "slug": "product-7222",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7222",
+    "shortDescription": "Zafiro Product #7222",
+    "sku": "ZI-BS-7222",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-154",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/06/lifestyle-studio-3ed825cc-e474-4131-8032-bdd1cd9667ad-1782492639518.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7223",
+    "name": "Indigo Hand Block Cotton Rug - 3 ft * 5 ft",
+    "slug": "handblock-rugs-blossom-exclusive-13",
+    "type": "simple",
+    "status": "active",
+    "description": "Indigo Hand Block Cotton Rug - 3 ft * 5 ft",
+    "shortDescription": "size: 3 ft * 5 ft",
+    "sku": "RUGS-7",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-06-24T10:37:57",
+    "updatedAt": "2026-09-01T13:15:59"
+  },
+  {
+    "id": "prod-7224",
+    "name": "Indigo Hand Block Cotton Rug - 4 ft * 6 ft",
+    "slug": "handblock-rugs-blossom-exclusive-14",
+    "type": "simple",
+    "status": "active",
+    "description": "Indigo Hand Block Cotton Rug - 4 ft * 6 ft",
+    "shortDescription": "size: 4 ft * 6 ft",
+    "sku": "RUGS-5.1-7",
+    "price": 1999.0,
+    "salePrice": null,
+    "mrp": 2799,
+    "costPrice": 800,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-06-24T10:37:57",
+    "updatedAt": "2026-09-01T13:15:59"
+  },
+  {
+    "id": "prod-7225",
+    "name": "Zafiro Product #7225",
+    "slug": "product-7225",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7225",
+    "shortDescription": "Zafiro Product #7225",
+    "sku": "ZI-BS-7225",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-154",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/06/lifestyle-studio-c8a1d8c5-a97c-49fd-8f3c-18ff9dc0bcd4-1782492638180.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7226",
+    "name": "Petal Hand Block Cotton Rug - 3 ft * 5 ft",
+    "slug": "handblock-rugs-blossom-exclusive-15",
+    "type": "simple",
+    "status": "active",
+    "description": "Petal Hand Block Cotton Rug - 3 ft * 5 ft",
+    "shortDescription": "size: 3 ft * 5 ft",
+    "sku": "RUGS-8",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-06-24T10:39:24",
+    "updatedAt": "2026-09-01T13:19:14"
+  },
+  {
+    "id": "prod-7227",
+    "name": "Petal Hand Block Cotton Rug - 4 ft * 6 ft",
+    "slug": "handblock-rugs-blossom-exclusive-16",
+    "type": "simple",
+    "status": "active",
+    "description": "Petal Hand Block Cotton Rug - 4 ft * 6 ft",
+    "shortDescription": "size: 4 ft * 6 ft",
+    "sku": "RUGS-5.1-8",
+    "price": 1999.0,
+    "salePrice": null,
+    "mrp": 2799,
+    "costPrice": 800,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-06-24T10:39:24",
+    "updatedAt": "2026-09-01T13:19:14"
+  },
+  {
+    "id": "prod-7229",
+    "name": "Zafiro Product #7229",
+    "slug": "product-7229",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7229",
+    "shortDescription": "Zafiro Product #7229",
+    "sku": "THROW-5",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-153",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/05/product_Sofa-Spread_Tassels__Botanical_7.png"
+    ],
+    "taxClass": "standard",
+    "stock": 2,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7230",
+    "name": "Zafiro Product #7230",
+    "slug": "product-7230",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7230",
+    "shortDescription": "Zafiro Product #7230",
+    "sku": "THROW-6",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-153",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/06/lifestyle-studio-61400237-23ac-4e7e-9da3-d848e01a1fd2-1782374546388.png"
+    ],
+    "taxClass": "standard",
+    "stock": 11,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7231",
+    "name": "Zafiro Product #7231",
+    "slug": "product-7231",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7231",
+    "shortDescription": "Zafiro Product #7231",
+    "sku": "THROW-7",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-153",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/06/lifestyle-studio-dbcb4a9f-a38f-4c8d-973e-d2548b24b5cb-1782374546549.png"
+    ],
+    "taxClass": "standard",
+    "stock": 10,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7233",
+    "name": "Zafiro Product #7233",
+    "slug": "product-7233",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7233",
+    "shortDescription": "Zafiro Product #7233",
+    "sku": "THROW-8",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-153",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/05/product_Boho_Tassels__Sofa_Serenity_9.png"
+    ],
+    "taxClass": "standard",
+    "stock": 2,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7234",
+    "name": "Zafiro Product #7234",
+    "slug": "product-7234",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7234",
+    "shortDescription": "Zafiro Product #7234",
+    "sku": "THROW-9",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-153",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/05/product_Sofa_Serenity_Tassel_Showcase_4.png"
+    ],
+    "taxClass": "standard",
+    "stock": 2,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7249",
+    "name": "Zafiro Product #7249",
+    "slug": "product-7249",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7249",
+    "shortDescription": "Zafiro Product #7249",
+    "sku": "THROW-10",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-153",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/06/lifestyle-studio-22804285-8451-4614-8e97-a1640671b8d2-1782374546909.png"
+    ],
+    "taxClass": "standard",
+    "stock": 3,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7250",
+    "name": "Zafiro Product #7250",
+    "slug": "product-7250",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7250",
+    "shortDescription": "Zafiro Product #7250",
+    "sku": "THROW-11",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-153",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/06/lifestyle-studio-576f2f26-c3e3-495d-958f-dc7c45524d33-1782374546681.png"
+    ],
+    "taxClass": "standard",
+    "stock": 4,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7251",
+    "name": "Zafiro Product #7251",
+    "slug": "product-7251",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7251",
+    "shortDescription": "Zafiro Product #7251",
+    "sku": "THROW-12",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-153",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/06/lifestyle-studio-0e9dc39c-f9a1-4061-bd69-a3d9aaf1fb3d-1782375219521.png"
+    ],
+    "taxClass": "standard",
+    "stock": 0,
+    "stockStatus": "out_of_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7252",
+    "name": "Zafiro Product #7252",
+    "slug": "product-7252",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7252",
+    "shortDescription": "Zafiro Product #7252",
+    "sku": "THROW-13",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-153",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/06/lifestyle-studio-498fe9f0-36c5-4062-9150-5f17c936659a-1782374546805.png"
+    ],
+    "taxClass": "standard",
+    "stock": 4,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7253",
+    "name": "Zafiro Product #7253",
+    "slug": "product-7253",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7253",
+    "shortDescription": "Zafiro Product #7253",
+    "sku": "THROW-14",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-153",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/06/lifestyle-studio-7d671bc0-1bac-4b31-b676-9a55f4146a6f-1782374546366.png"
+    ],
+    "taxClass": "standard",
+    "stock": 3,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7254",
+    "name": "Zafiro Product #7254",
+    "slug": "product-7254",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7254",
+    "shortDescription": "Zafiro Product #7254",
+    "sku": "THROW-15",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-153",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/06/lifestyle-studio-2a694fa3-bebd-4f73-9899-6cdf608fa3df-1782374546659.png"
+    ],
+    "taxClass": "standard",
+    "stock": 4,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7271",
+    "name": "Zafiro Product #7271",
+    "slug": "product-7271",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7271",
+    "shortDescription": "Zafiro Product #7271",
+    "sku": "ZI-BS-7271",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-154",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/06/lifestyle-studio-3dccf2b0-2311-4087-a039-b7bb6c48ecc5-1782481904210.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7272",
+    "name": "Bloom Hand Block Cotton Rug - 3 ft * 5 ft",
+    "slug": "handblock-rugs-blossom-exclusive-21",
+    "type": "simple",
+    "status": "active",
+    "description": "Bloom Hand Block Cotton Rug - 3 ft * 5 ft",
+    "shortDescription": "size: 3 ft * 5 ft",
+    "sku": "RUGS-11",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-06-26T14:13:09",
+    "updatedAt": "2026-09-01T13:18:26"
+  },
+  {
+    "id": "prod-7273",
+    "name": "Bloom Hand Block Cotton Rug - 4 ft * 6 ft",
+    "slug": "handblock-rugs-blossom-exclusive-22",
+    "type": "simple",
+    "status": "active",
+    "description": "Bloom Hand Block Cotton Rug - 4 ft * 6 ft",
+    "shortDescription": "size: 4 ft * 6 ft",
+    "sku": "RUGS-5.1-10",
+    "price": 1999.0,
+    "salePrice": null,
+    "mrp": 2799,
+    "costPrice": 800,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-06-26T14:13:09",
+    "updatedAt": "2026-09-01T13:18:26"
+  },
+  {
+    "id": "prod-7278",
+    "name": "Zafiro Product #7278",
+    "slug": "product-7278",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7278",
+    "shortDescription": "Zafiro Product #7278",
+    "sku": "ZI-BS-7278",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-154",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/06/lifestyle-studio-8337e27f-7054-43e4-9131-7e2f746e44fc-1782481909123.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7279",
+    "name": "Cosmos Hand Block Cotton Rug - 3 ft * 5 ft",
+    "slug": "handblock-rugs-blossom-exclusive-23",
+    "type": "simple",
+    "status": "active",
+    "description": "Cosmos Hand Block Cotton Rug - 3 ft * 5 ft",
+    "shortDescription": "size: 3 ft * 5 ft",
+    "sku": "RUGS-12",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-06-26T14:15:57",
+    "updatedAt": "2026-09-01T13:17:44"
+  },
+  {
+    "id": "prod-7280",
+    "name": "Cosmos Hand Block Cotton Rug - 4 ft * 6 ft",
+    "slug": "handblock-rugs-blossom-exclusive-24",
+    "type": "simple",
+    "status": "active",
+    "description": "Cosmos Hand Block Cotton Rug - 4 ft * 6 ft",
+    "shortDescription": "size: 4 ft * 6 ft",
+    "sku": "RUGS-5.1-11",
+    "price": 1999.0,
+    "salePrice": null,
+    "mrp": 2799,
+    "costPrice": 800,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-06-26T14:15:57",
+    "updatedAt": "2026-09-01T13:17:44"
+  },
+  {
+    "id": "prod-7281",
+    "name": "Zafiro Product #7281",
+    "slug": "product-7281",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7281",
+    "shortDescription": "Zafiro Product #7281",
+    "sku": "ZI-BS-7281",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-154",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/06/lifestyle-studio-8724e7a3-b9df-400a-a38b-4e343a0d556b-1782481907178.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7282",
+    "name": "Begonia Hand Block Cotton Rug - 3 ft * 5 ft",
+    "slug": "handblock-rugs-blossom-exclusive-25",
+    "type": "simple",
+    "status": "active",
+    "description": "Begonia Hand Block Cotton Rug - 3 ft * 5 ft",
+    "shortDescription": "size: 3 ft * 5 ft",
+    "sku": "RUGS-13",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-06-26T14:16:51",
+    "updatedAt": "2026-09-01T13:17:08"
+  },
+  {
+    "id": "prod-7283",
+    "name": "Begonia Hand Block Cotton Rug - 4 ft * 6 ft",
+    "slug": "handblock-rugs-blossom-exclusive-26",
+    "type": "simple",
+    "status": "active",
+    "description": "Begonia Hand Block Cotton Rug - 4 ft * 6 ft",
+    "shortDescription": "size: 4 ft * 6 ft",
+    "sku": "RUGS-5.1-12",
+    "price": 1999.0,
+    "salePrice": null,
+    "mrp": 2799,
+    "costPrice": 800,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-06-26T14:16:51",
+    "updatedAt": "2026-09-01T13:17:08"
+  },
+  {
+    "id": "prod-7284",
+    "name": "Zafiro Product #7284",
+    "slug": "product-7284",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7284",
+    "shortDescription": "Zafiro Product #7284",
+    "sku": "ZI-BS-7284",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-154",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/06/lifestyle-studio-b33b6d68-b21f-46b7-8c3a-896f7deb39c0-1782481906885.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7285",
+    "name": "Midnight Hand Block Cotton Rug - 3 ft * 5 ft",
+    "slug": "handblock-rugs-blossom-exclusive-27",
+    "type": "simple",
+    "status": "active",
+    "description": "Midnight Hand Block Cotton Rug - 3 ft * 5 ft",
+    "shortDescription": "size: 3 ft * 5 ft",
+    "sku": "RUGS-14",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-06-26T14:18:45",
+    "updatedAt": "2026-09-01T13:16:35"
+  },
+  {
+    "id": "prod-7286",
+    "name": "Midnight Hand Block Cotton Rug - 4 ft * 6 ft",
+    "slug": "handblock-rugs-blossom-exclusive-28",
+    "type": "simple",
+    "status": "active",
+    "description": "Midnight Hand Block Cotton Rug - 4 ft * 6 ft",
+    "shortDescription": "size: 4 ft * 6 ft",
+    "sku": "RUGS-5.1-13",
+    "price": 1999.0,
+    "salePrice": null,
+    "mrp": 2799,
+    "costPrice": 800,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-06-26T14:18:45",
+    "updatedAt": "2026-09-01T13:16:35"
+  },
+  {
+    "id": "prod-7344",
+    "name": "Zafiro Product #7344",
+    "slug": "product-7344",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7344",
+    "shortDescription": "Zafiro Product #7344",
+    "sku": "ZI-BS-7344",
+    "price": 599.0,
+    "salePrice": null,
+    "mrp": 839,
+    "costPrice": 240,
+    "categoryId": "cat-163",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/lifestyle-studio-f2662454-f6a1-46ad-be24-be4d900c06f4-1783161523856.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7357",
+    "name": "Zafiro Product #7357",
+    "slug": "product-7357",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7357",
+    "shortDescription": "Zafiro Product #7357",
+    "sku": "ZI-BS-7357",
+    "price": 599.0,
+    "salePrice": null,
+    "mrp": 839,
+    "costPrice": 240,
+    "categoryId": "cat-163",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/product_Dining_table_setup_1.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7373",
+    "name": "Zafiro Product #7373",
+    "slug": "product-7373",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7373",
+    "shortDescription": "Zafiro Product #7373",
+    "sku": "ZI-BS-7373",
+    "price": 599.0,
+    "salePrice": null,
+    "mrp": 839,
+    "costPrice": 240,
+    "categoryId": "cat-163",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/product_Styled_dining_setup_6.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7374",
+    "name": "Zafiro Product #7374",
+    "slug": "product-7374",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7374",
+    "shortDescription": "Zafiro Product #7374",
+    "sku": "ZI-BS-7374",
+    "price": 599.0,
+    "salePrice": null,
+    "mrp": 839,
+    "costPrice": 240,
+    "categoryId": "cat-163",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/product_Styled_dining_setup_1.png",
+      "https://zafiroindio.com/wp-content/uploads/2026/07/product_Styled_dining_setup_3.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7375",
+    "name": "Zafiro Product #7375",
+    "slug": "product-7375",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7375",
+    "shortDescription": "Zafiro Product #7375",
+    "sku": "ZI-BS-7375",
+    "price": 599.0,
+    "salePrice": null,
+    "mrp": 839,
+    "costPrice": 240,
+    "categoryId": "cat-163",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/product_Dining_table_overview_2.png",
+      "https://zafiroindio.com/wp-content/uploads/2026/07/product_Scale_with_dinnerware_7.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7376",
+    "name": "Zafiro Product #7376",
+    "slug": "product-7376",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7376",
+    "shortDescription": "Zafiro Product #7376",
+    "sku": "ZI-BS-7376",
+    "price": 599.0,
+    "salePrice": null,
+    "mrp": 839,
+    "costPrice": 240,
+    "categoryId": "cat-163",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/product_Full_table_setup_5.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7377",
+    "name": "Zafiro Product #7377",
+    "slug": "product-7377",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7377",
+    "shortDescription": "Zafiro Product #7377",
+    "sku": "ZI-BS-7377",
+    "price": 599.0,
+    "salePrice": null,
+    "mrp": 839,
+    "costPrice": 240,
+    "categoryId": "cat-163",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/product_In-use_tablescape_8.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7378",
+    "name": "Zafiro Product #7378",
+    "slug": "product-7378",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7378",
+    "shortDescription": "Zafiro Product #7378",
+    "sku": "ZI-BS-7378",
+    "price": 599.0,
+    "salePrice": null,
+    "mrp": 839,
+    "costPrice": 240,
+    "categoryId": "cat-163",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/product_Dining_table_lifestyle_4.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7379",
+    "name": "Zafiro Product #7379",
+    "slug": "product-7379",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7379",
+    "shortDescription": "Zafiro Product #7379",
+    "sku": "ZI-BS-7379",
+    "price": 599.0,
+    "salePrice": null,
+    "mrp": 839,
+    "costPrice": 240,
+    "categoryId": "cat-163",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/product_Full_table_display_9.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7380",
+    "name": "Zafiro Product #7380",
+    "slug": "product-7380",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7380",
+    "shortDescription": "Zafiro Product #7380",
+    "sku": "ZI-BS-7380",
+    "price": 599.0,
+    "salePrice": null,
+    "mrp": 839,
+    "costPrice": 240,
+    "categoryId": "cat-163",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/product_Full_table_layout_2.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7381",
+    "name": "Zafiro Product #7381",
+    "slug": "product-7381",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7381",
+    "shortDescription": "Zafiro Product #7381",
+    "sku": "ZI-BS-7381",
+    "price": 599.0,
+    "salePrice": null,
+    "mrp": 839,
+    "costPrice": 240,
+    "categoryId": "cat-163",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/3.png",
+      "https://zafiroindio.com/wp-content/uploads/2026/07/product_Styled_dining_setup_11.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7382",
+    "name": "Zafiro Product #7382",
+    "slug": "product-7382",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7382",
+    "shortDescription": "Zafiro Product #7382",
+    "sku": "ZI-BS-7382",
+    "price": 599.0,
+    "salePrice": null,
+    "mrp": 839,
+    "costPrice": 240,
+    "categoryId": "cat-163",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/lifestyle-studio-a9f1b3ed-6d00-49b7-b452-8bf2203768c1-1783164922578.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7409",
+    "name": "Zafiro Product #7409",
+    "slug": "product-7409",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7409",
+    "shortDescription": "Zafiro Product #7409",
+    "sku": "MARILYN-9",
+    "price": 2899.0,
+    "salePrice": null,
+    "mrp": 4059,
+    "costPrice": 1160,
+    "categoryId": "cat-143",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/01-01-1.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7506",
+    "name": "Zafiro Product #7506",
+    "slug": "product-7506",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7506",
+    "shortDescription": "Zafiro Product #7506",
+    "sku": "MARILYN-10",
+    "price": 2899.0,
+    "salePrice": null,
+    "mrp": 4059,
+    "costPrice": 1160,
+    "categoryId": "cat-143",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/08-01.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7507",
+    "name": "Zafiro Product #7507",
+    "slug": "product-7507",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7507",
+    "shortDescription": "Zafiro Product #7507",
+    "sku": "MARILYN-11",
+    "price": 2899.0,
+    "salePrice": null,
+    "mrp": 4059,
+    "costPrice": 1160,
+    "categoryId": "cat-143",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/05-01.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7508",
+    "name": "Zafiro Product #7508",
+    "slug": "product-7508",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7508",
+    "shortDescription": "Zafiro Product #7508",
+    "sku": "MARILYN-12",
+    "price": 2899.0,
+    "salePrice": null,
+    "mrp": 4059,
+    "costPrice": 1160,
+    "categoryId": "cat-143",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/06-01.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7516",
+    "name": "Zafiro Product #7516",
+    "slug": "product-7516",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7516",
+    "shortDescription": "Zafiro Product #7516",
+    "sku": "MARILYN-13",
+    "price": 2899.0,
+    "salePrice": null,
+    "mrp": 4059,
+    "costPrice": 1160,
+    "categoryId": "cat-143",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/03-01.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7517",
+    "name": "Zafiro Product #7517",
+    "slug": "product-7517",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7517",
+    "shortDescription": "Zafiro Product #7517",
+    "sku": "MARILYN-14",
+    "price": 2899.0,
+    "salePrice": null,
+    "mrp": 4059,
+    "costPrice": 1160,
+    "categoryId": "cat-143",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/02-01.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7518",
+    "name": "Zafiro Product #7518",
+    "slug": "product-7518",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7518",
+    "shortDescription": "Zafiro Product #7518",
+    "sku": "MARILYN-15",
+    "price": 2899.0,
+    "salePrice": null,
+    "mrp": 4059,
+    "costPrice": 1160,
+    "categoryId": "cat-143",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/07-01.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7588",
+    "name": "Begonia Hand Block Cotton Rug - 5 ft * 7 ft",
+    "slug": "meadow-hand-block-cotton-rug",
+    "type": "simple",
+    "status": "active",
+    "description": "Begonia Hand Block Cotton Rug - 5 ft * 7 ft",
+    "shortDescription": "size: 5 ft * 7 ft",
+    "sku": "ZI-BS-7588",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-15T12:07:45",
+    "updatedAt": "2026-09-01T13:17:08"
+  },
+  {
+    "id": "prod-7596",
+    "name": "Desert Rose Hand Block Cotton Rug - 5 ft * 7 ft",
+    "slug": "amber-hand-block-cotton-rug",
+    "type": "simple",
+    "status": "active",
+    "description": "Desert Rose Hand Block Cotton Rug - 5 ft * 7 ft",
+    "shortDescription": "size: 5 ft * 7 ft",
+    "sku": "ZI-BS-7596",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-16T06:11:57",
+    "updatedAt": "2026-09-01T13:21:10"
+  },
+  {
+    "id": "prod-7597",
+    "name": "Midnight Hand Block Cotton Rug - 5 ft * 7 ft",
+    "slug": "midnight-hand-block-cotton-rug",
+    "type": "simple",
+    "status": "active",
+    "description": "Midnight Hand Block Cotton Rug - 5 ft * 7 ft",
+    "shortDescription": "size: 5 ft * 7 ft",
+    "sku": "ZI-BS-7597",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-16T06:16:10",
+    "updatedAt": "2026-09-01T13:16:35"
+  },
+  {
+    "id": "prod-7599",
+    "name": "Cosmos Hand Block Cotton Rug - 5 ft * 7 ft",
+    "slug": "saffron-hand-block-cotton-rug",
+    "type": "simple",
+    "status": "active",
+    "description": "Cosmos Hand Block Cotton Rug - 5 ft * 7 ft",
+    "shortDescription": "size: 5 ft * 7 ft",
+    "sku": "ZI-BS-7599",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-16T06:18:21",
+    "updatedAt": "2026-09-01T13:17:44"
+  },
+  {
+    "id": "prod-7600",
+    "name": "Bloom Hand Block Cotton Rug - 5 ft * 7 ft",
+    "slug": "bloom-hand-block-cotton-rug",
+    "type": "simple",
+    "status": "active",
+    "description": "Bloom Hand Block Cotton Rug - 5 ft * 7 ft",
+    "shortDescription": "size: 5 ft * 7 ft",
+    "sku": "ZI-BS-7600",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-16T06:19:38",
+    "updatedAt": "2026-09-01T13:18:26"
+  },
+  {
+    "id": "prod-7602",
+    "name": "Petal Hand Block Cotton Rug - 5 ft * 7 ft",
+    "slug": "petal-hand-block-cotton-rug",
+    "type": "simple",
+    "status": "active",
+    "description": "Petal Hand Block Cotton Rug - 5 ft * 7 ft",
+    "shortDescription": "size: 5 ft * 7 ft",
+    "sku": "ZI-BS-7602",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-16T06:21:57",
+    "updatedAt": "2026-09-01T13:19:14"
+  },
+  {
+    "id": "prod-7603",
+    "name": "Indigo Hand Block Cotton Rug - 5 ft * 7 ft",
+    "slug": "indigo-hand-block-cotton-rug",
+    "type": "simple",
+    "status": "active",
+    "description": "Indigo Hand Block Cotton Rug - 5 ft * 7 ft",
+    "shortDescription": "size: 5 ft * 7 ft",
+    "sku": "ZI-BS-7603",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 0,
+    "stockStatus": "out_of_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-16T06:23:07",
+    "updatedAt": "2026-09-01T13:15:59"
+  },
+  {
+    "id": "prod-7604",
+    "name": "Amber Hand Block Cotton Rug - 5 ft * 7 ft",
+    "slug": "desert-rose-hand-block-cotton-rug",
+    "type": "simple",
+    "status": "active",
+    "description": "Amber Hand Block Cotton Rug - 5 ft * 7 ft",
+    "shortDescription": "size: 5 ft * 7 ft",
+    "sku": "ZI-BS-7604",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 4,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-16T06:24:28",
+    "updatedAt": "2026-09-06T09:40:35"
+  },
+  {
+    "id": "prod-7605",
+    "name": "Floral Hand Block Cotton Rug - 5 ft * 7 ft",
+    "slug": "floral-hand-block-cotton-rug",
+    "type": "simple",
+    "status": "active",
+    "description": "Floral Hand Block Cotton Rug - 5 ft * 7 ft",
+    "shortDescription": "size: 5 ft * 7 ft",
+    "sku": "ZI-BS-7605",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-16T06:26:46",
+    "updatedAt": "2026-09-01T13:22:25"
+  },
+  {
+    "id": "prod-7606",
+    "name": "Camellia Hand Block Cotton Rug - 5 ft * 7 ft",
+    "slug": "mocha-hand-block-cotton-rug",
+    "type": "simple",
+    "status": "active",
+    "description": "Camellia Hand Block Cotton Rug - 5 ft * 7 ft",
+    "shortDescription": "size: 5 ft * 7 ft",
+    "sku": "ZI-BS-7606",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-16T06:27:53",
+    "updatedAt": "2026-09-01T13:22:58"
+  },
+  {
+    "id": "prod-7607",
+    "name": "Blossom Hand Block Cotton Rug - 5 ft * 7 ft",
+    "slug": "teal-hand-block-cotton-rug",
+    "type": "simple",
+    "status": "active",
+    "description": "Blossom Hand Block Cotton Rug - 5 ft * 7 ft",
+    "shortDescription": "size: 5 ft * 7 ft",
+    "sku": "ZI-BS-7607",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-16T06:29:08",
+    "updatedAt": "2026-09-01T13:23:44"
+  },
+  {
+    "id": "prod-7608",
+    "name": "Teal Hand Block Cotton Rug - 5 ft * 7 ft",
+    "slug": "blossom-hand-block-cotton-rug",
+    "type": "simple",
+    "status": "active",
+    "description": "Teal Hand Block Cotton Rug - 5 ft * 7 ft",
+    "shortDescription": "size: 5 ft * 7 ft",
+    "sku": "ZI-BS-7608",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-16T06:30:11",
+    "updatedAt": "2026-09-01T13:24:41"
+  },
+  {
+    "id": "prod-7613",
+    "name": "Zafiro Product #7613",
+    "slug": "product-7613",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7613",
+    "shortDescription": "Zafiro Product #7613",
+    "sku": "OAKRUNSET",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-165",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/9.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7623",
+    "name": "Zafiro Product #7623",
+    "slug": "product-7623",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7623",
+    "shortDescription": "Zafiro Product #7623",
+    "sku": "LILYRUNSET",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-165",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/8.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7624",
+    "name": "Zafiro Product #7624",
+    "slug": "product-7624",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7624",
+    "shortDescription": "Zafiro Product #7624",
+    "sku": "MOCHARUNSET",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-165",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/6.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7627",
+    "name": "Zafiro Product #7627",
+    "slug": "product-7627",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7627",
+    "shortDescription": "Zafiro Product #7627",
+    "sku": "ALPHARUNSET",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-165",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/5.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7628",
+    "name": "Zafiro Product #7628",
+    "slug": "product-7628",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7628",
+    "shortDescription": "Zafiro Product #7628",
+    "sku": "ARCHRUNSET",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-165",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/4.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7629",
+    "name": "Zafiro Product #7629",
+    "slug": "product-7629",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7629",
+    "shortDescription": "Zafiro Product #7629",
+    "sku": "MEADOWRUNSET",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-165",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/3-2.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7630",
+    "name": "Zafiro Product #7630",
+    "slug": "product-7630",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7630",
+    "shortDescription": "Zafiro Product #7630",
+    "sku": "LUXRUNSET",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-165",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/2-2.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7632",
+    "name": "Zafiro Product #7632",
+    "slug": "product-7632",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7632",
+    "shortDescription": "Zafiro Product #7632",
+    "sku": "PETALRUNSET",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-165",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/1-2.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7703",
+    "name": "Marilyn Mimosa 300 TC Handblock Bedsheet Set - SUPER KING (112*112 INCHES)",
+    "slug": "marilyn-mimosa-300-tc-handblock-bedsheet-super-king-112112-inches",
+    "type": "simple",
+    "status": "active",
+    "description": "Marilyn Mimosa 300 TC Handblock Bedsheet Set - SUPER KING (112*112 INCHES)",
+    "shortDescription": "size: SUPER KING (112*112 INCHES)",
+    "sku": "mimosa300tc",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 0,
+    "stockStatus": "out_of_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-19T11:04:50",
+    "updatedAt": "2026-07-19T11:05:56"
+  },
+  {
+    "id": "prod-7704",
+    "name": "Marilyn Mallow 300 TC Handblock Bedsheet Set - SUPER KING (112*112 INCHES)",
+    "slug": "marilyn-mallow-300-tc-handblock-bedsheet-super-king-112112-inches",
+    "type": "simple",
+    "status": "active",
+    "description": "Marilyn Mallow 300 TC Handblock Bedsheet Set - SUPER KING (112*112 INCHES)",
+    "shortDescription": "size: SUPER KING (112*112 INCHES)",
+    "sku": "mallow300tc",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 0,
+    "stockStatus": "out_of_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-19T11:06:21",
+    "updatedAt": "2026-07-19T11:07:01"
+  },
+  {
+    "id": "prod-7705",
+    "name": "Marilyn Monarch 300 TC Handblock Bedsheet Set - SUPER KING (112*112 INCHES)",
+    "slug": "marilyn-monarch-300-tc-handblock-bedsheet",
+    "type": "simple",
+    "status": "active",
+    "description": "Marilyn Monarch 300 TC Handblock Bedsheet Set - SUPER KING (112*112 INCHES)",
+    "shortDescription": "size: SUPER KING (112*112 INCHES)",
+    "sku": "monarch300tc",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 0,
+    "stockStatus": "out_of_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-19T11:07:35",
+    "updatedAt": "2026-07-19T11:08:22"
+  },
+  {
+    "id": "prod-7706",
+    "name": "Zafiro Product #7706",
+    "slug": "product-7706",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7706",
+    "shortDescription": "Zafiro Product #7706",
+    "sku": "ZI-BS-7706",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7707",
+    "name": "Marilyn Mist 300 TC Handblock Bedsheet Set - SUPER KING (112*112 INCHES)",
+    "slug": "marilyn-mist-300-tc-handblock-bedsheet-super-king-112112-inches",
+    "type": "simple",
+    "status": "active",
+    "description": "Marilyn Mist 300 TC Handblock Bedsheet Set - SUPER KING (112*112 INCHES)",
+    "shortDescription": "size: SUPER KING (112*112 INCHES)",
+    "sku": "mist300tc",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 0,
+    "stockStatus": "out_of_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-19T11:09:11",
+    "updatedAt": "2026-07-19T11:09:52"
+  },
+  {
+    "id": "prod-7730",
+    "name": "Zafiro Product #7730",
+    "slug": "product-7730",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7730",
+    "shortDescription": "Zafiro Product #7730",
+    "sku": "CORAL RUN SET",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-165",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/10.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7731",
+    "name": "Zafiro Product #7731",
+    "slug": "product-7731",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7731",
+    "shortDescription": "Zafiro Product #7731",
+    "sku": "GLORY RUN SET",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-165",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/11.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7732",
+    "name": "Zafiro Product #7732",
+    "slug": "product-7732",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7732",
+    "shortDescription": "Zafiro Product #7732",
+    "sku": "TEALRUNSET",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-165",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/12.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7733",
+    "name": "Zafiro Product #7733",
+    "slug": "product-7733",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7733",
+    "shortDescription": "Zafiro Product #7733",
+    "sku": "VINCARUNSET",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-165",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/13.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7734",
+    "name": "Zafiro Product #7734",
+    "slug": "product-7734",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7734",
+    "shortDescription": "Zafiro Product #7734",
+    "sku": "MARILYN-16",
+    "price": 2899.0,
+    "salePrice": null,
+    "mrp": 4059,
+    "costPrice": 1160,
+    "categoryId": "cat-143",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/06-01-1.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7762",
+    "name": "Zafiro Product #7762",
+    "slug": "product-7762",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7762",
+    "shortDescription": "Zafiro Product #7762",
+    "sku": "MARILYN-17",
+    "price": 2899.0,
+    "salePrice": null,
+    "mrp": 4059,
+    "costPrice": 1160,
+    "categoryId": "cat-143",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/02-01-1.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7764",
+    "name": "Zafiro Product #7764",
+    "slug": "product-7764",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7764",
+    "shortDescription": "Zafiro Product #7764",
+    "sku": "MARILYN-18",
+    "price": 2899.0,
+    "salePrice": null,
+    "mrp": 4059,
+    "costPrice": 1160,
+    "categoryId": "cat-143",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/01-01-2.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7765",
+    "name": "Zafiro Product #7765",
+    "slug": "product-7765",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7765",
+    "shortDescription": "Zafiro Product #7765",
+    "sku": "teal300tc-2",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7767",
+    "name": "Zafiro Product #7767",
+    "slug": "product-7767",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7767",
+    "shortDescription": "Zafiro Product #7767",
+    "sku": "MARILYN-19",
+    "price": 2899.0,
+    "salePrice": null,
+    "mrp": 4059,
+    "costPrice": 1160,
+    "categoryId": "cat-143",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/05-01-1.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7824",
+    "name": "Zafiro Product #7824",
+    "slug": "product-7824",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7824",
+    "shortDescription": "Zafiro Product #7824",
+    "sku": "ZI-BS-7824",
+    "price": 4999.0,
+    "salePrice": null,
+    "mrp": 6999,
+    "costPrice": 2000,
+    "categoryId": "cat-166",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/09-13.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7826",
+    "name": "Zafiro Product #7826",
+    "slug": "product-7826",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7826",
+    "shortDescription": "Zafiro Product #7826",
+    "sku": "ZI-BS-7826",
+    "price": 4999.0,
+    "salePrice": null,
+    "mrp": 6999,
+    "costPrice": 2000,
+    "categoryId": "cat-166",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/8-12.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7832",
+    "name": "Zafiro Product #7832",
+    "slug": "product-7832",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7832",
+    "shortDescription": "Zafiro Product #7832",
+    "sku": "BOTANICAL TRELLIS QUILTED",
+    "price": 4999.0,
+    "salePrice": null,
+    "mrp": 6999,
+    "costPrice": 2000,
+    "categoryId": "cat-166",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/13-13.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7834",
+    "name": "Zafiro Product #7834",
+    "slug": "product-7834",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7834",
+    "shortDescription": "Zafiro Product #7834",
+    "sku": "BOTANICAL TRELLIS QUILTED-1",
+    "price": 4999.0,
+    "salePrice": null,
+    "mrp": 6999,
+    "costPrice": 2000,
+    "categoryId": "cat-166",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/12-14.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7838",
+    "name": "Zafiro Product #7838",
+    "slug": "product-7838",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7838",
+    "shortDescription": "Zafiro Product #7838",
+    "sku": "BOTANICAL TRELLIS QUILTED-3",
+    "price": 4999.0,
+    "salePrice": null,
+    "mrp": 6999,
+    "costPrice": 2000,
+    "categoryId": "cat-166",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/10-16.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7840",
+    "name": "Zafiro Product #7840",
+    "slug": "product-7840",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #7840",
+    "shortDescription": "Zafiro Product #7840",
+    "sku": "BOTANICAL TRELLIS QUILTED-4",
+    "price": 4999.0,
+    "salePrice": null,
+    "mrp": 6999,
+    "costPrice": 2000,
+    "categoryId": "cat-166",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/7-14.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-7883",
+    "name": "Vinca Handblock Table Runner with Placemats - 6 Seater",
+    "slug": "spring-handblock-table-runner-with-6-placemats-6-seater",
+    "type": "simple",
+    "status": "active",
+    "description": "Vinca Handblock Table Runner with Placemats - 6 Seater",
+    "shortDescription": "size: 6 Seater",
+    "sku": "VINCARUNSET6",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-25T06:48:15",
+    "updatedAt": "2026-09-10T08:40:18"
+  },
+  {
+    "id": "prod-7884",
+    "name": "Vinca Handblock Table Runner with Placemats - 8 Seater",
+    "slug": "spring-handblock-table-runner-with-6-placemats-8-seater",
+    "type": "simple",
+    "status": "active",
+    "description": "Vinca Handblock Table Runner with Placemats - 8 Seater",
+    "shortDescription": "size: 8 Seater",
+    "sku": "VINCARUNSET8",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-25T06:48:15",
+    "updatedAt": "2026-09-10T08:40:18"
+  },
+  {
+    "id": "prod-7885",
+    "name": "Teal Handblock Table Runner with Placemats. - 6 Seater",
+    "slug": "teal-handblock-table-runner-with-6-placemats-6-seater",
+    "type": "simple",
+    "status": "active",
+    "description": "Teal Handblock Table Runner with Placemats. - 6 Seater",
+    "shortDescription": "size: 6 Seater",
+    "sku": "ZI-BS-7885",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-25T06:51:39",
+    "updatedAt": "2026-09-10T08:41:08"
+  },
+  {
+    "id": "prod-7886",
+    "name": "Teal Handblock Table Runner with Placemats. - 8 Seater",
+    "slug": "teal-handblock-table-runner-with-6-placemats-8-seater",
+    "type": "simple",
+    "status": "active",
+    "description": "Teal Handblock Table Runner with Placemats. - 8 Seater",
+    "shortDescription": "size: 8 Seater",
+    "sku": "ZI-BS-7886",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-25T06:51:39",
+    "updatedAt": "2026-09-10T08:41:08"
+  },
+  {
+    "id": "prod-7890",
+    "name": "Glory Handblock Table Runner with Placemats - 6 Seater",
+    "slug": "glory-handblock-table-runner-with-6-placemats-6-seater",
+    "type": "simple",
+    "status": "active",
+    "description": "Glory Handblock Table Runner with Placemats - 6 Seater",
+    "shortDescription": "size: 6 Seater",
+    "sku": "GLORYRUNSET6",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-25T07:07:19",
+    "updatedAt": "2026-09-10T08:42:04"
+  },
+  {
+    "id": "prod-7891",
+    "name": "Glory Handblock Table Runner with Placemats - 8 Seater",
+    "slug": "glory-handblock-table-runner-with-6-placemats-8-seater",
+    "type": "simple",
+    "status": "active",
+    "description": "Glory Handblock Table Runner with Placemats - 8 Seater",
+    "shortDescription": "size: 8 Seater",
+    "sku": "GLORYRUNSET8",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-25T07:07:19",
+    "updatedAt": "2026-09-10T08:42:04"
+  },
+  {
+    "id": "prod-7892",
+    "name": "Oak Handblock Table Runner with Placemats - 6 Seater",
+    "slug": "oak-handblock-table-runner-with-6-placemats-6-seater",
+    "type": "simple",
+    "status": "active",
+    "description": "Oak Handblock Table Runner with Placemats - 6 Seater",
+    "shortDescription": "size: 6 Seater",
+    "sku": "OAKRUNSET6",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-25T07:20:28",
+    "updatedAt": "2026-09-10T08:49:41"
+  },
+  {
+    "id": "prod-7893",
+    "name": "Oak Handblock Table Runner with Placemats - 8 Seater",
+    "slug": "oak-handblock-table-runner-with-6-placemats-8-seater",
+    "type": "simple",
+    "status": "active",
+    "description": "Oak Handblock Table Runner with Placemats - 8 Seater",
+    "shortDescription": "size: 8 Seater",
+    "sku": "OAKRUNSET8",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-25T07:20:28",
+    "updatedAt": "2026-09-10T08:49:41"
+  },
+  {
+    "id": "prod-7894",
+    "name": "Lily Handblock Table Runner with Placemats - 6 Seater",
+    "slug": "lily-handblock-table-runner-with-6-placemats-6-seater",
+    "type": "simple",
+    "status": "active",
+    "description": "Lily Handblock Table Runner with Placemats - 6 Seater",
+    "shortDescription": "size: 6 Seater",
+    "sku": "LILYRUNSET6",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-25T07:26:09",
+    "updatedAt": "2026-09-10T08:49:03"
+  },
+  {
+    "id": "prod-7895",
+    "name": "Lily Handblock Table Runner with Placemats - 8 Seater",
+    "slug": "lily-handblock-table-runner-with-6-placemats-8-seater",
+    "type": "simple",
+    "status": "active",
+    "description": "Lily Handblock Table Runner with Placemats - 8 Seater",
+    "shortDescription": "size: 8 Seater",
+    "sku": "LILYRUNSET8",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-25T07:26:09",
+    "updatedAt": "2026-09-10T08:49:03"
+  },
+  {
+    "id": "prod-7896",
+    "name": "Mocha Handblock Table Runner with Placemats - 6 Seater",
+    "slug": "mocha-handblock-table-runner-with-6-placemats-6-seater",
+    "type": "simple",
+    "status": "active",
+    "description": "Mocha Handblock Table Runner with Placemats - 6 Seater",
+    "shortDescription": "size: 6 Seater",
+    "sku": "MOCHARUNSET6",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-25T07:29:07",
+    "updatedAt": "2026-09-10T08:48:31"
+  },
+  {
+    "id": "prod-7897",
+    "name": "Mocha Handblock Table Runner with Placemats - 8 Seater",
+    "slug": "mocha-handblock-table-runner-with-6-placemats-8-seater",
+    "type": "simple",
+    "status": "active",
+    "description": "Mocha Handblock Table Runner with Placemats - 8 Seater",
+    "shortDescription": "size: 8 Seater",
+    "sku": "MOCHARUNSET8",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-25T07:29:07",
+    "updatedAt": "2026-09-10T08:48:31"
+  },
+  {
+    "id": "prod-7899",
+    "name": "Alpha Handblock Table Runner with Placemats - 6 Seater",
+    "slug": "bloom-handblock-table-runner-with-6-placemats-6-seater",
+    "type": "simple",
+    "status": "active",
+    "description": "Alpha Handblock Table Runner with Placemats - 6 Seater",
+    "shortDescription": "size: 6 Seater",
+    "sku": "ALPHARUNSET6",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-25T07:31:15",
+    "updatedAt": "2026-09-10T08:47:45"
+  },
+  {
+    "id": "prod-7900",
+    "name": "Alpha Handblock Table Runner with Placemats - 8 Seater",
+    "slug": "bloom-handblock-table-runner-with-6-placemats-8-seater",
+    "type": "simple",
+    "status": "active",
+    "description": "Alpha Handblock Table Runner with Placemats - 8 Seater",
+    "shortDescription": "size: 8 Seater",
+    "sku": "ALPHARUNSET8",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-25T07:31:16",
+    "updatedAt": "2026-09-10T08:47:45"
+  },
+  {
+    "id": "prod-7902",
+    "name": "Coral Handblock Table Runner with Placemats - 6 Seater",
+    "slug": "coral-handblock-table-runner-with-6-placemats-6-seater",
+    "type": "simple",
+    "status": "active",
+    "description": "Coral Handblock Table Runner with Placemats - 6 Seater",
+    "shortDescription": "size: 6 Seater",
+    "sku": "CORALRUNSET6",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-25T07:33:35",
+    "updatedAt": "2026-09-10T08:43:04"
+  },
+  {
+    "id": "prod-7903",
+    "name": "Coral Handblock Table Runner with Placemats - 8 Seater",
+    "slug": "coral-handblock-table-runner-with-6-placemats-8-seater",
+    "type": "simple",
+    "status": "active",
+    "description": "Coral Handblock Table Runner with Placemats - 8 Seater",
+    "shortDescription": "size: 8 Seater",
+    "sku": "CORALRUNSET8",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-25T07:33:35",
+    "updatedAt": "2026-09-10T08:43:04"
+  },
+  {
+    "id": "prod-7904",
+    "name": "Petal Handblock Table Runner with Placemats - 6 Seater",
+    "slug": "petal-handblock-table-runner-with-6-placemats-6-seater",
+    "type": "simple",
+    "status": "active",
+    "description": "Petal Handblock Table Runner with Placemats - 6 Seater",
+    "shortDescription": "size: 6 Seater",
+    "sku": "PETALRUNSET6",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-25T07:36:31",
+    "updatedAt": "2026-09-10T08:44:06"
+  },
+  {
+    "id": "prod-7905",
+    "name": "Petal Handblock Table Runner with Placemats - 8 Seater",
+    "slug": "petal-handblock-table-runner-with-6-placemats-8-seater",
+    "type": "simple",
+    "status": "active",
+    "description": "Petal Handblock Table Runner with Placemats - 8 Seater",
+    "shortDescription": "size: 8 Seater",
+    "sku": "PETALRUNSET8",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-25T07:36:31",
+    "updatedAt": "2026-09-10T08:44:06"
+  },
+  {
+    "id": "prod-7906",
+    "name": "Lux Handblock Table Runner with Placemats - 6 Seater",
+    "slug": "lux-handblock-table-runner-with-6-placemats-6-seater",
+    "type": "simple",
+    "status": "active",
+    "description": "Lux Handblock Table Runner with Placemats - 6 Seater",
+    "shortDescription": "size: 6 Seater",
+    "sku": "LUXRUNSET6",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-25T07:40:29",
+    "updatedAt": "2026-09-10T08:44:52"
+  },
+  {
+    "id": "prod-7907",
+    "name": "Lux Handblock Table Runner with Placemats - 8 Seater",
+    "slug": "lux-handblock-table-runner-with-6-placemats-8-seater",
+    "type": "simple",
+    "status": "active",
+    "description": "Lux Handblock Table Runner with Placemats - 8 Seater",
+    "shortDescription": "size: 8 Seater",
+    "sku": "LUXRUNSET8",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-25T07:40:29",
+    "updatedAt": "2026-09-10T08:44:52"
+  },
+  {
+    "id": "prod-7908",
+    "name": "Meadow Handblock Table Runner with Placemats - 6 Seater",
+    "slug": "meadow-handblock-table-runner-with-6-placemats-6-seater",
+    "type": "simple",
+    "status": "active",
+    "description": "Meadow Handblock Table Runner with Placemats - 6 Seater",
+    "shortDescription": "size: 6 Seater",
+    "sku": "MEADOWRUNSET6",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-25T07:45:48",
+    "updatedAt": "2026-09-10T08:45:47"
+  },
+  {
+    "id": "prod-7909",
+    "name": "Meadow Handblock Table Runner with Placemats - 8 Seater",
+    "slug": "meadow-handblock-table-runner-with-6-placemats-8-seater",
+    "type": "simple",
+    "status": "active",
+    "description": "Meadow Handblock Table Runner with Placemats - 8 Seater",
+    "shortDescription": "size: 8 Seater",
+    "sku": "MEADOWRUNSET8",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-25T07:45:48",
+    "updatedAt": "2026-09-10T08:45:47"
+  },
+  {
+    "id": "prod-7911",
+    "name": "Arch Handblock Table Runner with Placemats - 6 Seater",
+    "slug": "blossom-handblock-table-runner-with-6-placemats-6-seater",
+    "type": "simple",
+    "status": "active",
+    "description": "Arch Handblock Table Runner with Placemats - 6 Seater",
+    "shortDescription": "size: 6 Seater",
+    "sku": "ARCHRUNSET6",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-25T07:48:11",
+    "updatedAt": "2026-09-10T08:46:54"
+  },
+  {
+    "id": "prod-7912",
+    "name": "Arch Handblock Table Runner with Placemats - 8 Seater",
+    "slug": "blossom-handblock-table-runner-with-6-placemats-8-seater",
+    "type": "simple",
+    "status": "active",
+    "description": "Arch Handblock Table Runner with Placemats - 8 Seater",
+    "shortDescription": "size: 8 Seater",
+    "sku": "ARCHRUNSET8",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-25T07:48:11",
+    "updatedAt": "2026-09-10T08:46:54"
+  },
+  {
+    "id": "prod-8022",
+    "name": "Zafiro Product #8022",
+    "slug": "product-8022",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #8022",
+    "shortDescription": "Zafiro Product #8022",
+    "sku": "CAMILIARUNSET",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-165",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/14.png",
+      "https://zafiroindio.com/wp-content/uploads/2026/07/product_In-use_tablescape_8.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-8023",
+    "name": "Camilia Handblock Table Runner with Placemats - 6 Seater",
+    "slug": "bloom-handblock-table-runner-with-6-placemats-6-seater-2",
+    "type": "simple",
+    "status": "active",
+    "description": "Camilia Handblock Table Runner with Placemats - 6 Seater",
+    "shortDescription": "size: 6 Seater",
+    "sku": "CAMILIARUNSET6",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-29T11:27:03",
+    "updatedAt": "2026-09-10T08:38:13"
+  },
+  {
+    "id": "prod-8024",
+    "name": "Camilia Handblock Table Runner with Placemats - 8 Seater",
+    "slug": "bloom-handblock-table-runner-with-6-placemats-8-seater-2",
+    "type": "simple",
+    "status": "active",
+    "description": "Camilia Handblock Table Runner with Placemats - 8 Seater",
+    "shortDescription": "size: 8 Seater",
+    "sku": "CAMILIARUNSET8",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-29T11:27:03",
+    "updatedAt": "2026-09-10T08:38:13"
+  },
+  {
+    "id": "prod-8027",
+    "name": "Zafiro Product #8027",
+    "slug": "product-8027",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #8027",
+    "shortDescription": "Zafiro Product #8027",
+    "sku": "ARCHIERUNSET",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-165",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/15.png",
+      "https://zafiroindio.com/wp-content/uploads/2026/07/product_Styled_dining_setup_6.png"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-8028",
+    "name": "Blossom Handblock Table Runner with Placemats - 6 Seater",
+    "slug": "bloom-handblock-table-runner-with-6-placemats-6-seater-3",
+    "type": "simple",
+    "status": "active",
+    "description": "Blossom Handblock Table Runner with Placemats - 6 Seater",
+    "shortDescription": "size: 6 Seater",
+    "sku": "BLOSSOMRUNSET6",
+    "price": 1199.0,
+    "salePrice": null,
+    "mrp": 1679,
+    "costPrice": 480,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-29T11:30:08",
+    "updatedAt": "2026-09-10T08:37:28"
+  },
+  {
+    "id": "prod-8029",
+    "name": "Blossom Handblock Table Runner with Placemats - 8 Seater",
+    "slug": "bloom-handblock-table-runner-with-6-placemats-8-seater-3",
+    "type": "simple",
+    "status": "active",
+    "description": "Blossom Handblock Table Runner with Placemats - 8 Seater",
+    "shortDescription": "size: 8 Seater",
+    "sku": "BLOSSOMRUNSET8",
+    "price": 1499.0,
+    "salePrice": null,
+    "mrp": 2099,
+    "costPrice": 600,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-07-29T11:30:08",
+    "updatedAt": "2026-09-10T08:37:28"
+  },
+  {
+    "id": "prod-8140",
+    "name": "Zafiro Product #8140",
+    "slug": "product-8140",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #8140",
+    "shortDescription": "Zafiro Product #8140",
+    "sku": "Doherset1",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-171",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/12-01.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-8142",
+    "name": "Zafiro Product #8142",
+    "slug": "product-8142",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #8142",
+    "shortDescription": "Zafiro Product #8142",
+    "sku": "Doherset1-2",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-171",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/11-01.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-8148",
+    "name": "Zafiro Product #8148",
+    "slug": "product-8148",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #8148",
+    "shortDescription": "Zafiro Product #8148",
+    "sku": "Doherset1-6",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-171",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/10-01.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-8150",
+    "name": "Zafiro Product #8150",
+    "slug": "product-8150",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #8150",
+    "shortDescription": "Zafiro Product #8150",
+    "sku": "Doherset1-7",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-171",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/09-01.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-8151",
+    "name": "Zafiro Product #8151",
+    "slug": "product-8151",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #8151",
+    "shortDescription": "Zafiro Product #8151",
+    "sku": "Doherset1-8",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-171",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/08-01-1.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-8152",
+    "name": "Zafiro Product #8152",
+    "slug": "product-8152",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #8152",
+    "shortDescription": "Zafiro Product #8152",
+    "sku": "Doherset1-9",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-171",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/07-01-1.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-8154",
+    "name": "Zafiro Product #8154",
+    "slug": "product-8154",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #8154",
+    "shortDescription": "Zafiro Product #8154",
+    "sku": "Doherset1-11",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-171",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/06-01-2.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-8155",
+    "name": "Zafiro Product #8155",
+    "slug": "product-8155",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #8155",
+    "shortDescription": "Zafiro Product #8155",
+    "sku": "Doherset1-12",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-171",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/05-01-2.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-8156",
+    "name": "Zafiro Product #8156",
+    "slug": "product-8156",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #8156",
+    "shortDescription": "Zafiro Product #8156",
+    "sku": "Doherset1-13",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-171",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/04-01-2.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-8157",
+    "name": "Zafiro Product #8157",
+    "slug": "product-8157",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #8157",
+    "shortDescription": "Zafiro Product #8157",
+    "sku": "Doherset1-14",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-171",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/03-01-1.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-8160",
+    "name": "Zafiro Product #8160",
+    "slug": "product-8160",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #8160",
+    "shortDescription": "Zafiro Product #8160",
+    "sku": "Doherset1-16",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-171",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/02-01-2.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-8161",
+    "name": "Zafiro Product #8161",
+    "slug": "product-8161",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #8161",
+    "shortDescription": "Zafiro Product #8161",
+    "sku": "Doherset1-17",
+    "price": 2999.0,
+    "salePrice": null,
+    "mrp": 4199,
+    "costPrice": 1200,
+    "categoryId": "cat-171",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/01-01-3.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-8392",
+    "name": "Zafiro Product #8392",
+    "slug": "product-8392",
+    "type": "simple",
+    "status": "active",
+    "description": "Zafiro Product #8392",
+    "shortDescription": "Zafiro Product #8392",
+    "sku": "BOTANICAL TRELLIS QUILTED-2-1",
+    "price": 4999.0,
+    "salePrice": null,
+    "mrp": 6999,
+    "costPrice": 2000,
+    "categoryId": "cat-166",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://zafiroindio.com/wp-content/uploads/2026/07/11-14.jpg"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-01-15T08:00:00.000Z",
+    "updatedAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "id": "prod-9009",
+    "name": "Blossom Handblock Table Runner with Placemats - 4 Seater",
+    "slug": "blossom-handblock-table-runner-with-placemats",
+    "type": "simple",
+    "status": "active",
+    "description": "Blossom Handblock Table Runner with Placemats - 4 Seater",
+    "shortDescription": "size: 4 Seater",
+    "sku": "BLOSSOMRUNSET4",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-09-04T07:46:21",
+    "updatedAt": "2026-09-10T08:37:28"
+  },
+  {
+    "id": "prod-9010",
+    "name": "Camilia Handblock Table Runner with Placemats - 4 Seater",
+    "slug": "camilia-handblock-table-runner-with-placemats",
+    "type": "simple",
+    "status": "active",
+    "description": "Camilia Handblock Table Runner with Placemats - 4 Seater",
+    "shortDescription": "size: 4 Seater",
+    "sku": "CAMILIARUNSET4",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-09-04T07:48:36",
+    "updatedAt": "2026-09-10T08:38:13"
+  },
+  {
+    "id": "prod-9011",
+    "name": "Vinca Handblock Table Runner with Placemats - 4 Seater",
+    "slug": "vinca-handblock-table-runner-with-placemats",
+    "type": "simple",
+    "status": "active",
+    "description": "Vinca Handblock Table Runner with Placemats - 4 Seater",
+    "shortDescription": "size: 4 Seater",
+    "sku": "VINCARUNSET4",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-09-04T07:50:14",
+    "updatedAt": "2026-09-10T08:40:18"
+  },
+  {
+    "id": "prod-9012",
+    "name": "Teal Handblock Table Runner with Placemats. - 4 Seater",
+    "slug": "teal-handblock-table-runner-with-placemats",
+    "type": "simple",
+    "status": "active",
+    "description": "Teal Handblock Table Runner with Placemats. - 4 Seater",
+    "shortDescription": "size: 4 Seater",
+    "sku": "TEALRUNSET4",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-09-04T07:51:01",
+    "updatedAt": "2026-09-10T08:41:08"
+  },
+  {
+    "id": "prod-9013",
+    "name": "Glory Handblock Table Runner with Placemats - 4 Seater",
+    "slug": "glory-handblock-table-runner-with-placemats",
+    "type": "simple",
+    "status": "active",
+    "description": "Glory Handblock Table Runner with Placemats - 4 Seater",
+    "shortDescription": "size: 4 Seater",
+    "sku": "GLORYRUNSET4",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-09-04T07:51:53",
+    "updatedAt": "2026-09-10T08:42:04"
+  },
+  {
+    "id": "prod-9014",
+    "name": "Coral Handblock Table Runner with Placemats - 4 Seater",
+    "slug": "coral-handblock-table-runner-with-placemats",
+    "type": "simple",
+    "status": "active",
+    "description": "Coral Handblock Table Runner with Placemats - 4 Seater",
+    "shortDescription": "size: 4 Seater",
+    "sku": "CORALRUNSET4",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-09-04T07:52:35",
+    "updatedAt": "2026-09-10T08:43:04"
+  },
+  {
+    "id": "prod-9015",
+    "name": "Petal Handblock Table Runner with Placemats - 4 Seater",
+    "slug": "petal-handblock-table-runner-with-placemats",
+    "type": "simple",
+    "status": "active",
+    "description": "Petal Handblock Table Runner with Placemats - 4 Seater",
+    "shortDescription": "size: 4 Seater",
+    "sku": "PETALRUNSET4",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-09-04T07:54:50",
+    "updatedAt": "2026-09-10T08:44:06"
+  },
+  {
+    "id": "prod-9016",
+    "name": "Lux Handblock Table Runner with Placemats - 4 Seater",
+    "slug": "lux-handblock-table-runner-with-placemats",
+    "type": "simple",
+    "status": "active",
+    "description": "Lux Handblock Table Runner with Placemats - 4 Seater",
+    "shortDescription": "size: 4 Seater",
+    "sku": "LUXRUNSET4",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-09-04T07:56:12",
+    "updatedAt": "2026-09-10T08:44:51"
+  },
+  {
+    "id": "prod-9017",
+    "name": "Meadow Handblock Table Runner with Placemats - 4 Seater",
+    "slug": "meadow-handblock-table-runner-with-placemats",
+    "type": "simple",
+    "status": "active",
+    "description": "Meadow Handblock Table Runner with Placemats - 4 Seater",
+    "shortDescription": "size: 4 Seater",
+    "sku": "MEADOWRUNSET4",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-09-04T07:56:58",
+    "updatedAt": "2026-09-10T08:45:47"
+  },
+  {
+    "id": "prod-9020",
+    "name": "Arch Handblock Table Runner with Placemats - 4 Seater",
+    "slug": "arch-handblock-table-runner-with-placemats",
+    "type": "simple",
+    "status": "active",
+    "description": "Arch Handblock Table Runner with Placemats - 4 Seater",
+    "shortDescription": "size: 4 Seater",
+    "sku": "ARCHRUNSET4",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-09-04T07:57:46",
+    "updatedAt": "2026-09-10T08:46:54"
+  },
+  {
+    "id": "prod-9021",
+    "name": "Alpha Handblock Table Runner with Placemats - 4 Seater",
+    "slug": "alpha-handblock-table-runner-with-placemats",
+    "type": "simple",
+    "status": "active",
+    "description": "Alpha Handblock Table Runner with Placemats - 4 Seater",
+    "shortDescription": "size: 4 Seater",
+    "sku": "ALPHARUNSET4",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-09-04T07:58:59",
+    "updatedAt": "2026-09-10T08:47:45"
+  },
+  {
+    "id": "prod-9022",
+    "name": "Mocha Handblock Table Runner with Placemats - 4 Seater",
+    "slug": "mocha-handblock-table-runner-with-placemats",
+    "type": "simple",
+    "status": "active",
+    "description": "Mocha Handblock Table Runner with Placemats - 4 Seater",
+    "shortDescription": "size: 4 Seater",
+    "sku": "MOCHARUNSET4",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-09-04T08:00:16",
+    "updatedAt": "2026-09-10T08:48:31"
+  },
+  {
+    "id": "prod-9023",
+    "name": "Lily Handblock Table Runner with Placemats - 4 Seater",
+    "slug": "lily-handblock-table-runner-with-placemats",
+    "type": "simple",
+    "status": "active",
+    "description": "Lily Handblock Table Runner with Placemats - 4 Seater",
+    "shortDescription": "size: 4 Seater",
+    "sku": "LILYRUNSET4",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-09-04T08:00:58",
+    "updatedAt": "2026-09-10T08:49:03"
+  },
+  {
+    "id": "prod-9024",
+    "name": "Oak Handblock Table Runner with Placemats - 4 Seater",
+    "slug": "oak-handblock-table-runner-with-placemats",
+    "type": "simple",
+    "status": "active",
+    "description": "Oak Handblock Table Runner with Placemats - 4 Seater",
+    "shortDescription": "size: 4 Seater",
+    "sku": "OAKRUNSET4",
+    "price": 999.0,
+    "salePrice": null,
+    "mrp": 1399,
+    "costPrice": 400,
+    "categoryId": "cat-1",
+    "tags": [
+      "bedsheet",
+      "cotton",
+      "heritage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+    ],
+    "taxClass": "standard",
+    "stock": 40,
+    "stockStatus": "in_stock",
+    "lowStockThreshold": 10,
+    "manageStock": true,
+    "backordersAllowed": false,
+    "attributes": {
+      "Size": [
+        "Single",
+        "Double",
+        "Queen",
+        "King"
+      ]
+    },
+    "variations": [],
+    "createdAt": "2026-09-04T08:01:48",
+    "updatedAt": "2026-09-10T08:49:41"
+  }
+]

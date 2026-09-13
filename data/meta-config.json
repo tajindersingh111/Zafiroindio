@@ -1,0 +1,15 @@
+{
+  "isConnected": false,
+  "businessName": "",
+  "adAccountName": "",
+  "adAccountId": "",
+  "pageName": "",
+  "instagramName": "",
+  "pixelId": "",
+  "pixelName": "",
+  "catalogId": "",
+  "catalogSyncActive": false,
+  "accessToken": "",
+  "conversionsApiActive": false,
+  "conversionsApiToken": ""
+}

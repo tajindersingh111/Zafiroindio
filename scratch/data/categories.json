@@ -1,0 +1,65 @@
+[
+  {
+    "id": "cat-143",
+    "name": "Bedsheets",
+    "slug": "bedsheets",
+    "description": "",
+    "createdAt": "2026-01-01T08:00:00.000Z"
+  },
+  {
+    "id": "cat-146",
+    "name": "Marilyn",
+    "slug": "marilyn",
+    "description": "",
+    "createdAt": "2026-01-01T08:00:00.000Z"
+  },
+  {
+    "id": "cat-149",
+    "name": "300 TC Parcale Bedsheets.",
+    "slug": "handblock-bedsheets",
+    "description": "",
+    "createdAt": "2026-01-01T08:00:00.000Z"
+  },
+  {
+    "id": "cat-153",
+    "name": "Sofa Throws",
+    "slug": "sofa-throws",
+    "description": "",
+    "createdAt": "2026-01-01T08:00:00.000Z"
+  },
+  {
+    "id": "cat-154",
+    "name": "Handblock Rugs",
+    "slug": "handblock-rugs",
+    "description": "",
+    "createdAt": "2026-01-01T08:00:00.000Z"
+  },
+  {
+    "id": "cat-163",
+    "name": "Dining Table Runners",
+    "slug": "dining-table-runners",
+    "description": "",
+    "createdAt": "2026-01-01T08:00:00.000Z"
+  },
+  {
+    "id": "cat-165",
+    "name": "Runner &amp; Table Mats.",
+    "slug": "runner-table-mats",
+    "description": "",
+    "createdAt": "2026-01-01T08:00:00.000Z"
+  },
+  {
+    "id": "cat-166",
+    "name": "Quilted Bedcovers.",
+    "slug": "quilted-bedcovers",
+    "description": "",
+    "createdAt": "2026-01-01T08:00:00.000Z"
+  },
+  {
+    "id": "cat-171",
+    "name": "Dohar Sets",
+    "slug": "doharsets",
+    "description": "",
+    "createdAt": "2026-01-01T08:00:00.000Z"
+  }
+]

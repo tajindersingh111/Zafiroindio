@@ -1,0 +1,32 @@
+[
+  {
+    "id": "attr-1",
+    "name": "Size",
+    "values": ["Queen (90x108 in)", "King (108x108 in)", "2x3 ft", "3x5 ft", "4x6 ft", "Set of 7", "50x80 in"],
+    "createdAt": "2026-01-10T08:00:00.000Z"
+  },
+  {
+    "id": "attr-2",
+    "name": "Color",
+    "values": ["Indigo", "Madder Red", "Turmeric", "Natural", "Teal"],
+    "createdAt": "2026-01-10T08:00:00.000Z"
+  },
+  {
+    "id": "attr-3",
+    "name": "Motif",
+    "values": ["Paisley", "Bloom", "Trellis", "Leaf"],
+    "createdAt": "2026-01-10T08:00:00.000Z"
+  },
+  {
+    "id": "attr-4",
+    "name": "Fabric",
+    "values": ["100% Cotton Percale", "100% Cotton Dhurrie", "100% Cotton", "100% Brushed Cotton"],
+    "createdAt": "2026-01-10T08:00:00.000Z"
+  },
+  {
+    "id": "attr-5",
+    "name": "Material",
+    "values": ["Cotton", "Linen", "Wool Blend"],
+    "createdAt": "2026-01-10T08:00:00.000Z"
+  }
+]

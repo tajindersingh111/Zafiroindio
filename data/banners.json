@@ -1,0 +1,37 @@
+[
+  {
+    "id": "ban-1",
+    "type": "banner",
+    "image": "/images/banners/festive.jpg",
+    "heading": "Festive Mughal Collection",
+    "subheading": "Hand block-printed cotton bedding and table linen crafted in Jaipur.",
+    "ctaText": "Shop Collection",
+    "ctaUrl": "/collection/mughal-gardens",
+    "startDate": "2026-08-01",
+    "endDate": "2026-10-31",
+    "isActive": true
+  },
+  {
+    "id": "ban-2",
+    "type": "banner",
+    "image": "/images/banners/monsoon.jpg",
+    "heading": "Indigo Block Prints",
+    "subheading": "Natural dyes and authentic prints to refresh your home decor.",
+    "ctaText": "Explore Indigo",
+    "ctaUrl": "/collection/indigo",
+    "startDate": "2026-08-15",
+    "endDate": "2026-09-30",
+    "isActive": true
+  },
+  {
+    "id": "ann-1",
+    "type": "announcement",
+    "heading": "Free Shipping on Orders Above ₹999",
+    "subheading": "",
+    "ctaText": "",
+    "ctaUrl": "",
+    "startDate": "2026-08-01",
+    "endDate": "2026-12-31",
+    "isActive": true
+  }
+]

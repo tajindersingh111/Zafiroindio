@@ -1,0 +1,22 @@
+[
+  {
+    "id": "cam-1",
+    "name": "Festive Mughal Launch",
+    "startDate": "2026-08-20",
+    "endDate": "2026-09-10",
+    "discount": "15% off",
+    "coupon": "FESTIVE15",
+    "segment": "VIP Customers",
+    "isActive": true
+  },
+  {
+    "id": "cam-2",
+    "name": "Win-back Inactive Buyers",
+    "startDate": "2026-08-25",
+    "endDate": "2026-09-30",
+    "discount": "₹250 flat discount",
+    "coupon": "WELCOMEBACK",
+    "segment": "Inactive Customers",
+    "isActive": true
+  }
+]

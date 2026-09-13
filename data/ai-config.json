@@ -1,0 +1,9 @@
+{
+  "forecastPeriodDays": 30,
+  "lowStockRestockThreshold": 15,
+  "inactiveDaysThreshold": 60,
+  "vipSpentThreshold": 10000,
+  "targetCpa": 200,
+  "targetRoas": 4.5,
+  "insightsFrequency": "daily"
+}

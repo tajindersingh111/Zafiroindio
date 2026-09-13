@@ -1,0 +1,16 @@
+{
+  "storeName": "Zafiro Indio",
+  "storeEmail": "hello@zafiroindio.com",
+  "storePhone": "+91 98765 00000",
+  "storeAddress": {
+    "firstName": "Zafiro", "lastName": "Indio",
+    "address1": "Ground Floor, 38 Govind Vatika, Delhi Bypass Road, Baldeogarh",
+    "city": "Jaipur", "state": "Rajasthan", "postalCode": "302002", "country": "IN"
+  },
+  "currency": "INR",
+  "currencySymbol": "₹",
+  "currencyPosition": "before",
+  "timezone": "Asia/Kolkata",
+  "logoUrl": null,
+  "lowStockThreshold": 10
+}

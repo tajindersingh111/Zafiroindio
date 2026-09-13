@@ -1,0 +1,26 @@
+[
+  {
+    "id": "user-1",
+    "name": "Prabhjas Singh",
+    "email": "admin@zafiroindio.com",
+    "passwordHash": "$2b$10$ZcP.2O2QPDCEUfsZgY34HueISLIS76Ij8rdaPgfw4cErY5l3aLAle",
+    "role": "super_admin",
+    "isActive": true,
+    "createdAt": "2026-01-01T08:00:00.000Z",
+    "lastLoginAt": "2026-09-10T13:13:44.123Z"
+  },
+  {
+    "id": "user-1788376891950",
+    "name": "Tajinder",
+    "email": "tajindsingh012@gmail.com",
+    "passwordHash": "$2b$10$uK.IeeHqr/XUTur/9dZe/uGraA72QtQrg4bhJd9WjUdMTQ08GoS2S",
+    "role": "order_manager",
+    "allowedSections": [
+      "orders",
+      "customers"
+    ],
+    "isActive": true,
+    "createdAt": "2026-09-02T19:21:31.950Z",
+    "lastLoginAt": "2026-09-02T19:22:12.124Z"
+  }
+]

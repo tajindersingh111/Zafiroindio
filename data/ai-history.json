@@ -1,0 +1,26 @@
+[
+  {
+    "id": "rec-1",
+    "recommendation": "Increase daily budget for 'Mughal & Jaipuri Linens Sales' by ₹500.",
+    "date": "2026-08-28",
+    "category": "marketing",
+    "evidence": "Campaign maintained a high ROAS of 9.54x over the last 14 days, compared to other active campaigns.",
+    "status": "Approved"
+  },
+  {
+    "id": "rec-2",
+    "recommendation": "Restock Cleopatra Golden Bloom Bedsheet (Recommended Quantity: 50 units).",
+    "date": "2026-08-29",
+    "category": "inventory",
+    "evidence": "Current stock is 42 units. Sales velocity is 4.2/day. Estimated stock-out is in 10 days.",
+    "status": "New"
+  },
+  {
+    "id": "rec-3",
+    "recommendation": "Launch Inactive Re-engagement email to 420 single-purchase buyers.",
+    "date": "2026-08-30",
+    "category": "retention",
+    "evidence": "420 customers have not purchased for 90 days. Estimated recovery revenue is ₹1,42,000.",
+    "status": "New"
+  }
+]

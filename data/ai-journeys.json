@@ -1,0 +1,45 @@
+[
+  {
+    "id": "jou-1",
+    "name": "Inactive Customer Re-Engagement Journey",
+    "trigger": "Customer Inactive (60 days)",
+    "status": "Active",
+    "steps": [
+      { "id": "node-1", "type": "trigger", "label": "Trigger: Customer Inactive for 60 Days", "next": "node-2" },
+      { "id": "node-2", "type": "action", "label": "Action: Dispatch Re-engagement Email Template", "next": "node-3" },
+      { "id": "node-3", "type": "condition", "label": "Check: Did customer open email?", "yes": "node-4", "no": "node-5" },
+      { "id": "node-4", "type": "action", "label": "Action: Offer flat ₹250 repeat-purchase Coupon", "next": "node-6" },
+      { "id": "node-5", "type": "action", "label": "Action: Send follow-up WhatsApp push (Wait 7d)", "next": "node-6" },
+      { "id": "node-6", "type": "action", "label": "Action: Track purchase conversion", "next": null }
+    ],
+    "analytics": {
+      "entered": 1200,
+      "completed": 1050,
+      "purchases": 84,
+      "revenue": 142000,
+      "conversionRate": 7.0
+    }
+  },
+  {
+    "id": "jou-2",
+    "name": "First-Time Buyer Onboarding",
+    "trigger": "Order Placed",
+    "status": "Active",
+    "steps": [
+      { "id": "node-101", "type": "trigger", "label": "Trigger: First Order Completed", "next": "node-102" },
+      { "id": "node-102", "type": "action", "label": "Action: Send Order Confirmation", "next": "node-103" },
+      { "id": "node-103", "type": "action", "label": "Action: Send Shipment Details", "next": "node-104" },
+      { "id": "node-104", "type": "action", "label": "Action: Request Review (Wait 14 days)", "next": "node-105" },
+      { "id": "node-105", "type": "condition", "label": "Check: Did customer submit review?", "yes": "node-106", "no": "node-107" },
+      { "id": "node-106", "type": "action", "label": "Action: Push to VIP Segment (if spent >= 10000)", "next": null },
+      { "id": "node-107", "type": "action", "label": "Action: Send discount incentive reminder", "next": null }
+    ],
+    "analytics": {
+      "entered": 450,
+      "completed": 410,
+      "purchases": 120,
+      "revenue": 218400,
+      "conversionRate": 26.6
+    }
+  }
+]
