@@ -1,0 +1,13 @@
+[
+  {
+    "id": "9c139aff-2442-487c-a92b-b5f58be72748",
+    "phone": "9876543210",
+    "hashedOtp": "42b06e9190dd25f27c3d955977a074d846982d9df03b9e41d8b0082ac8cdf142",
+    "attempts": 0,
+    "maxAttempts": 5,
+    "expiresAt": "2026-09-15T12:43:53.412Z",
+    "cooldownUntil": "2026-09-15T12:39:53.412Z",
+    "isUsed": false,
+    "createdAt": "2026-09-15T12:38:53.412Z"
+  }
+]

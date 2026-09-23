@@ -43,14 +43,12 @@ function LoginContent() {
       <div className="relative w-full max-w-md">
         {/* Logo / Brand */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-paper/10 border border-paper/20 mb-4">
-            <svg className="w-8 h-8 text-turmeric" viewBox="0 0 32 32" fill="none">
-              <path d="M16 3 L29 10 L29 22 L16 29 L3 22 L3 10 Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-              <path d="M16 8 L24 12 L24 20 L16 24 L8 20 L8 12 Z" stroke="currentColor" strokeWidth="1" fill="currentColor" fillOpacity="0.15"/>
-              <circle cx="16" cy="16" r="3" fill="currentColor"/>
-            </svg>
-          </div>
-          <h1 className="font-display text-3xl text-paper tracking-tight">
+          <img
+            src="/zafiro-logo-dark.png"
+            alt="Zafiro Indio"
+            style={{ height: 60, width: "auto", margin: "0 auto 12px", objectFit: "contain", filter: "brightness(0) invert(1)" }}
+          />
+          <h1 className="font-display text-2xl text-paper tracking-tight">
             Zafiro <span className="italic text-turmeric">Admin</span>
           </h1>
           <p className="text-paper/50 text-sm mt-1">Store management dashboard</p>

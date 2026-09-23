@@ -2,14 +2,15 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import WelcomeDiscountModal from "@/components/WelcomeDiscountModal";
 import { StoreProvider } from "@/components/StoreProvider";
 
 export const metadata: Metadata = {
-  title: { default: "Zafiro | Beautiful Bedsheets for Beautiful Homes", template: "%s | Zafiro" },
-  description: "Shop premium, beautiful bedsheets by Zafiro. Timeless prints, soft fabrics and everyday comfort for beautiful bedrooms.",
-  keywords: ["bedsheets", "premium bedsheets", "cotton bedsheets", "Zafiro", "home decor", "Indian bedsheets"],
-  metadataBase: new URL("https://zafiro.example"),
-  openGraph: { title: "Zafiro | Beautiful Bedsheets for Beautiful Homes", description: "Thoughtfully designed bedsheets for everyday comfort and timeless style.", type: "website" },
+  title: { default: "Zafiro Indio | Handblock Cotton Bedsheets from Jaipur", template: "%s | Zafiro Indio" },
+  description: "Shop authentic hand-block printed 100% cotton bedsheets by Zafiro Indio — crafted by traditional artisans in Jaipur, Rajasthan. Free shipping above ₹999. Easy 7-day returns.",
+  keywords: ["handblock bedsheets", "cotton bedsheets Jaipur", "block print bedsheets India", "Rajasthani bedsheets", "Zafiro Indio", "buy bedsheets online India"],
+  metadataBase: new URL("https://zafiroindio.com"),
+  openGraph: { title: "Zafiro Indio | Handblock Cotton Bedsheets from Jaipur", description: "Authentic hand-block printed cotton bedsheets from Jaipur artisans. Shop floral, minimal, luxury & printed collections.", type: "website" },
   robots: { index: true, follow: true }
 };
 
@@ -26,8 +27,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Header />
           {children}
           <Footer />
+          <WelcomeDiscountModal />
         </StoreProvider>
       </body>
     </html>
   );
 }
+

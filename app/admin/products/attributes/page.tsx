@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { PageShell, PageHeader, SectionCard, Btn, useToast, LoadingSpinner } from "@/components/admin/Shared";
+import { Trash2 } from "lucide-react";
 
 interface Attribute { id: string; name: string; values: string[]; }
 
@@ -33,6 +34,17 @@ export default function AttributesPage() {
     setSaving(false);
   }
 
+  async function del(id: string) {
+    if (!confirm("Are you sure you want to delete this attribute?")) return;
+    const res = await fetch(`/api/admin/products/attributes/${id}`, { method: "DELETE" });
+    if (res.ok) {
+      addToast("Attribute deleted.", "warning");
+      fetch_();
+    } else {
+      addToast("Failed to delete attribute.", "error");
+    }
+  }
+
   return (
     <PageShell>
       <PageHeader title="Attributes" subtitle="Define product attributes like size, color, material" />
@@ -48,13 +60,22 @@ export default function AttributesPage() {
           {loading ? <LoadingSpinner /> : (
             <div className="space-y-4">
               {attrs.map((a) => (
-                <div key={a.id} className="border border-stone/20 rounded-sm p-4">
-                  <p className="font-semibold text-ink mb-2">{a.name}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {a.values.map((v) => (
-                      <span key={v} className="px-2.5 py-1 bg-paper border border-stone/30 rounded-full text-xs text-stone">{v}</span>
-                    ))}
+                <div key={a.id} className="border border-stone/20 rounded-sm p-4 flex items-start justify-between">
+                  <div>
+                    <p className="font-semibold text-ink mb-2">{a.name}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {a.values.map((v) => (
+                        <span key={v} className="px-2.5 py-1 bg-paper border border-stone/30 rounded-full text-xs text-stone">{v}</span>
+                      ))}
+                    </div>
                   </div>
+                  <button
+                    onClick={() => del(a.id)}
+                    className="p-1.5 text-stone hover:text-madder transition-colors"
+                    title="Delete Attribute"
+                  >
+                    <Trash2 size={16} />
+                  </button>
                 </div>
               ))}
               {attrs.length === 0 && <p className="text-center text-stone py-6">No attributes yet.</p>}

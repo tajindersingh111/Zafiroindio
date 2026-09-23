@@ -1,15 +1,22 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { readCollection, writeCollection } from "@/lib/db/store";
 import type { Order, ReturnRecord } from "@/lib/db/types";
 import { sendTransactionalEmail } from "@/lib/email/service";
+import { checkRateLimit, rateLimitResponse } from "@/lib/security/rate-limit";
 
 export async function GET() {
   const returns = readCollection<ReturnRecord>("returns");
   return NextResponse.json({ returns });
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
+    const rateLimit = await checkRateLimit(`returns-create:${ip}`, { windowMs: 60000, maxRequests: 5 });
+    if (!rateLimit.success) {
+      return rateLimitResponse(rateLimit.reset);
+    }
+
     const body = await request.json();
     const { orderId, reason } = body;
 
@@ -71,7 +78,7 @@ export async function POST(request: Request) {
     await sendTransactionalEmail("RETURN_REQUESTED", order);
 
     return NextResponse.json({ success: true, returnItem: newReturn, order }, { status: 201 });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Failed to create return request." }, { status: 500 });
   }
 }

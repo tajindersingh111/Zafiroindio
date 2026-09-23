@@ -1,4 +1,74 @@
-import {Leaf,Heart,ShieldCheck,Users} from "lucide-react";
-import {products} from "@/lib/data";
-export const metadata={title:"About Zafiro",description:"The story and values behind Zafiro — thoughtfully designed bedding for beautiful homes."};
-export default function About(){return <main><section className="aboutHero"><div className="aboutHeroText"><div className="eyebrow">About Zafiro</div><h1 className="serif">Where Comfort Meets Timeless Beauty</h1><p style={{color:"var(--muted)",lineHeight:1.8}}>At Zafiro, we believe your home should be a place that feels like you. Our collections are thoughtfully designed to bring warmth, comfort and elegance to your everyday spaces.</p><div style={{display:"flex",gap:28,marginTop:30}}><span><Leaf size={22}/><small>Thoughtfully<br/>Designed</small></span><span><Heart size={22}/><small>Premium<br/>Quality</small></span><span><ShieldCheck size={22}/><small>Made for<br/>Everyday</small></span></div></div><img src={products[0].images[0]} alt="Zafiro floral bedroom"/></section><section className="section"><div className="container"><div className="editorial"><div className="editorialText"><div className="eyebrow">Our Story</div><h2 className="serif">Designed with Love, Inspired by Nature</h2><p>Zafiro began with a simple idea — to create bedding that blends nature's beauty with modern living. Each piece is crafted with care, using timeless, soothing patterns made to last.</p></div><img src={products[4].images[0]} alt="Warm Zafiro bedroom"/></div></div></section><section id="values" className="section" style={{paddingTop:20}}><div className="container"><h2 className="serif" style={{textAlign:"center"}}>Our Values</h2><div className="values" style={{marginTop:30}}>{[[Leaf,"Sustainable Choices","We care for the planet as much as we care for your home."],[Heart,"Quality First","We use beautiful fabrics and obsess over every detail."],[Users,"Made for You","Thoughtful designs that fit your style and comfort."],[ShieldCheck,"Trust & Transparency","Honest practices and customer satisfaction at our core."]].map(([Icon,title,desc]:any)=><div className="valueCard" key={title}><Icon size={28}/><h4>{title}</h4><p style={{color:"var(--muted)",fontSize:12,lineHeight:1.6}}>{desc}</p></div>)}</div></div></section></main>}
+import type { Metadata } from "next";
+import AboutContent from "@/components/site/AboutContent";
+
+const BASE_URL = "https://zafiroindio.com";
+
+export const metadata: Metadata = {
+  title: "About Zafiro Indio | Jaipur Handblock Cotton Bedsheets",
+  description:
+    "Discover the story of Zafiro Indio — a Jaipur-based home textile brand crafting hand-block printed cotton bedsheets with traditional Rajasthani artisans. Our philosophy, craft, and values.",
+  keywords: [
+    "Zafiro Indio about",
+    "Jaipur handblock bedsheets",
+    "Indian textile brand",
+    "Rajasthani block print",
+    "artisan bedsheets India",
+    "cotton bedsheets Jaipur",
+    "handcrafted bedding India",
+  ],
+  alternates: { canonical: `${BASE_URL}/about` },
+  openGraph: {
+    title: "About Zafiro Indio | Jaipur Handblock Cotton Bedsheets",
+    description:
+      "A Jaipur-based home textile brand rooted in Rajasthani artisan craftsmanship. Discover our story.",
+    type: "website",
+    url: `${BASE_URL}/about`,
+  },
+};
+
+const localBusinessJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  name: "Zafiro Indio",
+  description:
+    "Jaipur-based home textile brand specialising in hand-block printed cotton bedsheets crafted by traditional Rajasthani artisans.",
+  url: BASE_URL,
+  logo: `${BASE_URL}/zafiro-logo-dark.png`,
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Jaipur",
+    addressRegion: "Rajasthan",
+    addressCountry: "IN",
+  },
+  geo: { "@type": "GeoCoordinates", latitude: 26.9124, longitude: 75.7873 },
+  areaServed: { "@type": "Country", name: "India" },
+  foundingDate: "2020",
+  numberOfEmployees: { "@type": "QuantitativeValue", value: 15 },
+  knowsAbout: ["hand block printing", "cotton bedsheets", "Rajasthani textiles", "home decor"],
+  sameAs: [],
+};
+
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: BASE_URL },
+    { "@type": "ListItem", position: 2, name: "About", item: `${BASE_URL}/about` },
+  ],
+};
+
+export default function About() {
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <AboutContent />
+    </>
+  );
+}

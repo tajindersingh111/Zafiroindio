@@ -259,23 +259,13 @@ export function AdminSidebar({ open, onClose }: { open: boolean; onClose: () => 
       {/* Brand Header */}
       <div style={{ borderColor: "rgba(255, 255, 255, 0.1)" }} className="h-16 flex items-center justify-between px-5 border-b shrink-0">
         <Link href="/admin" className="flex items-center gap-2.5">
-          <div
-            style={{
-              width: "28px",
-              height: "28px",
-              background: "rgba(220, 161, 52, 0.18)",
-              border: "1px solid rgba(220, 161, 52, 0.4)",
-              borderRadius: "4px",
-            }}
-            className="flex items-center justify-center shrink-0"
-          >
-            <svg width="16" height="16" style={{ width: "16px", height: "16px", flexShrink: 0, color: "#dca134" }} viewBox="0 0 16 16" fill="none">
-              <path d="M8 1.5L14.5 5V11L8 14.5L1.5 11V5L8 1.5Z" stroke="currentColor" strokeWidth="1" fill="currentColor" fillOpacity="0.25"/>
-              <circle cx="8" cy="8" r="2" fill="currentColor"/>
-            </svg>
-          </div>
-          <span style={{ color: "#ffffff" }} className="font-serif text-lg tracking-wide">
-            Zafiro <span style={{ color: "#dca134" }} className="italic font-normal">Admin</span>
+          <img
+            src="/zafiro-logo-dark.png"
+            alt="Zafiro Admin"
+            style={{ height: 38, width: "auto", objectFit: "contain", filter: "brightness(0) invert(1)" }}
+          />
+          <span style={{ color: "#dca134" }} className="text-xs font-bold uppercase tracking-wider ml-1">
+            Admin
           </span>
         </Link>
         <button onClick={onClose} style={{ color: "rgba(255, 253, 249, 0.5)" }} className="md:hidden hover:text-white p-1 cursor-pointer">

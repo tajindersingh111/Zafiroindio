@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readCollection, writeCollection } from "@/lib/db/store";
 
 export const SESSION_COOKIE = "zafiro-admin-session";
 export const SECRET = process.env.SESSION_SECRET || "zafiro-default-super-signed-cookie-secret-key-19038";

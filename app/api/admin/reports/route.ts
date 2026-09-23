@@ -22,14 +22,21 @@ interface AbandonedCart {
   status: string;
 }
 
-function parseDate(d: string) { return new Date(d); }
+function parseDate(d?: string | null): Date {
+  if (!d) return new Date(0);
+  const parsed = new Date(d);
+  return isNaN(parsed.getTime()) ? new Date(0) : parsed;
+}
 
 function filterByDateRange(orders: Order[], range: string, from?: string, to?: string) {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   return orders.filter((o) => {
+    if (!o.createdAt) return false;
     const d = parseDate(o.createdAt);
+    if (d.getTime() === 0) return false;
+
     switch (range) {
       case "today": return d >= today;
       case "yesterday": {
@@ -41,8 +48,8 @@ function filterByDateRange(orders: Order[], range: string, from?: string, to?: s
       case "month": return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
       case "year": return d.getFullYear() === now.getFullYear();
       case "custom": {
-        const s = from ? new Date(from) : new Date(0);
-        const e = to ? new Date(to + "T23:59:59Z") : new Date();
+        const s = from ? parseDate(from) : new Date(0);
+        const e = to ? parseDate(to + "T23:59:59Z") : new Date();
         return d >= s && d <= e;
       }
       default: return true;
@@ -114,14 +121,19 @@ export async function GET(request: Request) {
   // ── Customer stats ────────────────────────────────────────
   const totalCustomers = customers.length;
   const newCustomers = customers.filter((c) => {
+    if (!c.registeredAt) return false;
     const d = parseDate(c.registeredAt);
+    if (d.getTime() === 0) return false;
     return filterByDateRange([{ createdAt: d.toISOString() } as Order], range, from, to).length > 0;
   }).length;
 
   // ── Revenue chart data (daily) ────────────────────────────
   const revenueByDay: Record<string, { date: string; gross: number; orders: number }> = {};
   paidOrders.forEach((o) => {
-    const day = o.createdAt.split("T")[0];
+    if (!o.createdAt) return;
+    const d = parseDate(o.createdAt);
+    if (d.getTime() === 0) return;
+    const day = d.toISOString().split("T")[0];
     if (!revenueByDay[day]) revenueByDay[day] = { date: day, gross: 0, orders: 0 };
     revenueByDay[day].gross += o.total;
     revenueByDay[day].orders += 1;

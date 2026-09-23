@@ -198,30 +198,47 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
 
         {/* Invoice Summary & Payment Box */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 pt-2">
-          {/* Payment Info */}
-          <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-2 text-xs">
-            <h4 className="font-semibold uppercase tracking-wider text-slate-500 border-b border-slate-200 pb-2">
-              Payment Summary
-            </h4>
-            <div className="flex justify-between py-1">
-              <span className="text-slate-600">Payment Method:</span>
-              <span className="font-mono font-bold uppercase text-slate-900">{invoice.paymentMethod}</span>
+          {/* Payment Info & UPI QR Code */}
+          <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-3 text-xs flex justify-between gap-4">
+            <div className="space-y-2 flex-1">
+              <h4 className="font-semibold uppercase tracking-wider text-slate-500 border-b border-slate-200 pb-2">
+                Payment Summary
+              </h4>
+              <div className="flex justify-between py-1">
+                <span className="text-slate-600">Payment Method:</span>
+                <span className="font-mono font-bold uppercase text-slate-900">{invoice.paymentMethod}</span>
+              </div>
+              <div className="flex justify-between py-1">
+                <span className="text-slate-600">Payment Status:</span>
+                <span className={`font-semibold capitalize px-2 py-0.5 rounded text-[11px] ${invoice.paymentStatus === "paid" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}`}>
+                  {invoice.paymentStatus}
+                </span>
+              </div>
+              <div className="flex justify-between py-1 font-mono">
+                <span className="text-slate-600">Amount Paid:</span>
+                <span className="font-bold text-emerald-700">₹{invoice.amountPaid.toLocaleString("en-IN")}</span>
+              </div>
+              <div className="flex justify-between py-1 font-mono border-t border-slate-200 pt-2">
+                <span className="text-slate-700 font-bold">Amount Due:</span>
+                <span className={`font-bold ${invoice.amountDue > 0 ? "text-amber-700" : "text-slate-900"}`}>
+                  ₹{invoice.amountDue.toLocaleString("en-IN")}
+                </span>
+              </div>
             </div>
-            <div className="flex justify-between py-1">
-              <span className="text-slate-600">Payment Status:</span>
-              <span className={`font-semibold capitalize px-2 py-0.5 rounded text-[11px] ${invoice.paymentStatus === "paid" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}`}>
-                {invoice.paymentStatus}
+
+            {/* Dynamic UPI Scan & Pay QR Code */}
+            <div className="w-32 flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-md text-center">
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=${encodeURIComponent(
+                  `upi://pay?pa=zafiroindio@upi&pn=Zafiro%20Indio&am=${invoice.amountDue > 0 ? invoice.amountDue : invoice.grandTotal}&cu=INR&tn=Invoice-${invoice.invoiceNumber}`
+                )}`}
+                alt="Scan UPI QR Code to Pay"
+                className="w-24 h-24 object-contain"
+              />
+              <span className="text-[9px] font-mono text-slate-500 font-bold uppercase mt-1">
+                Scan to Pay via UPI
               </span>
-            </div>
-            <div className="flex justify-between py-1 font-mono">
-              <span className="text-slate-600">Amount Paid:</span>
-              <span className="font-bold text-emerald-700">₹{invoice.amountPaid.toLocaleString("en-IN")}</span>
-            </div>
-            <div className="flex justify-between py-1 font-mono border-t border-slate-200 pt-2">
-              <span className="text-slate-700 font-bold">Amount Due:</span>
-              <span className={`font-bold ${invoice.amountDue > 0 ? "text-amber-700" : "text-slate-900"}`}>
-                ₹{invoice.amountDue.toLocaleString("en-IN")}
-              </span>
+              <span className="text-[8px] text-slate-400">GPay • PhonePe • Paytm</span>
             </div>
           </div>
 

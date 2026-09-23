@@ -1,1 +1,263 @@
-[]
+[
+  {
+    "id": "inv-1789976250411-o59x",
+    "invoiceNumber": "ZI-2026-000003",
+    "orderId": "ord-9197",
+    "orderNumber": "ZI-19197",
+    "customerId": "cust-397",
+    "invoiceDate": "2026-09-10T04:23:27",
+    "businessSnapshot": {
+      "storeName": "Zafiro Indio",
+      "storeEmail": "support@zafiroindio.com",
+      "storePhone": "+91 98765 43210",
+      "storeAddress": {
+        "firstName": "Zafiro",
+        "lastName": "Indio HQ",
+        "company": "Zafiro Indio Private Limited",
+        "address1": "Plot 42, Craft Heritage Zone, Sanganer",
+        "address2": "Tonk Road",
+        "city": "Jaipur",
+        "state": "Rajasthan",
+        "postalCode": "302029",
+        "country": "India",
+        "phone": "+91 98765 43210",
+        "email": "support@zafiroindio.com"
+      },
+      "gstin": "08ABCDE1234F1Z5",
+      "pan": "ABCDE1234F",
+      "logoUrl": "/images/logo.png"
+    },
+    "customerSnapshot": {
+      "customerName": "Dr Biswas",
+      "customerEmail": "bina.biswas@gmail.com",
+      "customerPhone": "9810995204",
+      "billing": {
+        "firstName": "Dr",
+        "lastName": "Biswas",
+        "address1": "20002 Tower A 16th Avenue Gaur City 2 Greater Noida West Noida Extn near Gaurs",
+        "city": "Gautam Buddha Nagar",
+        "state": "UP",
+        "postalCode": "201301",
+        "country": "IN",
+        "phone": "9810995204",
+        "email": "bina.biswas@gmail.com"
+      },
+      "shipping": {
+        "firstName": "Dr",
+        "lastName": "Biswas",
+        "address1": "20002 Tower A 16th Avenue Gaur City 2 Greater Noida West Noida Extn near Gaurs",
+        "city": "Gautam Buddha Nagar",
+        "state": "UP",
+        "postalCode": "201301",
+        "country": "IN",
+        "phone": "9810995204",
+        "email": "bina.biswas@gmail.com"
+      }
+    },
+    "itemsSnapshot": [
+      {
+        "productId": "prod-7629",
+        "name": "Zafiro Product #7629",
+        "sku": "ZI-BS-7629",
+        "quantity": 1,
+        "price": 1057.69,
+        "discount": 0,
+        "tax": 52.88,
+        "total": 1057.69
+      }
+    ],
+    "subtotal": 1057.69,
+    "discount": 0,
+    "couponDiscount": 0,
+    "shipping": 0,
+    "tax": 52.88,
+    "grandTotal": 1110.57,
+    "amountPaid": 1110.57,
+    "amountDue": 0,
+    "paymentMethod": "prepaid",
+    "paymentStatus": "paid",
+    "orderStatus": "delivered",
+    "createdAt": "2026-09-21T07:37:30.411Z",
+    "updatedAt": "2026-09-21T07:37:30.411Z"
+  },
+  {
+    "id": "inv-1789458146306-yrnq",
+    "invoiceNumber": "ZI-2026-000002",
+    "orderId": "4ccef05b-1f8f-4eea-82ed-ce1c8f5a5690",
+    "orderNumber": "ZI-10355",
+    "invoiceDate": "2026-09-15T07:42:26.199Z",
+    "businessSnapshot": {
+      "storeName": "Zafiro Indio",
+      "storeEmail": "support@zafiroindio.com",
+      "storePhone": "+91 98765 43210",
+      "storeAddress": {
+        "firstName": "Zafiro",
+        "lastName": "Indio HQ",
+        "company": "Zafiro Indio Private Limited",
+        "address1": "Plot 42, Craft Heritage Zone, Sanganer",
+        "address2": "Tonk Road",
+        "city": "Jaipur",
+        "state": "Rajasthan",
+        "postalCode": "302029",
+        "country": "India",
+        "phone": "+91 98765 43210",
+        "email": "support@zafiroindio.com"
+      },
+      "gstin": "08ABCDE1234F1Z5",
+      "pan": "ABCDE1234F",
+      "logoUrl": "/images/logo.png"
+    },
+    "customerSnapshot": {
+      "customerName": "Manisha Verma",
+      "customerEmail": "manisha@gmail.com",
+      "customerPhone": "9876543210",
+      "billing": {
+        "firstName": "Manisha",
+        "lastName": "Verma",
+        "address1": "22 9th Cross Sarjapur Road22 9th Cross Sarjapur Road",
+        "city": "Bangalore",
+        "state": "Karnataka",
+        "postalCode": "560035",
+        "country": "India",
+        "phone": "9876543210",
+        "email": "manisha@gmail.com"
+      },
+      "shipping": {
+        "firstName": "Manisha",
+        "lastName": "Verma",
+        "address1": "22 9th Cross Sarjapur Road22 9th Cross Sarjapur Road",
+        "city": "Bangalore",
+        "state": "Karnataka",
+        "postalCode": "560035",
+        "country": "India",
+        "phone": "9876543210",
+        "email": "manisha@gmail.com"
+      }
+    },
+    "itemsSnapshot": [
+      {
+        "productId": "indigo-haven",
+        "name": "Zafiro Indigo Haven",
+        "sku": "ZI-INDIGO-HAVEN",
+        "quantity": 1,
+        "price": 1299,
+        "discount": 0,
+        "tax": 0,
+        "total": 1299,
+        "attributes": [
+          {
+            "name": "Size",
+            "value": "Double"
+          },
+          {
+            "name": "Color",
+            "value": "Indigo Blue"
+          }
+        ]
+      }
+    ],
+    "subtotal": 1299,
+    "discount": 130,
+    "couponDiscount": 130,
+    "shipping": 99,
+    "tax": 0,
+    "grandTotal": 1268,
+    "amountPaid": 1268,
+    "amountDue": 0,
+    "paymentMethod": "upi",
+    "paymentStatus": "paid",
+    "orderStatus": "processing",
+    "createdAt": "2026-09-15T07:42:26.306Z",
+    "updatedAt": "2026-09-15T07:42:26.306Z"
+  },
+  {
+    "id": "inv-1789457106184-dv9l",
+    "invoiceNumber": "ZI-2026-000001",
+    "orderId": "5cc24ebc-0091-4f13-9f70-bb6ac4ba2622",
+    "orderNumber": "ZI-10354",
+    "invoiceDate": "2026-09-15T07:25:06.163Z",
+    "businessSnapshot": {
+      "storeName": "Zafiro Indio",
+      "storeEmail": "support@zafiroindio.com",
+      "storePhone": "+91 98765 43210",
+      "storeAddress": {
+        "firstName": "Zafiro",
+        "lastName": "Indio HQ",
+        "company": "Zafiro Indio Private Limited",
+        "address1": "Plot 42, Craft Heritage Zone, Sanganer",
+        "address2": "Tonk Road",
+        "city": "Jaipur",
+        "state": "Rajasthan",
+        "postalCode": "302029",
+        "country": "India",
+        "phone": "+91 98765 43210",
+        "email": "support@zafiroindio.com"
+      },
+      "gstin": "08ABCDE1234F1Z5",
+      "pan": "ABCDE1234F",
+      "logoUrl": "/images/logo.png"
+    },
+    "customerSnapshot": {
+      "customerName": "Manisha Verma",
+      "customerEmail": "manisha@gmail.com",
+      "customerPhone": "9876543210",
+      "billing": {
+        "firstName": "Manisha",
+        "lastName": "Verma",
+        "address1": "22, 9th Cross, Sarjapur Road",
+        "city": "Bangalore",
+        "state": "Karnataka",
+        "postalCode": "560035",
+        "country": "India",
+        "phone": "9876543210",
+        "email": "manisha@gmail.com"
+      },
+      "shipping": {
+        "firstName": "Manisha",
+        "lastName": "Verma",
+        "address1": "22, 9th Cross, Sarjapur Road",
+        "city": "Bangalore",
+        "state": "Karnataka",
+        "postalCode": "560035",
+        "country": "India",
+        "phone": "9876543210",
+        "email": "manisha@gmail.com"
+      }
+    },
+    "itemsSnapshot": [
+      {
+        "productId": "sage-serenity",
+        "name": "Zafiro Sage Serenity",
+        "sku": "ZI-SAGE-SERENITY",
+        "quantity": 1,
+        "price": 1299,
+        "discount": 0,
+        "tax": 0,
+        "total": 1299,
+        "attributes": [
+          {
+            "name": "Size",
+            "value": "Single"
+          },
+          {
+            "name": "Color",
+            "value": "Sage Green"
+          }
+        ]
+      }
+    ],
+    "subtotal": 1299,
+    "discount": 130,
+    "couponDiscount": 130,
+    "shipping": 99,
+    "tax": 0,
+    "grandTotal": 1268,
+    "amountPaid": 1268,
+    "amountDue": 0,
+    "paymentMethod": "netbanking",
+    "paymentStatus": "paid",
+    "orderStatus": "processing",
+    "createdAt": "2026-09-15T07:25:06.184Z",
+    "updatedAt": "2026-09-15T07:25:06.184Z"
+  }
+]

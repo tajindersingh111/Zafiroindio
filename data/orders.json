@@ -14,11 +14,11 @@
         "name": "Zafiro Product #7281",
         "sku": "ZI-BS-7281",
         "quantity": 1,
-        "price": 2999.0,
+        "price": 2999,
         "costPrice": 1200,
         "discount": 0,
-        "tax": 0.0,
-        "total": 2999.0
+        "tax": 0,
+        "total": 2999
       }
     ],
     "billing": {
@@ -44,11 +44,11 @@
       "email": "soniyadnld@gmail.com"
     },
     "couponDiscount": 0,
-    "subtotal": 2999.0,
+    "subtotal": 2999,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
-    "total": 2999.0,
+    "total": 2999,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -71,11 +71,11 @@
         "name": "Zafiro Product #7630",
         "sku": "ZI-BS-7630",
         "quantity": 1,
-        "price": 1199.0,
+        "price": 1199,
         "costPrice": 480,
         "discount": 0,
-        "tax": 0.0,
-        "total": 1199.0
+        "tax": 0,
+        "total": 1199
       }
     ],
     "billing": {
@@ -101,11 +101,11 @@
       "email": "nirmala_prasad2001@yahoo.co.in"
     },
     "couponDiscount": 0,
-    "subtotal": 1199.0,
+    "subtotal": 1199,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
-    "total": 1199.0,
+    "total": 1199,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -128,11 +128,11 @@
         "name": "Zafiro Product #7732",
         "sku": "ZI-BS-7732",
         "quantity": 1,
-        "price": 1199.0,
+        "price": 1199,
         "costPrice": 480,
         "discount": 0,
-        "tax": 0.0,
-        "total": 1199.0
+        "tax": 0,
+        "total": 1199
       }
     ],
     "billing": {
@@ -158,11 +158,11 @@
       "email": "rajeshnpillai@gmail.com"
     },
     "couponDiscount": 0,
-    "subtotal": 1199.0,
+    "subtotal": 1199,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
-    "total": 1199.0,
+    "total": 1199,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -185,22 +185,22 @@
         "name": "Zafiro Product #7627",
         "sku": "ZI-BS-7627",
         "quantity": 1,
-        "price": 1199.0,
+        "price": 1199,
         "costPrice": 480,
         "discount": 0,
-        "tax": 0.0,
-        "total": 1199.0
+        "tax": 0,
+        "total": 1199
       },
       {
         "productId": "prod-7629",
         "name": "Zafiro Product #7629",
         "sku": "ZI-BS-7629",
         "quantity": 1,
-        "price": 1199.0,
+        "price": 1199,
         "costPrice": 480,
         "discount": 0,
-        "tax": 0.0,
-        "total": 1199.0
+        "tax": 0,
+        "total": 1199
       }
     ],
     "billing": {
@@ -226,11 +226,11 @@
       "email": "sarbanibhatia@gmail.com"
     },
     "couponDiscount": 0,
-    "subtotal": 2398.0,
+    "subtotal": 2398,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
-    "total": 2398.0,
+    "total": 2398,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -253,11 +253,11 @@
         "name": "Zafiro Product #7627",
         "sku": "ZI-BS-7627",
         "quantity": 1,
-        "price": 1199.0,
+        "price": 1199,
         "costPrice": 480,
         "discount": 0,
-        "tax": 0.0,
-        "total": 1199.0
+        "tax": 0,
+        "total": 1199
       }
     ],
     "billing": {
@@ -283,11 +283,11 @@
       "email": "laharikach32@gmail.com"
     },
     "couponDiscount": 0,
-    "subtotal": 1199.0,
+    "subtotal": 1199,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
-    "total": 1199.0,
+    "total": 1199,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -310,11 +310,11 @@
         "name": "Zafiro Product #7627",
         "sku": "ZI-BS-7627",
         "quantity": 1,
-        "price": 1349.0,
+        "price": 1349,
         "costPrice": 540,
         "discount": 0,
-        "tax": 0.0,
-        "total": 1349.0
+        "tax": 0,
+        "total": 1349
       }
     ],
     "billing": {
@@ -340,11 +340,11 @@
       "email": "pialee62@gmail.com"
     },
     "couponDiscount": 0,
-    "subtotal": 1349.0,
+    "subtotal": 1349,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
-    "total": 1349.0,
+    "total": 1349,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -367,11 +367,11 @@
         "name": "Zafiro Product #7613",
         "sku": "ZI-BS-7613",
         "quantity": 2,
-        "price": 1019.0,
+        "price": 1019,
         "costPrice": 815,
         "discount": 0,
-        "tax": 0.0,
-        "total": 2038.0
+        "tax": 0,
+        "total": 2038
       }
     ],
     "billing": {
@@ -397,11 +397,11 @@
       "email": "rakhi.bachuka@gmail.com"
     },
     "couponDiscount": 0,
-    "subtotal": 2038.0,
+    "subtotal": 2038,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
-    "total": 2038.0,
+    "total": 2038,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -424,11 +424,11 @@
         "name": "Zafiro Product #7627",
         "sku": "ZI-BS-7627",
         "quantity": 1,
-        "price": 1499.0,
+        "price": 1499,
         "costPrice": 600,
         "discount": 0,
-        "tax": 0.0,
-        "total": 1499.0
+        "tax": 0,
+        "total": 1499
       }
     ],
     "billing": {
@@ -454,11 +454,11 @@
       "email": "order7998@zafiroindio.com"
     },
     "couponDiscount": 0,
-    "subtotal": 1499.0,
+    "subtotal": 1499,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
-    "total": 1499.0,
+    "total": 1499,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -481,11 +481,11 @@
         "name": "Zafiro Product #7613",
         "sku": "ZI-BS-7613",
         "quantity": 2,
-        "price": 1199.0,
+        "price": 1199,
         "costPrice": 959,
         "discount": 0,
-        "tax": 0.0,
-        "total": 2398.0
+        "tax": 0,
+        "total": 2398
       }
     ],
     "billing": {
@@ -511,11 +511,11 @@
       "email": "anita_9_2000@yahoo.com"
     },
     "couponDiscount": 0,
-    "subtotal": 2398.0,
+    "subtotal": 2398,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
-    "total": 2398.0,
+    "total": 2398,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -538,11 +538,11 @@
         "name": "Zafiro Product #7624",
         "sku": "ZI-BS-7624",
         "quantity": 1,
-        "price": 1199.0,
+        "price": 1199,
         "costPrice": 480,
         "discount": 0,
-        "tax": 0.0,
-        "total": 1199.0
+        "tax": 0,
+        "total": 1199
       }
     ],
     "billing": {
@@ -568,11 +568,11 @@
       "email": "singhalneelam64@gmail.com"
     },
     "couponDiscount": 0,
-    "subtotal": 1199.0,
+    "subtotal": 1199,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
-    "total": 1199.0,
+    "total": 1199,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -598,7 +598,7 @@
         "price": 1349.1,
         "costPrice": 540,
         "discount": 0,
-        "tax": 0.0,
+        "tax": 0,
         "total": 1349.1
       }
     ],
@@ -627,7 +627,7 @@
     "couponDiscount": 0,
     "subtotal": 1349.1,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
     "total": 1349.1,
     "paymentMethod": "cod",
@@ -652,11 +652,11 @@
         "name": "Zafiro Product #7613",
         "sku": "ZI-BS-7613",
         "quantity": 1,
-        "price": 1199.0,
+        "price": 1199,
         "costPrice": 480,
         "discount": 0,
-        "tax": 0.0,
-        "total": 1199.0
+        "tax": 0,
+        "total": 1199
       }
     ],
     "billing": {
@@ -682,11 +682,11 @@
       "email": "bindu4472@gmail.com"
     },
     "couponDiscount": 0,
-    "subtotal": 1199.0,
+    "subtotal": 1199,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
-    "total": 1199.0,
+    "total": 1199,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -709,11 +709,11 @@
         "name": "Zafiro Product #7225",
         "sku": "ZI-BS-7225",
         "quantity": 1,
-        "price": 1999.0,
+        "price": 1999,
         "costPrice": 800,
         "discount": 0,
-        "tax": 0.0,
-        "total": 1999.0
+        "tax": 0,
+        "total": 1999
       }
     ],
     "billing": {
@@ -739,11 +739,11 @@
       "email": "order8104@zafiroindio.com"
     },
     "couponDiscount": 0,
-    "subtotal": 1999.0,
+    "subtotal": 1999,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
-    "total": 1999.0,
+    "total": 1999,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -766,11 +766,11 @@
         "name": "Zafiro Product #7627",
         "sku": "ZI-BS-7627",
         "quantity": 1,
-        "price": 1199.0,
+        "price": 1199,
         "costPrice": 480,
         "discount": 0,
-        "tax": 0.0,
-        "total": 1199.0
+        "tax": 0,
+        "total": 1199
       }
     ],
     "billing": {
@@ -796,11 +796,11 @@
       "email": "order8135@zafiroindio.com"
     },
     "couponDiscount": 0,
-    "subtotal": 1199.0,
+    "subtotal": 1199,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
-    "total": 1199.0,
+    "total": 1199,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -1165,11 +1165,11 @@
         "name": "Zafiro Product #7271",
         "sku": "ZI-BS-7271",
         "quantity": 1,
-        "price": 1799.0,
+        "price": 1799,
         "costPrice": 720,
         "discount": 0,
-        "tax": 0.0,
-        "total": 1799.0
+        "tax": 0,
+        "total": 1799
       }
     ],
     "billing": {
@@ -1195,11 +1195,11 @@
       "email": "kalyanirajamanuri@gmail.com"
     },
     "couponDiscount": 0,
-    "subtotal": 1799.0,
+    "subtotal": 1799,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
-    "total": 1799.0,
+    "total": 1799,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -1279,11 +1279,11 @@
         "name": "Zafiro Product #8027",
         "sku": "ZI-BS-8027",
         "quantity": 1,
-        "price": 1349.0,
+        "price": 1349,
         "costPrice": 540,
         "discount": 0,
-        "tax": 0.0,
-        "total": 1349.0
+        "tax": 0,
+        "total": 1349
       }
     ],
     "billing": {
@@ -1309,11 +1309,11 @@
       "email": "manjitnayar@gmail.com"
     },
     "couponDiscount": 0,
-    "subtotal": 1349.0,
+    "subtotal": 1349,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
-    "total": 1349.0,
+    "total": 1349,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -2726,11 +2726,11 @@
         "name": "Zafiro Product #7628",
         "sku": "ZI-BS-7628",
         "quantity": 1,
-        "price": 1499.0,
+        "price": 1499,
         "costPrice": 600,
         "discount": 0,
-        "tax": 0.0,
-        "total": 1499.0
+        "tax": 0,
+        "total": 1499
       }
     ],
     "billing": {
@@ -2756,11 +2756,11 @@
       "email": "order8425@zafiroindio.com"
     },
     "couponDiscount": 0,
-    "subtotal": 1499.0,
+    "subtotal": 1499,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
-    "total": 1499.0,
+    "total": 1499,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -2783,11 +2783,11 @@
         "name": "Zafiro Product #7731",
         "sku": "ZI-BS-7731",
         "quantity": 1,
-        "price": 1199.0,
+        "price": 1199,
         "costPrice": 480,
         "discount": 0,
-        "tax": 0.0,
-        "total": 1199.0
+        "tax": 0,
+        "total": 1199
       }
     ],
     "billing": {
@@ -2813,11 +2813,11 @@
       "email": "rexeen42@yahoo.co.inp"
     },
     "couponDiscount": 0,
-    "subtotal": 1199.0,
+    "subtotal": 1199,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
-    "total": 1199.0,
+    "total": 1199,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -2840,11 +2840,11 @@
         "name": "Zafiro Product #8392",
         "sku": "ZI-BS-8392",
         "quantity": 1,
-        "price": 4749.0,
+        "price": 4749,
         "costPrice": 1900,
         "discount": 0,
-        "tax": 0.0,
-        "total": 4749.0
+        "tax": 0,
+        "total": 4749
       }
     ],
     "billing": {
@@ -2870,11 +2870,11 @@
       "email": "neeru.adda@gmail.com"
     },
     "couponDiscount": 0,
-    "subtotal": 4749.0,
+    "subtotal": 4749,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
-    "total": 4749.0,
+    "total": 4749,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -3193,11 +3193,11 @@
         "name": "Zafiro Product #7181",
         "sku": "ZI-BS-7181",
         "quantity": 1,
-        "price": 1810.0,
+        "price": 1810,
         "costPrice": 724,
         "discount": 0,
-        "tax": 89.0,
-        "total": 1810.0
+        "tax": 89,
+        "total": 1810
       }
     ],
     "billing": {
@@ -3223,11 +3223,11 @@
       "email": "urmichoudhary17@gmail.com"
     },
     "couponDiscount": 0,
-    "subtotal": 1810.0,
+    "subtotal": 1810,
     "shippingCost": 0,
-    "tax": 89.0,
+    "tax": 89,
     "discount": 0,
-    "total": 1899.0,
+    "total": 1899,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -3253,7 +3253,7 @@
         "price": 1141.9,
         "costPrice": 457,
         "discount": 0,
-        "tax": 0.0,
+        "tax": 0,
         "total": 1141.9
       }
     ],
@@ -3282,7 +3282,7 @@
     "couponDiscount": 0,
     "subtotal": 1141.9,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
     "total": 1141.9,
     "paymentMethod": "cod",
@@ -3626,7 +3626,7 @@
     "shippingCost": 0,
     "tax": 95.19,
     "discount": 0,
-    "total": 1999.0,
+    "total": 1999,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -3649,11 +3649,11 @@
         "name": "Zafiro Product #7216",
         "sku": "ZI-BS-7216",
         "quantity": 1,
-        "price": 1449.0,
+        "price": 1449,
         "costPrice": 580,
         "discount": 0,
-        "tax": 0.0,
-        "total": 1449.0
+        "tax": 0,
+        "total": 1449
       }
     ],
     "billing": {
@@ -3679,11 +3679,11 @@
       "email": "roopasinghdeo03@gmail.com"
     },
     "couponDiscount": 0,
-    "subtotal": 1449.0,
+    "subtotal": 1449,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
-    "total": 1449.0,
+    "total": 1449,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -3706,11 +3706,11 @@
         "name": "Zafiro Product #7281",
         "sku": "ZI-BS-7281",
         "quantity": 1,
-        "price": 1450.0,
+        "price": 1450,
         "costPrice": 580,
         "discount": 0,
-        "tax": 0.0,
-        "total": 1450.0
+        "tax": 0,
+        "total": 1450
       }
     ],
     "billing": {
@@ -3736,11 +3736,11 @@
       "email": "pallavislucky13@gmail.com"
     },
     "couponDiscount": 0,
-    "subtotal": 1450.0,
+    "subtotal": 1450,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
-    "total": 1450.0,
+    "total": 1450,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -4025,7 +4025,7 @@
     "shippingCost": 0,
     "tax": 138.05,
     "discount": 0,
-    "total": 2899.0,
+    "total": 2899,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -4048,11 +4048,11 @@
         "name": "Zafiro Product #7281",
         "sku": "ZI-BS-7281",
         "quantity": 1,
-        "price": 1380.0,
+        "price": 1380,
         "costPrice": 552,
         "discount": 0,
-        "tax": 69.0,
-        "total": 1380.0
+        "tax": 69,
+        "total": 1380
       }
     ],
     "billing": {
@@ -4078,11 +4078,11 @@
       "email": "ritupuri100@gmail.com"
     },
     "couponDiscount": 0,
-    "subtotal": 1380.0,
+    "subtotal": 1380,
     "shippingCost": 0,
-    "tax": 69.0,
+    "tax": 69,
     "discount": 0,
-    "total": 1449.0,
+    "total": 1449,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -4424,7 +4424,7 @@
     "shippingCost": 0,
     "tax": 142.81,
     "discount": 0,
-    "total": 2999.0,
+    "total": 2999,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -5244,7 +5244,7 @@
     "shippingCost": 0,
     "tax": 142.81,
     "discount": 0,
-    "total": 2999.0,
+    "total": 2999,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -5270,7 +5270,7 @@
         "price": 2856.19,
         "costPrice": 1142,
         "discount": 0,
-        "tax": 0.0,
+        "tax": 0,
         "total": 2856.19
       }
     ],
@@ -5299,7 +5299,7 @@
     "couponDiscount": 0,
     "subtotal": 2856.19,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
     "total": 2856.19,
     "paymentMethod": "cod",
@@ -5951,11 +5951,11 @@
         "name": "Zafiro Product #7627",
         "sku": "ZI-BS-7627",
         "quantity": 1,
-        "price": 1199.0,
+        "price": 1199,
         "costPrice": 480,
         "discount": 0,
-        "tax": 0.0,
-        "total": 1199.0
+        "tax": 0,
+        "total": 1199
       }
     ],
     "billing": {
@@ -5981,11 +5981,11 @@
       "email": "order8598@zafiroindio.com"
     },
     "couponDiscount": 0,
-    "subtotal": 1199.0,
+    "subtotal": 1199,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
-    "total": 1199.0,
+    "total": 1199,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -6011,7 +6011,7 @@
         "price": 1141.9,
         "costPrice": 457,
         "discount": 0,
-        "tax": 0.0,
+        "tax": 0,
         "total": 1141.9
       }
     ],
@@ -6040,7 +6040,7 @@
     "couponDiscount": 0,
     "subtotal": 1141.9,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
     "total": 1141.9,
     "paymentMethod": "cod",
@@ -6068,7 +6068,7 @@
         "price": 1427.62,
         "costPrice": 571,
         "discount": 0,
-        "tax": 0.0,
+        "tax": 0,
         "total": 1427.62
       }
     ],
@@ -6097,7 +6097,7 @@
     "couponDiscount": 0,
     "subtotal": 1427.62,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
     "total": 1427.62,
     "paymentMethod": "cod",
@@ -6270,7 +6270,7 @@
     "shippingCost": 0,
     "tax": 142.81,
     "discount": 0,
-    "total": 2999.0,
+    "total": 2999,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -6327,7 +6327,7 @@
     "shippingCost": 0,
     "tax": 57.1,
     "discount": 0,
-    "total": 1199.0,
+    "total": 1199,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -6395,7 +6395,7 @@
     "shippingCost": 0,
     "tax": 428.43,
     "discount": 0,
-    "total": 8997.0,
+    "total": 8997,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -6691,7 +6691,7 @@
     "shippingCost": 0,
     "tax": 166.57,
     "discount": 0,
-    "total": 3498.0,
+    "total": 3498,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -6827,7 +6827,7 @@
     "shippingCost": 0,
     "tax": 71.38,
     "discount": 0,
-    "total": 1499.0,
+    "total": 1499,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "Wobrehvz1787153330793",
@@ -7009,7 +7009,7 @@
     "shippingCost": 0,
     "tax": 142.76,
     "discount": 0,
-    "total": 2998.0,
+    "total": 2998,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -7191,7 +7191,7 @@
     "shippingCost": 0,
     "tax": 142.81,
     "discount": 0,
-    "total": 2999.0,
+    "total": 2999,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -8057,7 +8057,7 @@
     "shippingCost": 0,
     "tax": 114.2,
     "discount": 0,
-    "total": 2398.0,
+    "total": 2398,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -8171,7 +8171,7 @@
     "shippingCost": 0,
     "tax": 57.1,
     "discount": 0,
-    "total": 1199.0,
+    "total": 1199,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -9265,7 +9265,7 @@
     "shippingCost": 0,
     "tax": 123.8,
     "discount": 0,
-    "total": 2600.0,
+    "total": 2600,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -9812,22 +9812,22 @@
         "name": "Zafiro Product #7627",
         "sku": "ZI-BS-7627",
         "quantity": 1,
-        "price": 1125.0,
+        "price": 1125,
         "costPrice": 450,
         "discount": 0,
-        "tax": 0.0,
-        "total": 1125.0
+        "tax": 0,
+        "total": 1125
       },
       {
         "productId": "prod-7731",
         "name": "Zafiro Product #7731",
         "sku": "ZI-BS-7731",
         "quantity": 1,
-        "price": 1125.0,
+        "price": 1125,
         "costPrice": 450,
         "discount": 0,
-        "tax": 0.0,
-        "total": 1125.0
+        "tax": 0,
+        "total": 1125
       }
     ],
     "billing": {
@@ -9853,11 +9853,11 @@
       "email": "order8741@zafiroindio.com"
     },
     "couponDiscount": 0,
-    "subtotal": 2250.0,
+    "subtotal": 2250,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
-    "total": 2250.0,
+    "total": 2250,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -10019,7 +10019,7 @@
         "price": 2856.19,
         "costPrice": 1142,
         "discount": 0,
-        "tax": 0.0,
+        "tax": 0,
         "total": 2856.19
       }
     ],
@@ -10048,7 +10048,7 @@
     "couponDiscount": 0,
     "subtotal": 2856.19,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
     "total": 2856.19,
     "paymentMethod": "cod",
@@ -10958,7 +10958,7 @@
     "shippingCost": 0,
     "tax": 71.38,
     "discount": 0,
-    "total": 1499.0,
+    "total": 1499,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "Wounwesc1787904754445",
@@ -12247,7 +12247,7 @@
         "price": 1141.9,
         "costPrice": 457,
         "discount": 0,
-        "tax": 0.0,
+        "tax": 0,
         "total": 1141.9
       }
     ],
@@ -12276,7 +12276,7 @@
     "couponDiscount": 0,
     "subtotal": 1141.9,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
     "total": 1141.9,
     "paymentMethod": "cod",
@@ -14681,7 +14681,7 @@
     "shippingCost": 0,
     "tax": 71.38,
     "discount": 0,
-    "total": 1499.0,
+    "total": 1499,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -14738,7 +14738,7 @@
     "shippingCost": 0,
     "tax": 95.19,
     "discount": 0,
-    "total": 1999.0,
+    "total": 1999,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "Wompseuy1788442202541",
@@ -15103,11 +15103,11 @@
         "name": "Zafiro Bedsheet Set",
         "sku": "ZI-BS-9001",
         "quantity": 1,
-        "price": 1499.0,
+        "price": 1499,
         "costPrice": 600,
         "discount": 0,
         "tax": 0,
-        "total": 1499.0
+        "total": 1499
       }
     ],
     "billing": {
@@ -15133,11 +15133,11 @@
       "email": "order9001@zafiroindio.com"
     },
     "couponDiscount": 0,
-    "subtotal": 1499.0,
+    "subtotal": 1499,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
-    "total": 1499.0,
+    "total": 1499,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -15535,11 +15535,11 @@
         "name": "Zafiro Bedsheet Set",
         "sku": "ZI-BS-9037",
         "quantity": 1,
-        "price": 1499.0,
+        "price": 1499,
         "costPrice": 600,
         "discount": 0,
         "tax": 0,
-        "total": 1499.0
+        "total": 1499
       }
     ],
     "billing": {
@@ -15565,11 +15565,11 @@
       "email": "order9037@zafiroindio.com"
     },
     "couponDiscount": 0,
-    "subtotal": 1499.0,
+    "subtotal": 1499,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
-    "total": 1499.0,
+    "total": 1499,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -15626,7 +15626,7 @@
     "shippingCost": 0,
     "tax": 95.19,
     "discount": 0,
-    "total": 1999.0,
+    "total": 1999,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -15649,11 +15649,11 @@
         "name": "Zafiro Bedsheet Set",
         "sku": "ZI-BS-9039",
         "quantity": 1,
-        "price": 1499.0,
+        "price": 1499,
         "costPrice": 600,
         "discount": 0,
         "tax": 0,
-        "total": 1499.0
+        "total": 1499
       }
     ],
     "billing": {
@@ -15679,11 +15679,11 @@
       "email": "order9039@zafiroindio.com"
     },
     "couponDiscount": 0,
-    "subtotal": 1499.0,
+    "subtotal": 1499,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
-    "total": 1499.0,
+    "total": 1499,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -16301,7 +16301,7 @@
         "price": 1356.19,
         "costPrice": 542,
         "discount": 0,
-        "tax": 67.0,
+        "tax": 67,
         "total": 1356.19
       }
     ],
@@ -16330,7 +16330,7 @@
     "couponDiscount": 0,
     "subtotal": 1356.19,
     "shippingCost": 0,
-    "tax": 67.0,
+    "tax": 67,
     "discount": 0,
     "total": 1423.19,
     "paymentMethod": "cod",
@@ -16400,7 +16400,7 @@
     "shippingCost": 0,
     "tax": 199.91,
     "discount": 0,
-    "total": 4198.0,
+    "total": 4198,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -16672,7 +16672,7 @@
     "shippingCost": 0,
     "tax": 847.39,
     "discount": 0,
-    "total": 17795.0,
+    "total": 17795,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "30522928319",
@@ -16729,7 +16729,7 @@
     "shippingCost": 0,
     "tax": 142.81,
     "discount": 0,
-    "total": 2999.0,
+    "total": 2999,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "30524129175",
@@ -16926,7 +16926,7 @@
         "price": 951.43,
         "costPrice": 381,
         "discount": 0,
-        "tax": 0.0,
+        "tax": 0,
         "total": 951.43
       }
     ],
@@ -16955,7 +16955,7 @@
     "couponDiscount": 0,
     "subtotal": 951.43,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
     "total": 951.43,
     "paymentMethod": "cod",
@@ -17082,7 +17082,7 @@
     "shippingCost": 0,
     "tax": 166.57,
     "discount": 0,
-    "total": 3498.0,
+    "total": 3498,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -17205,7 +17205,7 @@
     "couponDiscount": 0,
     "subtotal": 2260.1,
     "shippingCost": 0,
-    "tax": 113.0,
+    "tax": 113,
     "discount": 0,
     "total": 2373.1,
     "paymentMethod": "cod",
@@ -17401,11 +17401,11 @@
         "name": "Zafiro Bedsheet Set",
         "sku": "ZI-BS-9099",
         "quantity": 1,
-        "price": 1499.0,
+        "price": 1499,
         "costPrice": 600,
         "discount": 0,
         "tax": 0,
-        "total": 1499.0
+        "total": 1499
       }
     ],
     "billing": {
@@ -17431,11 +17431,11 @@
       "email": "order9099@zafiroindio.com"
     },
     "couponDiscount": 0,
-    "subtotal": 1499.0,
+    "subtotal": 1499,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
-    "total": 1499.0,
+    "total": 1499,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -17503,7 +17503,7 @@
     "shippingCost": 0,
     "tax": 114.2,
     "discount": 0,
-    "total": 2398.0,
+    "total": 2398,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -17811,11 +17811,11 @@
         "name": "Zafiro Bedsheet Set",
         "sku": "ZI-BS-9115",
         "quantity": 1,
-        "price": 1499.0,
+        "price": 1499,
         "costPrice": 600,
         "discount": 0,
         "tax": 0,
-        "total": 1499.0
+        "total": 1499
       }
     ],
     "billing": {
@@ -17841,11 +17841,11 @@
       "email": "order9115@zafiroindio.com"
     },
     "couponDiscount": 0,
-    "subtotal": 1499.0,
+    "subtotal": 1499,
     "shippingCost": 0,
-    "tax": 0.0,
+    "tax": 0,
     "discount": 0,
-    "total": 1499.0,
+    "total": 1499,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -17924,7 +17924,7 @@
     "shippingCost": 0,
     "tax": 171.3,
     "discount": 0,
-    "total": 3597.0,
+    "total": 3597,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "30554115673",
@@ -18093,7 +18093,7 @@
     "shippingCost": 0,
     "tax": 342.6,
     "discount": 0,
-    "total": 5995.0,
+    "total": 5995,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -18786,7 +18786,7 @@
     "couponDiscount": 0,
     "subtotal": 2260.1,
     "shippingCost": 0,
-    "tax": 113.0,
+    "tax": 113,
     "discount": 0,
     "total": 2373.1,
     "paymentMethod": "cod",
@@ -19551,7 +19551,7 @@
     "shippingCost": 0,
     "tax": 71.38,
     "discount": 0,
-    "total": 1499.0,
+    "total": 1499,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "",
@@ -20689,7 +20689,7 @@
     "shippingCost": 0,
     "tax": 71.38,
     "discount": 0,
-    "total": 1548.0,
+    "total": 1548,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "Wofpnvmp1789055360366",
@@ -20826,11 +20826,11 @@
         "name": "Zafiro Bedsheet Set",
         "sku": "ZI-BS-9231",
         "quantity": 1,
-        "price": 3048.0,
+        "price": 3048,
         "costPrice": 1219,
         "discount": 0,
         "tax": 0,
-        "total": 3048.0
+        "total": 3048
       }
     ],
     "billing": {
@@ -20856,16 +20856,162 @@
       "email": "ushaajaysingh@gmail.com"
     },
     "couponDiscount": 0,
-    "subtotal": 3048.0,
+    "subtotal": 3048,
     "shippingCost": 0,
     "tax": 142.81,
     "discount": 0,
-    "total": 3048.0,
+    "total": 3048,
     "paymentMethod": "cod",
     "paymentStatus": "paid",
     "transactionId": "Woggwyte1789097899660",
     "notes": [],
     "createdAt": "2026-09-11T03:38:25",
     "updatedAt": "2026-09-11T03:40:51"
+  },
+  {
+    "id": "5cc24ebc-0091-4f13-9f70-bb6ac4ba2622",
+    "orderNumber": "ZI-10354",
+    "customerName": "Manisha Verma",
+    "customerEmail": "manisha@gmail.com",
+    "customerPhone": "9876543210",
+    "type": "retail",
+    "status": "processing",
+    "items": [
+      {
+        "productId": "sage-serenity",
+        "name": "Zafiro Sage Serenity",
+        "sku": "ZI-SAGE-SERENITY",
+        "quantity": 1,
+        "price": 1299,
+        "costPrice": 520,
+        "discount": 0,
+        "tax": 0,
+        "total": 1299,
+        "attributes": [
+          {
+            "name": "Size",
+            "value": "Single"
+          },
+          {
+            "name": "Color",
+            "value": "Sage Green"
+          }
+        ]
+      }
+    ],
+    "billing": {
+      "firstName": "Manisha",
+      "lastName": "Verma",
+      "address1": "22, 9th Cross, Sarjapur Road",
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "postalCode": "560035",
+      "country": "India",
+      "phone": "9876543210",
+      "email": "manisha@gmail.com"
+    },
+    "shipping": {
+      "firstName": "Manisha",
+      "lastName": "Verma",
+      "address1": "22, 9th Cross, Sarjapur Road",
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "postalCode": "560035",
+      "country": "India",
+      "phone": "9876543210",
+      "email": "manisha@gmail.com"
+    },
+    "couponCode": "WELCOME10",
+    "couponDiscount": 130,
+    "subtotal": 1299,
+    "shippingCost": 99,
+    "tax": 0,
+    "discount": 130,
+    "total": 1268,
+    "costSnapshot": {
+      "shippingCost": 99,
+      "paymentFee": 25,
+      "packagingCost": 50,
+      "marketingAttributionCost": 0,
+      "otherOrderCost": 0
+    },
+    "paymentMethod": "netbanking",
+    "paymentStatus": "paid",
+    "notes": [],
+    "createdAt": "2026-09-15T07:25:06.163Z",
+    "updatedAt": "2026-09-15T07:25:06.163Z"
+  },
+  {
+    "id": "4ccef05b-1f8f-4eea-82ed-ce1c8f5a5690",
+    "orderNumber": "ZI-10355",
+    "customerName": "Manisha Verma",
+    "customerEmail": "manisha@gmail.com",
+    "customerPhone": "9876543210",
+    "type": "retail",
+    "status": "processing",
+    "items": [
+      {
+        "productId": "indigo-haven",
+        "name": "Zafiro Indigo Haven",
+        "sku": "ZI-INDIGO-HAVEN",
+        "quantity": 1,
+        "price": 1299,
+        "costPrice": 520,
+        "discount": 0,
+        "tax": 0,
+        "total": 1299,
+        "attributes": [
+          {
+            "name": "Size",
+            "value": "Double"
+          },
+          {
+            "name": "Color",
+            "value": "Indigo Blue"
+          }
+        ]
+      }
+    ],
+    "billing": {
+      "firstName": "Manisha",
+      "lastName": "Verma",
+      "address1": "22 9th Cross Sarjapur Road22 9th Cross Sarjapur Road",
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "postalCode": "560035",
+      "country": "India",
+      "phone": "9876543210",
+      "email": "manisha@gmail.com"
+    },
+    "shipping": {
+      "firstName": "Manisha",
+      "lastName": "Verma",
+      "address1": "22 9th Cross Sarjapur Road22 9th Cross Sarjapur Road",
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "postalCode": "560035",
+      "country": "India",
+      "phone": "9876543210",
+      "email": "manisha@gmail.com"
+    },
+    "couponCode": "WELCOME10",
+    "couponDiscount": 130,
+    "subtotal": 1299,
+    "shippingCost": 99,
+    "tax": 0,
+    "discount": 130,
+    "total": 1268,
+    "costSnapshot": {
+      "shippingCost": 99,
+      "paymentFee": 25,
+      "packagingCost": 50,
+      "marketingAttributionCost": 0,
+      "otherOrderCost": 0
+    },
+    "paymentMethod": "upi",
+    "paymentStatus": "paid",
+    "notes": [],
+    "createdAt": "2026-09-15T07:42:26.199Z",
+    "updatedAt": "2026-09-15T07:42:26.199Z"
   }
 ]

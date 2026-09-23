@@ -1,12 +1,19 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { readCollection, writeCollection } from "@/lib/db/store";
 import type { Order } from "@/lib/db/types";
 import { generateInvoiceForOrder } from "@/lib/db/invoices";
 import { sendTransactionalEmail } from "@/lib/email/service";
+import { checkRateLimit, rateLimitResponse } from "@/lib/security/rate-limit";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
+    const rateLimit = await checkRateLimit(`payments-verify:${ip}`, { windowMs: 60000, maxRequests: 10 });
+    if (!rateLimit.success) {
+      return rateLimitResponse(rateLimit.reset);
+    }
+
     const body = await request.json();
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId } = body;
 
@@ -53,7 +60,8 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ success: true, order: targetOrder, invoice });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Failed to verify payment." }, { status: 500 });
   }
 }
+

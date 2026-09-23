@@ -21,12 +21,12 @@ export const products: Product[] = [
 ];
 
 export const collections = [
- {name:"Floral Collection",slug:"floral",desc:"Bring nature inside with elegant florals that never go out of style.",image:I("photo-1618220179428-22790b461013")},
- {name:"Minimal Collection",slug:"minimal",desc:"Clean, calm and effortlessly beautiful for modern living.",image:I("photo-1598928506311-c55ded91a20c")},
- {name:"Printed Collection",slug:"printed",desc:"Artful prints and patterns to add personality and charm.",image:I("photo-1616486338812-3dadae4b4ace")},
- {name:"Luxury Collection",slug:"luxury",desc:"Indulge in premium fabrics and timeless craftsmanship.",image:I("photo-1600607687939-ce8a6c25118c")},
- {name:"Everyday Comfort",slug:"everyday",desc:"Soft, breathable and made for your everyday comfort.",image:I("photo-1595526114035-0d45ed16cfbf")},
- {name:"New Arrivals",slug:"new",desc:"Fresh styles, trending designs and new favorites just for you.",image:I("photo-1600566753086-00f18fb6b3ea")}
+ {name:"Floral Collection",slug:"floral",desc:"Bring nature's beauty into your bedroom with our stunning floral designs.",image:I("photo-1618220179428-22790b461013")},
+ {name:"Minimal Collection",slug:"minimal",desc:"Clean. Simple. Timeless. Perfect for modern living.",image:I("photo-1598928506311-c55ded91a20c")},
+ {name:"Printed Collection",slug:"printed",desc:"Beautiful prints that add character and charm to your space.",image:I("photo-1616486338812-3dadae4b4ace")},
+ {name:"Luxury Collection",slug:"luxury",desc:"Indulge in premium fabrics and exquisite craftsmanship.",image:I("photo-1600607687939-ce8a6c25118c")},
+ {name:"Everyday Comfort Collection",slug:"everyday",desc:"Soft, durable and perfect for everyday use.",image:I("photo-1595526114035-0d45ed16cfbf")},
+ {name:"New Arrivals",slug:"new",desc:"Explore the latest designs and freshest additions to our collection.",image:I("photo-1600566753086-00f18fb6b3ea")}
 ];
 
 export function getStorefrontProducts(): Product[] {
@@ -34,15 +34,17 @@ export function getStorefrontProducts(): Product[] {
 }
 
 export function getStorefrontBanners() {
-  if (typeof window !== "undefined") return [];
-  try {
-    const { readCollection } = require("@/lib/db/store");
-    const dbBanners = readCollection("banners");
-    if (dbBanners && dbBanners.length > 0) {
-      return dbBanners.filter((b: any) => b.isActive !== false);
+  return [
+    {
+      id: "b1",
+      title: "Handcrafted Luxury Bedsheets",
+      subtitle: "Experience pure cotton comfort with traditional Indian block prints",
+      ctaText: "Shop Collection",
+      ctaLink: "/shop",
+      image: "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85",
+      isActive: true
     }
-  } catch (e) {}
-  return [];
+  ];
 }
 
 

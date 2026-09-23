@@ -1,0 +1,52 @@
+[
+  {
+    "id": "trash-1789457358175-c89",
+    "originalId": "prod-6698",
+    "module": "products",
+    "recordName": "Zafiro Product #6698",
+    "deletedBy": "admin@zafiroindio.com",
+    "deletedByRole": "super_admin",
+    "deletedAt": "2026-09-15T07:29:18.175Z",
+    "data": {
+      "id": "prod-6698",
+      "name": "Zafiro Product #6698",
+      "slug": "product-6698",
+      "type": "simple",
+      "status": "active",
+      "description": "Zafiro Product #6698",
+      "shortDescription": "Zafiro Product #6698",
+      "sku": "MARILYN-2",
+      "price": 2999,
+      "salePrice": null,
+      "mrp": 4199,
+      "costPrice": 1200,
+      "categoryId": "cat-143",
+      "tags": [
+        "bedsheet",
+        "cotton",
+        "heritage"
+      ],
+      "images": [
+        "https://zafiroindio.com/wp-content/uploads/2026/04/Marilyn-Mist-108%E2%80%B3-x-108%E2%80%B3-Handblock-Printed-Cotton-Bed-Sheet-Set-Design.webp"
+      ],
+      "taxClass": "standard",
+      "stock": 0,
+      "stockStatus": "out_of_stock",
+      "lowStockThreshold": 10,
+      "manageStock": true,
+      "backordersAllowed": false,
+      "attributes": {
+        "Size": [
+          "Single",
+          "Double",
+          "Queen",
+          "King"
+        ]
+      },
+      "variations": [],
+      "createdAt": "2026-01-15T08:00:00.000Z",
+      "updatedAt": "2026-08-20T10:00:00.000Z"
+    },
+    "reason": "Super Admin single product deletion"
+  }
+]
