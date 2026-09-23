@@ -18,6 +18,11 @@ interface ValidationErrors {
   city?: string;
   stateName?: string;
   postalCode?: string;
+  shipFullName?: string;
+  shipAddress?: string;
+  shipCity?: string;
+  shipStateName?: string;
+  shipPostalCode?: string;
 }
 
 export default function CheckoutPage() {
@@ -42,7 +47,15 @@ export default function CheckoutPage() {
   const [city, setCity] = useState("Bangalore");
   const [postalCode, setPostalCode] = useState("560035");
   const [stateName, setStateName] = useState("Karnataka");
+
+  // Recipient Shipping Address (if different from Billing)
   const [shipDifferent, setShipDifferent] = useState(false);
+  const [shipFullName, setShipFullName] = useState("");
+  const [shipAddress, setShipAddress] = useState("");
+  const [shipApartment, setShipApartment] = useState("");
+  const [shipCity, setShipCity] = useState("");
+  const [shipPostalCode, setShipPostalCode] = useState("");
+  const [shipStateName, setShipStateName] = useState("");
   const [saveInfo, setSaveInfo] = useState(true);
 
   const [deliveryMethod, setDeliveryMethod] = useState<"standard" | "express">("standard");
@@ -72,6 +85,26 @@ export default function CheckoutPage() {
   const [resendCooldown, setResendCooldown] = useState(0);
 
   const discount = Math.round((subtotal * discountPercent) / 100);
+
+  // Auto-load saved customer profile from localStorage if present
+  useEffect(() => {
+    try {
+      const savedProfile = localStorage.getItem("zafiro-customer-profile");
+      if (savedProfile) {
+        const p = JSON.parse(savedProfile);
+        if (p.email) setEmail(p.email);
+        if (p.fullName) setFullName(p.fullName);
+        if (p.phone) setPhone(p.phone);
+        if (p.street || p.address) setAddress(p.street || p.address);
+        if (p.city) setCity(p.city);
+        if (p.state) setStateName(p.state);
+        if (p.pincode || p.postalCode) setPostalCode(p.pincode || p.postalCode);
+      } else {
+        const savedPhone = localStorage.getItem("zafiro_user_phone");
+        if (savedPhone) setPhone(savedPhone);
+      }
+    } catch {}
+  }, []);
 
   // Auto-apply WELCOME10 coupon if none applied initially
   useEffect(() => {
@@ -134,7 +167,7 @@ export default function CheckoutPage() {
       .catch((err) => console.error("Shipping calc failed:", err));
   }, [cart, paymentMethod]);
 
-  // Auto PIN Code Lookup to autofill City & State
+  // Auto PIN Code Lookup to autofill City & State (Billing Address)
   useEffect(() => {
     const cleanPin = postalCode.trim().replace(/\D/g, "");
     if (cleanPin.length === 6) {
@@ -149,6 +182,23 @@ export default function CheckoutPage() {
         .catch(() => {});
     }
   }, [postalCode]);
+
+  // Auto PIN Code Lookup for Recipient Shipping Address
+  useEffect(() => {
+    if (!shipDifferent) return;
+    const cleanPin = shipPostalCode.trim().replace(/\D/g, "");
+    if (cleanPin.length === 6) {
+      fetch(`/api/pincode/${cleanPin}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.available) {
+            if (data.city) setShipCity(data.city);
+            if (data.state) setShipStateName(data.state);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [shipPostalCode, shipDifferent]);
 
   // Validation function
   const validateForm = (): { isValid: boolean; errs: ValidationErrors } => {
@@ -193,6 +243,25 @@ export default function CheckoutPage() {
       errs.postalCode = "PIN code is required.";
     } else if (!/^\d{6}$/.test(cleanPin)) {
       errs.postalCode = "Please enter a valid 6-digit PIN code.";
+    }
+
+    if (shipDifferent) {
+      const cleanShipPin = shipPostalCode.trim().replace(/\D/g, "");
+      if (!shipFullName.trim()) {
+        errs.shipFullName = "Recipient full name is required.";
+      }
+      if (!shipAddress.trim() || shipAddress.trim().length < 5) {
+        errs.shipAddress = "Complete shipping address is required.";
+      }
+      if (!shipCity.trim()) {
+        errs.shipCity = "Shipping city is required.";
+      }
+      if (!shipStateName.trim()) {
+        errs.shipStateName = "Shipping state is required.";
+      }
+      if (!cleanShipPin || !/^\d{6}$/.test(cleanShipPin)) {
+        errs.shipPostalCode = "Please enter a valid 6-digit PIN code.";
+      }
     }
 
     return { isValid: Object.keys(errs).length === 0, errs };
@@ -301,7 +370,14 @@ export default function CheckoutPage() {
       address: true,
       city: true,
       stateName: true,
-      postalCode: true
+      postalCode: true,
+      ...(shipDifferent ? {
+        shipFullName: true,
+        shipAddress: true,
+        shipCity: true,
+        shipStateName: true,
+        shipPostalCode: true
+      } : {})
     });
 
     const { isValid, errs } = validateForm();
@@ -342,12 +418,50 @@ export default function CheckoutPage() {
       const fullAddress = apartment ? `${address.trim()}, ${apartment.trim()}` : address.trim();
       const cleanPhone = phone.trim().replace(/\D/g, "");
 
+      if (saveInfo) {
+        try {
+          localStorage.setItem(
+            "zafiro-customer-profile",
+            JSON.stringify({
+              fullName: fullName.trim(),
+              email: email.trim(),
+              phone: cleanPhone,
+              street: address.trim(),
+              city: city.trim(),
+              state: stateName.trim(),
+              pincode: postalCode.trim()
+            })
+          );
+          localStorage.setItem("zafiro_user_phone", cleanPhone);
+          localStorage.setItem("zafiro_verified_phone", cleanPhone);
+        } catch {}
+      }
+
+      const shipNameParts = shipDifferent ? shipFullName.trim().split(" ") : nameParts;
+      const shipFirstName = shipNameParts[0] || "Customer";
+      const shipLastName = shipNameParts.slice(1).join(" ") || "";
+      const fullShipAddress = shipDifferent
+        ? (shipApartment ? `${shipAddress.trim()}, ${shipApartment.trim()}` : shipAddress.trim())
+        : fullAddress;
+
       const payload = {
         customerName: fullName.trim(),
         customerEmail: email.trim(),
         customerPhone: cleanPhone,
         billing: { firstName, lastName, address1: fullAddress, city: city.trim(), state: stateName, postalCode: postalCode.trim(), country: "India", phone: cleanPhone, email: email.trim() },
-        shipping: { firstName, lastName, address1: fullAddress, city: city.trim(), state: stateName, postalCode: postalCode.trim(), country: "India", phone: cleanPhone, email: email.trim() },
+        shipping: shipDifferent
+          ? {
+              firstName: shipFirstName,
+              lastName: shipLastName,
+              address1: fullShipAddress,
+              city: shipCity.trim(),
+              state: shipStateName.trim(),
+              postalCode: shipPostalCode.trim(),
+              country: "India",
+              phone: cleanPhone,
+              email: email.trim()
+            }
+          : { firstName, lastName, address1: fullAddress, city: city.trim(), state: stateName, postalCode: postalCode.trim(), country: "India", phone: cleanPhone, email: email.trim() },
         items: cart.map((x) => ({
           productId: x.product.slug,
           name: x.product.name,
@@ -751,6 +865,182 @@ export default function CheckoutPage() {
                 />
                 Ship to a different address
               </label>
+
+              {shipDifferent && (
+                <div style={{ marginTop: 20, paddingTop: 20, borderTop: "1px dashed #d4cdbf" }}>
+                  <h3 style={{ fontSize: 13, fontWeight: 700, color: "#1c1917", marginBottom: 16 }}>
+                    Recipient Shipping Address
+                  </h3>
+
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ display: "block", fontSize: 11, color: "#666", marginBottom: 6, fontWeight: 600 }}>
+                      Recipient Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Name of person receiving the order"
+                      value={shipFullName}
+                      onChange={(e) => {
+                        setShipFullName(e.target.value);
+                        if (touched.shipFullName) setErrors((prev) => ({ ...prev, shipFullName: undefined }));
+                      }}
+                      onBlur={() => setTouched((prev) => ({ ...prev, shipFullName: true }))}
+                      style={{
+                        width: "100%",
+                        padding: "11px 14px",
+                        border: errors.shipFullName && touched.shipFullName ? "1px solid #c83232" : "1px solid #d4cdbf",
+                        borderRadius: 4,
+                        fontSize: 13,
+                        outline: "none",
+                        backgroundColor: errors.shipFullName && touched.shipFullName ? "#fff9f9" : "#ffffff"
+                      }}
+                    />
+                    {errors.shipFullName && touched.shipFullName && (
+                      <span style={{ color: "#c83232", fontSize: 11.5, marginTop: 4, display: "block", fontWeight: 500 }}>
+                        {errors.shipFullName}
+                      </span>
+                    )}
+                  </div>
+
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ display: "block", fontSize: 11, color: "#666", marginBottom: 6, fontWeight: 600 }}>
+                      Shipping Street Address *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="House/Flat No., Building, Street Name"
+                      value={shipAddress}
+                      onChange={(e) => {
+                        setShipAddress(e.target.value);
+                        if (touched.shipAddress) setErrors((prev) => ({ ...prev, shipAddress: undefined }));
+                      }}
+                      onBlur={() => setTouched((prev) => ({ ...prev, shipAddress: true }))}
+                      style={{
+                        width: "100%",
+                        padding: "11px 14px",
+                        border: errors.shipAddress && touched.shipAddress ? "1px solid #c83232" : "1px solid #d4cdbf",
+                        borderRadius: 4,
+                        fontSize: 13,
+                        outline: "none",
+                        backgroundColor: errors.shipAddress && touched.shipAddress ? "#fff9f9" : "#ffffff"
+                      }}
+                    />
+                    {errors.shipAddress && touched.shipAddress && (
+                      <span style={{ color: "#c83232", fontSize: 11.5, marginTop: 4, display: "block", fontWeight: 500 }}>
+                        {errors.shipAddress}
+                      </span>
+                    )}
+                  </div>
+
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ display: "block", fontSize: 11, color: "#666", marginBottom: 6, fontWeight: 500 }}>
+                      Apartment, suite, landmark (optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={shipApartment}
+                      onChange={(e) => setShipApartment(e.target.value)}
+                      style={{ width: "100%", padding: "11px 14px", border: "1px solid #d4cdbf", borderRadius: 4, fontSize: 13, outline: "none" }}
+                    />
+                  </div>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
+                    <div>
+                      <label style={{ display: "block", fontSize: 11, color: "#666", marginBottom: 6, fontWeight: 600 }}>
+                        City *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={shipCity}
+                        onChange={(e) => {
+                          setShipCity(e.target.value);
+                          if (touched.shipCity) setErrors((prev) => ({ ...prev, shipCity: undefined }));
+                        }}
+                        onBlur={() => setTouched((prev) => ({ ...prev, shipCity: true }))}
+                        style={{
+                          width: "100%",
+                          padding: "11px 14px",
+                          border: errors.shipCity && touched.shipCity ? "1px solid #c83232" : "1px solid #d4cdbf",
+                          borderRadius: 4,
+                          fontSize: 13,
+                          outline: "none",
+                          backgroundColor: errors.shipCity && touched.shipCity ? "#fff9f9" : "#ffffff"
+                        }}
+                      />
+                      {errors.shipCity && touched.shipCity && (
+                        <span style={{ color: "#c83232", fontSize: 11.5, marginTop: 4, display: "block", fontWeight: 500 }}>
+                          {errors.shipCity}
+                        </span>
+                      )}
+                    </div>
+
+                    <div>
+                      <label style={{ display: "block", fontSize: 11, color: "#666", marginBottom: 6, fontWeight: 600 }}>
+                        State *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={shipStateName}
+                        onChange={(e) => {
+                          setShipStateName(e.target.value);
+                          if (touched.shipStateName) setErrors((prev) => ({ ...prev, shipStateName: undefined }));
+                        }}
+                        onBlur={() => setTouched((prev) => ({ ...prev, shipStateName: true }))}
+                        style={{
+                          width: "100%",
+                          padding: "11px 14px",
+                          border: errors.shipStateName && touched.shipStateName ? "1px solid #c83232" : "1px solid #d4cdbf",
+                          borderRadius: 4,
+                          fontSize: 13,
+                          outline: "none",
+                          backgroundColor: errors.shipStateName && touched.shipStateName ? "#fff9f9" : "#ffffff"
+                        }}
+                      />
+                      {errors.shipStateName && touched.shipStateName && (
+                        <span style={{ color: "#c83232", fontSize: 11.5, marginTop: 4, display: "block", fontWeight: 500 }}>
+                          {errors.shipStateName}
+                        </span>
+                      )}
+                    </div>
+
+                    <div>
+                      <label style={{ display: "block", fontSize: 11, color: "#666", marginBottom: 6, fontWeight: 600 }}>
+                        PIN Code (6 digits) *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        maxLength={6}
+                        value={shipPostalCode}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, "");
+                          setShipPostalCode(val);
+                          if (touched.shipPostalCode) setErrors((prev) => ({ ...prev, shipPostalCode: undefined }));
+                        }}
+                        onBlur={() => setTouched((prev) => ({ ...prev, shipPostalCode: true }))}
+                        style={{
+                          width: "100%",
+                          padding: "11px 14px",
+                          border: errors.shipPostalCode && touched.shipPostalCode ? "1px solid #c83232" : "1px solid #d4cdbf",
+                          borderRadius: 4,
+                          fontSize: 13,
+                          outline: "none",
+                          backgroundColor: errors.shipPostalCode && touched.shipPostalCode ? "#fff9f9" : "#ffffff"
+                        }}
+                      />
+                      {errors.shipPostalCode && touched.shipPostalCode && (
+                        <span style={{ color: "#c83232", fontSize: 11.5, marginTop: 4, display: "block", fontWeight: 500 }}>
+                          {errors.shipPostalCode}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 3. DELIVERY METHOD */}
