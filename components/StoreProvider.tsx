@@ -38,6 +38,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [appliedCoupon, setAppliedCoupon] = useState<string>("");
   const [discountPercent, setDiscountPercent] = useState<number>(0);
 
+  const [isLoaded, setIsLoaded] = useState(false);
+
   useEffect(() => {
     try {
       setCart(JSON.parse(localStorage.getItem("zafiro-cart") || "[]"));
@@ -49,10 +51,22 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         setDiscountPercent(savedPercent);
       }
     } catch {}
+    setIsLoaded(true);
   }, []);
 
-  useEffect(() => localStorage.setItem("zafiro-cart", JSON.stringify(cart)), [cart]);
-  useEffect(() => localStorage.setItem("zafiro-wishlist", JSON.stringify(wishlist)), [wishlist]);
+  useEffect(() => {
+    if (!isLoaded) return;
+    try {
+      localStorage.setItem("zafiro-cart", JSON.stringify(cart));
+    } catch {}
+  }, [cart, isLoaded]);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    try {
+      localStorage.setItem("zafiro-wishlist", JSON.stringify(wishlist));
+    } catch {}
+  }, [wishlist, isLoaded]);
 
   const applyCoupon = (code: string): CouponResult => {
     const cleanCode = code.trim().toUpperCase();
