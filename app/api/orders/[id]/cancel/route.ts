@@ -1,13 +1,20 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { readCollection, writeCollection } from "@/lib/db/store";
 import type { Order, RefundRecord } from "@/lib/db/types";
 import { sendTransactionalEmail } from "@/lib/email/service";
+import { checkRateLimit, rateLimitResponse } from "@/lib/security/rate-limit";
 
 export async function POST(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
+    const rateLimit = await checkRateLimit(`order-cancel:${ip}`, { windowMs: 60000, maxRequests: 5 });
+    if (!rateLimit.success) {
+      return rateLimitResponse(rateLimit.reset);
+    }
+
     const { id } = await params;
     const body = await request.json().catch(() => ({}));
     const reason = body.reason || "Customer requested cancellation";
@@ -46,7 +53,7 @@ export async function POST(
     let refund: RefundRecord | null = null;
     if (order.paymentStatus === "paid") {
       order.paymentStatus = "refund_pending";
-      
+
       const refunds = readCollection<RefundRecord>("refunds");
       refund = {
         id: `ref-${Date.now()}`,
@@ -72,7 +79,8 @@ export async function POST(
     }
 
     return NextResponse.json({ success: true, order, refund });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Failed to cancel order." }, { status: 500 });
   }
 }
+

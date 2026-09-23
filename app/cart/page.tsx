@@ -1,16 +1,41 @@
 "use client";
+import { useState } from "react";
 import Link from "next/link";
-import { X, Heart, Minus, Plus, Truck, ShieldCheck, RotateCcw } from "lucide-react";
-import { useStore } from "@/components/StoreProvider";
-import ProductCard from "@/components/ProductCard";
-import { products } from "@/lib/data";
+import { X, Heart, Minus, Plus, Truck, ShieldCheck, RotateCcw, Tag, CheckCircle2, AlertCircle } from "lucide-react";
+import { useStore, AVAILABLE_COUPONS } from "@/components/StoreProvider";
+import SmartRecommendations from "@/components/site/SmartRecommendations";
 
 export default function Cart() {
-  const { cart, subtotal, setQty, remove } = useStore();
+  const {
+    cart,
+    subtotal,
+    setQty,
+    remove,
+    appliedCoupon,
+    discountPercent,
+    applyCoupon,
+    removeCoupon
+  } = useStore();
+
+  const [couponInput, setCouponInput] = useState("");
+  const [couponMessage, setCouponMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
   const shipping = subtotal >= 999 || subtotal === 0 ? 0 : 99;
-  const discount = Math.round(subtotal * 0.1);
-  const total = subtotal - discount + shipping;
+  const discount = Math.round((subtotal * discountPercent) / 100);
+  const total = Math.max(0, subtotal - discount + shipping);
   const freeShippingThreshold = 999;
+
+  const handleApplyCoupon = (e: React.FormEvent) => {
+    e.preventDefault();
+    setCouponMessage(null);
+    const res = applyCoupon(couponInput);
+    if (res.success) {
+      setCouponMessage({ type: "success", text: res.message });
+      setCouponInput("");
+    } else {
+      setCouponMessage({ type: "error", text: res.message });
+    }
+  };
 
   return (
     <main>
@@ -125,15 +150,135 @@ export default function Cart() {
                 <span style={{ color: "var(--muted)" }}>Subtotal</span>
                 <span>₹{subtotal.toLocaleString("en-IN")}</span>
               </div>
-              <div className="summaryLine">
-                <span style={{ color: "var(--danger)" }}>Discount (WELCOME10)</span>
-                <span style={{ color: "var(--danger)" }}>−₹{discount.toLocaleString("en-IN")}</span>
-              </div>
+
+              {discount > 0 && (
+                <div className="summaryLine">
+                  <span style={{ color: "var(--danger)" }}>Discount ({appliedCoupon})</span>
+                  <span style={{ color: "var(--danger)" }}>−₹{discount.toLocaleString("en-IN")}</span>
+                </div>
+              )}
+
               <div className="summaryLine">
                 <span style={{ color: "var(--muted)" }}>Shipping</span>
                 <span style={{ color: shipping === 0 ? "var(--success)" : "var(--ink)", fontWeight: 700 }}>
                   {shipping === 0 ? "FREE" : `₹${shipping}`}
                 </span>
+              </div>
+
+              {/* Coupon Code Form */}
+              <div style={{ margin: "16px 0", borderTop: "1px solid var(--line)", borderBottom: "1px solid var(--line)", padding: "14px 0" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 700, marginBottom: 8, color: "var(--ink)" }}>
+                  <Tag size={14} style={{ color: "var(--gold-dark)" }} /> Apply Coupon / Promo Code
+                </div>
+
+                {!appliedCoupon ? (
+                  <>
+                    <form onSubmit={handleApplyCoupon} style={{ display: "flex", gap: 0 }}>
+                      <input
+                        type="text"
+                        placeholder="Enter coupon code (e.g. WELCOME10)"
+                        value={couponInput}
+                        onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                        style={{
+                          flex: 1,
+                          border: "1.5px solid var(--line)",
+                          borderRight: 0,
+                          padding: "9px 12px",
+                          fontSize: 12,
+                          outline: "none",
+                          textTransform: "uppercase"
+                        }}
+                      />
+                      <button
+                        type="submit"
+                        style={{
+                          border: 0,
+                          background: "var(--ink)",
+                          color: "#fff",
+                          padding: "9px 16px",
+                          fontSize: 11,
+                          fontWeight: 700,
+                          letterSpacing: "0.5px",
+                          textTransform: "uppercase",
+                          cursor: "pointer"
+                        }}
+                      >
+                        Apply
+                      </button>
+                    </form>
+
+                    {/* Quick Select Chips */}
+                    <div style={{ marginTop: 10 }}>
+                      <div style={{ fontSize: 10.5, color: "var(--muted)", fontWeight: 600, marginBottom: 6 }}>
+                        Available Coupons (Click to Apply):
+                      </div>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                        {AVAILABLE_COUPONS.map((c) => (
+                          <button
+                            key={c.code}
+                            type="button"
+                            onClick={() => {
+                              setCouponInput(c.code);
+                              const res = applyCoupon(c.code);
+                              if (res.success) {
+                                setCouponMessage({ type: "success", text: res.message });
+                                setCouponInput("");
+                              } else {
+                                setCouponMessage({ type: "error", text: res.message });
+                              }
+                            }}
+                            style={{
+                              border: "1px dashed var(--gold-dark)",
+                              background: "#faf6f0",
+                              color: "var(--gold-dark)",
+                              padding: "4px 8px",
+                              fontSize: 10.5,
+                              fontWeight: 700,
+                              borderRadius: 4,
+                              cursor: "pointer",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 4
+                            }}
+                          >
+                            <Tag size={10} /> {c.code} ({c.pct}% OFF)
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", background: "#f0faf0", border: "1px solid #a8d5a8", fontSize: 12, color: "var(--success)", borderRadius: 4 }}>
+                    <span style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
+                      <CheckCircle2 size={15} /> Code <strong>{appliedCoupon}</strong> Applied ({discountPercent}% OFF)
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        removeCoupon();
+                        setCouponMessage(null);
+                        setCouponInput("");
+                      }}
+                      style={{ border: 0, background: "none", color: "var(--danger)", fontSize: 11, textDecoration: "underline", marginLeft: "auto", cursor: "pointer", fontWeight: 700 }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
+
+                {couponMessage && (
+                  <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    fontSize: 11.5,
+                    marginTop: 8,
+                    color: couponMessage.type === "success" ? "var(--success)" : "var(--danger)"
+                  }}>
+                    {couponMessage.type === "success" ? <CheckCircle2 size={13} /> : <AlertCircle size={13} />}
+                    {couponMessage.text}
+                  </div>
+                )}
               </div>
 
               <div className="summaryTotal">
@@ -143,9 +288,11 @@ export default function Cart() {
                 </div>
               </div>
 
-              <p style={{ fontSize: 11, color: "var(--success)", marginTop: 8, fontWeight: 600 }}>
-                🎉 You save ₹{discount.toLocaleString("en-IN")} with code WELCOME10
-              </p>
+              {discount > 0 && (
+                <p style={{ fontSize: 11.5, color: "var(--success)", marginTop: 8, fontWeight: 600 }}>
+                  🎉 You save ₹{discount.toLocaleString("en-IN")} on this order!
+                </p>
+              )}
 
               <Link className="btn gold full" href="/checkout" style={{ marginTop: 20, padding: "15px 22px", fontSize: 13 }}>
                 Proceed to Checkout
@@ -158,17 +305,19 @@ export default function Cart() {
           </div>
         )}
 
-        {/* You May Also Like */}
-        <section className="section" style={{ paddingBottom: 0 }}>
-          <div className="sectionHead">
-            <h2 className="serif">You May Also Like</h2>
-          </div>
-          <div className="products">
-            {products.slice(0, 4).map(p => (
-              <ProductCard key={p.slug} p={p} />
-            ))}
-          </div>
-        </section>
+        {/* Smart Personalised Recommendations */}
+        <SmartRecommendations
+          mode="interest"
+          title="You Might Also Love"
+          subtitle="Based on what you've been browsing — picked just for you."
+          maxItems={4}
+        />
+        <SmartRecommendations
+          mode="recent"
+          title="Recently Viewed"
+          subtitle="Continue exploring where you left off."
+          maxItems={4}
+        />
       </div>
     </main>
   );

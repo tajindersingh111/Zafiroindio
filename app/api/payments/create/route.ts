@@ -1,8 +1,15 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
+import { checkRateLimit, rateLimitResponse } from "@/lib/security/rate-limit";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
+    const rateLimit = await checkRateLimit(`payments-create:${ip}`, { windowMs: 60000, maxRequests: 10 });
+    if (!rateLimit.success) {
+      return rateLimitResponse(rateLimit.reset);
+    }
+
     const body = await request.json();
     const amount = Number(body.amount);
     const currency = body.currency || "INR";
@@ -18,7 +25,6 @@ export async function POST(request: Request) {
     let razorpayOrderId = `order_${crypto.randomBytes(10).toString("hex")}`;
 
     if (keyId.startsWith("rzp_live") && keySecret) {
-      // Real Razorpay API call if live keys provided
       try {
         const auth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
         const res = await fetch("https://api.razorpay.com/v1/orders", {
@@ -28,7 +34,7 @@ export async function POST(request: Request) {
             Authorization: `Basic ${auth}`
           },
           body: JSON.stringify({
-            amount: Math.round(amount * 100), // amount in paise
+            amount: Math.round(amount * 100),
             currency,
             receipt,
             payment_capture: 1
@@ -38,8 +44,8 @@ export async function POST(request: Request) {
         if (data.id) {
           razorpayOrderId = data.id;
         }
-      } catch (e) {
-        console.warn("Razorpay API call fallback to mock order ID:", e);
+      } catch {
+        // Fallback to mock order ID on API error
       }
     }
 
@@ -50,7 +56,8 @@ export async function POST(request: Request) {
       keyId,
       receipt
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Failed to create payment order." }, { status: 500 });
   }
 }
+

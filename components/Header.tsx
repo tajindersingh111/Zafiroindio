@@ -9,12 +9,35 @@ export default function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [announcements, setAnnouncements] = useState<string[]>([
+    "🚚 FREE SHIPPING on orders above ₹999",
+    "🎁 10% OFF on your first order | Use code: WELCOME10",
+    "↻ Easy Returns within 7 days"
+  ]);
   const { cartCount, wishlist } = useStore();
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 8);
     window.addEventListener("scroll", handler, { passive: true });
     return () => window.removeEventListener("scroll", handler);
+  }, []);
+
+  // Fetch live announcements from admin banners API
+  useEffect(() => {
+    fetch("/api/banners")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.banners && Array.isArray(data.banners)) {
+          const annList = data.banners
+            .filter((b: any) => b.type === "announcement" && b.isActive !== false)
+            .map((b: any) => b.heading || b.subheading)
+            .filter(Boolean);
+          if (annList.length > 0) {
+            setAnnouncements(annList);
+          }
+        }
+      })
+      .catch(() => {});
   }, []);
 
   // Close drawer when navigating
@@ -32,11 +55,11 @@ export default function Header() {
 
   return (
     <>
-      {/* ── Announcement Bar ─────────────────────────────────── */}
+      {/* ── Dynamic Announcement Bar ─────────────────────────── */}
       <div className="announcement">
-        <span>🚚 FREE SHIPPING on orders above ₹999</span>
-        <span>🎁 10% OFF on your first order &nbsp;|&nbsp; Use code: WELCOME10</span>
-        <span>↻ Easy Returns within 7 days</span>
+        {announcements.slice(0, 3).map((text, idx) => (
+          <span key={idx}>{text}</span>
+        ))}
       </div>
 
       {/* ── Main Header ──────────────────────────────────────── */}
@@ -52,7 +75,9 @@ export default function Header() {
           </button>
 
           {/* Logo */}
-          <Link href="/" className="logo">ZAFIRO</Link>
+          <Link href="/" className="logo" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
+            <img src="/zafiro-logo-dark.png" alt="Zafiro Indio" style={{ height: 42, width: "auto", objectFit: "contain" }} />
+          </Link>
 
           {/* Desktop nav */}
           <nav className="menu">
@@ -104,7 +129,9 @@ export default function Header() {
       >
         <div className="mobileDrawerInner">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-            <span className="logo" style={{ fontSize: 22, letterSpacing: 5 }}>ZAFIRO</span>
+            <Link href="/" style={{ display: "flex", alignItems: "center" }}>
+              <img src="/zafiro-logo-dark.png" alt="Zafiro Indio" style={{ height: 36, width: "auto", objectFit: "contain" }} />
+            </Link>
             <button className="iconbtn" onClick={() => setOpen(false)} aria-label="Close menu">
               <X size={22} />
             </button>

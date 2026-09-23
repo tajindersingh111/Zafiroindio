@@ -1,11 +1,47 @@
 "use client";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Instagram, Facebook, Twitter, Youtube } from "lucide-react";
+import { Instagram, Facebook, Twitter, Youtube, CheckCircle2 } from "lucide-react";
 
 export default function Footer() {
   const pathname = usePathname();
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
   if (pathname?.startsWith("/admin")) return null;
+
+  async function handleSubscribe(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email.trim() || !email.includes("@")) {
+      setMessage({ type: "error", text: "Please enter a valid email address." });
+      return;
+    }
+
+    setLoading(true);
+    setMessage(null);
+
+    try {
+      const res = await fetch("/api/subscribers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setMessage({ type: "success", text: data.message });
+        setEmail("");
+      } else {
+        setMessage({ type: "error", text: data.error || "Subscription failed." });
+      }
+    } catch {
+      setMessage({ type: "error", text: "Unable to subscribe right now. Please try again." });
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <>
@@ -14,10 +50,28 @@ export default function Footer() {
         <div className="container">
           <h2 className="serif">A Little More Beautiful in Your Inbox.</h2>
           <p>Get first access to new collections, special offers and bedroom inspiration.</p>
-          <form onSubmit={(e) => e.preventDefault()}>
-            <input type="email" placeholder="Enter your email address" aria-label="Email address" />
-            <button type="submit">Subscribe</button>
-          </form>
+          
+          {message ? (
+            <div className={`p-4 rounded-sm max-w-md mx-auto text-sm font-medium flex items-center justify-center gap-2 ${
+              message.type === "success" ? "bg-emerald-950/80 text-emerald-300 border border-emerald-500/40" : "bg-red-950/80 text-red-300 border border-red-500/40"
+            }`}>
+              <CheckCircle2 size={16} /> {message.text}
+            </div>
+          ) : (
+            <form onSubmit={handleSubscribe}>
+              <input 
+                type="email" 
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email address (e.g. tajindsingh012@gmail.com)" 
+                aria-label="Email address" 
+              />
+              <button type="submit" disabled={loading}>
+                {loading ? "Subscribing..." : "Subscribe"}
+              </button>
+            </form>
+          )}
         </div>
       </section>
 
@@ -27,7 +81,13 @@ export default function Footer() {
           <div className="footerGrid">
             {/* Brand */}
             <div>
-              <div className="footerLogo">ZAFIRO</div>
+              <Link href="/" style={{ display: "inline-block", marginBottom: 14 }}>
+                <img
+                  src="/zafiro-logo-dark.png"
+                  alt="Zafiro Indio"
+                  style={{ height: 44, width: "auto", objectFit: "contain", filter: "brightness(0) invert(1)" }}
+                />
+              </Link>
               <p>Beautiful bedsheets for beautiful homes. Thoughtfully crafted for everyday comfort and timeless style.</p>
               <div className="footerSocial">
                 <a href="#" aria-label="Instagram"><Instagram size={14} /></a>

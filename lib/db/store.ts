@@ -1,19 +1,38 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync, renameSync, unlinkSync } from "fs";
-import { join } from "path";
+function getFs() {
+  if (typeof window !== "undefined") return null;
+  try {
+    const req = eval("require");
+    return req("fs");
+  } catch {
+    return null;
+  }
+}
 
-const DATA_DIR = join(process.cwd(), "data");
+function getPath() {
+  if (typeof window !== "undefined") return null;
+  try {
+    const req = eval("require");
+    return req("path");
+  } catch {
+    return null;
+  }
+}
 
-// Ensure data directory exists
-if (!existsSync(DATA_DIR)) {
-  mkdirSync(DATA_DIR, { recursive: true });
+function getDataDir(): string {
+  const path = getPath();
+  if (!path) return "";
+  return path.join(process.cwd(), "data");
 }
 
 /** Read a JSON data file, returning empty array if it doesn't exist */
 export function readCollection<T>(collection: string): T[] {
-  const filePath = join(DATA_DIR, `${collection}.json`);
-  if (!existsSync(filePath)) return [];
+  const fs = getFs();
+  const path = getPath();
+  if (!fs || !path) return [];
+  const filePath = path.join(getDataDir(), `${collection}.json`);
+  if (!fs.existsSync(filePath)) return [];
   try {
-    return JSON.parse(readFileSync(filePath, "utf-8")) as T[];
+    return JSON.parse(fs.readFileSync(filePath, "utf-8")) as T[];
   } catch {
     return [];
   }
@@ -21,14 +40,21 @@ export function readCollection<T>(collection: string): T[] {
 
 /** Write the full array back to a JSON data file atomically using temporary renames */
 export function writeCollection<T>(collection: string, data: T[]): void {
-  const filePath = join(DATA_DIR, `${collection}.json`);
+  const fs = getFs();
+  const path = getPath();
+  if (!fs || !path) return;
+  const dataDir = getDataDir();
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+  }
+  const filePath = path.join(dataDir, `${collection}.json`);
   const tmpPath = `${filePath}.tmp`;
   try {
-    writeFileSync(tmpPath, JSON.stringify(data, null, 2), "utf-8");
-    renameSync(tmpPath, filePath);
+    fs.writeFileSync(tmpPath, JSON.stringify(data, null, 2), "utf-8");
+    fs.renameSync(tmpPath, filePath);
   } catch (error) {
-    if (existsSync(tmpPath)) {
-      try { unlinkSync(tmpPath); } catch {}
+    if (fs.existsSync(tmpPath)) {
+      try { fs.unlinkSync(tmpPath); } catch {}
     }
     throw error;
   }
@@ -36,10 +62,13 @@ export function writeCollection<T>(collection: string, data: T[]): void {
 
 /** Read a single settings JSON object (not an array) */
 export function readSettings<T>(key: string): T | null {
-  const filePath = join(DATA_DIR, `${key}.json`);
-  if (!existsSync(filePath)) return null;
+  const fs = getFs();
+  const path = getPath();
+  if (!fs || !path) return null;
+  const filePath = path.join(getDataDir(), `${key}.json`);
+  if (!fs.existsSync(filePath)) return null;
   try {
-    return JSON.parse(readFileSync(filePath, "utf-8")) as T;
+    return JSON.parse(fs.readFileSync(filePath, "utf-8")) as T;
   } catch {
     return null;
   }
@@ -47,14 +76,21 @@ export function readSettings<T>(key: string): T | null {
 
 /** Write a single settings JSON object atomically using temporary renames */
 export function writeSettings<T>(key: string, data: T): void {
-  const filePath = join(DATA_DIR, `${key}.json`);
+  const fs = getFs();
+  const path = getPath();
+  if (!fs || !path) return;
+  const dataDir = getDataDir();
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+  }
+  const filePath = path.join(dataDir, `${key}.json`);
   const tmpPath = `${filePath}.tmp`;
   try {
-    writeFileSync(tmpPath, JSON.stringify(data, null, 2), "utf-8");
-    renameSync(tmpPath, filePath);
+    fs.writeFileSync(tmpPath, JSON.stringify(data, null, 2), "utf-8");
+    fs.renameSync(tmpPath, filePath);
   } catch (error) {
-    if (existsSync(tmpPath)) {
-      try { unlinkSync(tmpPath); } catch {}
+    if (fs.existsSync(tmpPath)) {
+      try { fs.unlinkSync(tmpPath); } catch {}
     }
     throw error;
   }

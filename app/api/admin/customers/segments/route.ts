@@ -8,7 +8,11 @@ interface AbandonedCart {
   status: string;
 }
 
-function parseDate(d: string) { return new Date(d); }
+function parseDate(d?: string | null): Date {
+  if (!d) return new Date(0);
+  const parsed = new Date(d);
+  return isNaN(parsed.getTime()) ? new Date(0) : parsed;
+}
 
 export async function GET() {
   const customers = readCollection<Customer>("customers");
@@ -23,7 +27,7 @@ export async function GET() {
 
   // Segment groups
   const highValue = customers.filter((c) => c.totalSpent >= 10000 || c.totalOrders >= 3);
-  const newCust = customers.filter((c) => parseDate(c.registeredAt) >= thirtyDaysAgo);
+  const newCust = customers.filter((c) => c.registeredAt && parseDate(c.registeredAt) >= thirtyDaysAgo);
   const inactiveCust = customers.filter((c) => {
     if (!c.lastOrderDate) return true;
     return parseDate(c.lastOrderDate) < sixtyDaysAgo;
