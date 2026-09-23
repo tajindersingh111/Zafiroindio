@@ -417,7 +417,7 @@ export default function ProductClient({ p }: { p: Product }) {
 
               <Link
                 href="/checkout"
-                onClick={() => add(p, size, color)}
+                onClick={() => { for (let i = 0; i < qty; i++) add(p, size, color); }}
                 style={{
                   width: "100%",
                   background: "#1c1917",
