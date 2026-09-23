@@ -8,9 +8,11 @@ import SmartRecommendations from "@/components/site/SmartRecommendations";
 export default function Cart() {
   const {
     cart,
+    wishlist,
     subtotal,
     setQty,
     remove,
+    toggleWish,
     appliedCoupon,
     discountPercent,
     applyCoupon,
@@ -93,7 +95,12 @@ export default function Cart() {
                     </p>
                     <button
                       className="iconbtn"
-                      onClick={() => remove(x.product.slug)}
+                      onClick={() => {
+                        remove(x.product.slug, x.size, x.color);
+                        if (!wishlist.includes(x.product.slug)) {
+                          toggleWish(x.product.slug);
+                        }
+                      }}
                       style={{ fontSize: 11, color: "var(--muted)", gap: 5 }}
                     >
                       <Heart size={13} /> Move to Wishlist
@@ -106,14 +113,14 @@ export default function Cart() {
                   </div>
 
                   <div className="cartQty qty">
-                    <button onClick={() => setQty(x.product.slug, x.qty - 1)} aria-label="Decrease"><Minus size={12} /></button>
+                    <button onClick={() => setQty(x.product.slug, x.qty - 1, x.size, x.color)} aria-label="Decrease"><Minus size={12} /></button>
                     <span>{x.qty}</span>
-                    <button onClick={() => setQty(x.product.slug, x.qty + 1)} aria-label="Increase"><Plus size={12} /></button>
+                    <button onClick={() => setQty(x.product.slug, x.qty + 1, x.size, x.color)} aria-label="Increase"><Plus size={12} /></button>
                   </div>
 
                   <button
                     className="iconbtn"
-                    onClick={() => remove(x.product.slug)}
+                    onClick={() => remove(x.product.slug, x.size, x.color)}
                     aria-label="Remove item"
                     style={{ color: "var(--muted)" }}
                   >
