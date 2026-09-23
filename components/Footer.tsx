@@ -114,7 +114,7 @@ export default function Footer() {
               <Link href="/about">Shipping &amp; Delivery</Link>
               <Link href="/about">Returns &amp; Exchanges</Link>
               <Link href="/about">Size Guide</Link>
-              <Link href="/about">Track My Order</Link>
+              <Link href="/account">Track My Order</Link>
             </div>
 
             {/* About */}
