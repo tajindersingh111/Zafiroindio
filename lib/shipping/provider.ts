@@ -44,28 +44,29 @@ export async function createShipmentForOrder(params: CreateShipmentParams): Prom
   if (apiKey && (settings.shipmozo_enabled ?? true)) {
     try {
       const isCod = order.paymentMethod?.toLowerCase() === "cod";
+      const addr = order.shipping || order.billing;
       const payload = {
         order_id: order.orderNumber,
         order_date: order.createdAt,
         pickup_location: pickupLocation,
         billing_customer_name: order.customerName,
         billing_last_name: "",
-        billing_address: order.shippingAddress.street,
-        billing_city: order.shippingAddress.city,
-        billing_pincode: order.shippingAddress.postalCode,
-        billing_state: order.shippingAddress.state,
-        billing_country: order.shippingAddress.country || "India",
+        billing_address: addr ? `${addr.address1} ${addr.address2 || ""}`.trim() : "",
+        billing_city: addr?.city || "",
+        billing_pincode: addr?.postalCode || "",
+        billing_state: addr?.state || "",
+        billing_country: addr?.country || "India",
         billing_email: order.customerEmail,
-        billing_phone: order.customerPhone,
+        billing_phone: order.customerPhone || addr?.phone || "",
         shipping_is_billing: true,
         order_items: order.items.map(item => ({
           name: item.name,
-          sku: item.id,
+          sku: item.sku || item.productId,
           units: item.quantity,
           selling_price: item.price
         })),
         payment_method: isCod ? "COD" : "Prepaid",
-        sub_total: order.totalAmount,
+        sub_total: order.total,
         length: parseFloat(dimensionsCm.split("x")[0] || "30"),
         breadth: parseFloat(dimensionsCm.split("x")[1] || "20"),
         height: parseFloat(dimensionsCm.split("x")[2] || "10"),
