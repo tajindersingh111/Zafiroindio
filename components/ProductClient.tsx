@@ -12,6 +12,7 @@ import { useStore } from "./StoreProvider";
 
 export default function ProductClient({ p }: { p: Product }) {
   const [img, setImg] = useState(0);
+  const [lightboxImg, setLightboxImg] = useState<string | null>(null);
   const [size, setSize] = useState(p.sizes[1] || p.sizes[0]);
   const [color, setColor] = useState(p.colors[0]);
   const [qty, setQtyLocal] = useState(1);
@@ -22,6 +23,14 @@ export default function ProductClient({ p }: { p: Product }) {
   const wished = wishlist.includes(p.slug);
 
   const starCount = Math.round(p.rating);
+
+  const scrollToImage = (index: number) => {
+    setImg(index);
+    const el = document.getElementById(`product-img-${index}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  };
 
   const accordionItems = [
     { title: "PRODUCT DETAILS", content: `Premium ${p.fabric} bedsheet with ${p.category.toLowerCase()} design. Machine washable. Fits mattresses up to 10 inches deep.` },
@@ -162,6 +171,60 @@ export default function ProductClient({ p }: { p: Product }) {
 
   return (
     <main style={{ background: "#faf8f5", minHeight: "100vh", paddingBottom: 80 }}>
+      {/* Lightbox Zoom Modal */}
+      {lightboxImg && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 9999,
+            background: "rgba(0, 0, 0, 0.88)",
+            backdropFilter: "blur(6px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 20
+          }}
+          onClick={() => setLightboxImg(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setLightboxImg(null)}
+            style={{
+              position: "absolute",
+              top: 24,
+              right: 24,
+              background: "rgba(255,255,255,0.2)",
+              color: "#ffffff",
+              border: 0,
+              borderRadius: "50%",
+              width: 44,
+              height: 44,
+              fontSize: 20,
+              fontWeight: "bold",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }}
+          >
+            ✕
+          </button>
+          <img
+            src={lightboxImg}
+            alt="Product Zoomed View"
+            style={{
+              maxWidth: "92vw",
+              maxHeight: "92vh",
+              objectFit: "contain",
+              borderRadius: 8,
+              boxShadow: "0 20px 50px rgba(0,0,0,0.5)"
+            }}
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
+
       <div className="container" style={{ maxWidth: 1240, margin: "0 auto", padding: "0 20px" }}>
         {/* Breadcrumb */}
         <nav style={{ fontSize: 12, color: "#888", padding: "18px 0 20px", display: "flex", gap: 6, alignItems: "center" }}>
@@ -175,91 +238,143 @@ export default function ProductClient({ p }: { p: Product }) {
         </nav>
 
         {/* ── Top Layout: Gallery + Product Controls ──────────────────────────── */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 480px", gap: 40, marginBottom: 40 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 480px", gap: 40, marginBottom: 40, alignItems: "start" }}>
           {/* Left: Gallery */}
           <div style={{ display: "flex", gap: 16 }}>
-            {/* Vertical Thumbnails */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 12, width: 76 }}>
-              {p.images.slice(0, 5).map((x, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => setImg(i)}
-                  style={{
-                    border: i === img ? "2px solid #a67c37" : "1px solid #e7e1d6",
-                    borderRadius: 6,
-                    overflow: "hidden",
-                    cursor: "pointer",
-                    padding: 0,
-                    background: "#ffffff",
-                    height: 80
-                  }}
-                >
-                  <img
-                    src={x}
-                    alt={`${p.name} thumb ${i + 1}`}
-                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                  />
-                </button>
-              ))}
-            </div>
+            {/* Vertical Thumbnails (Sticky) */}
+            {p.images && p.images.length > 1 && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, width: 76, position: "sticky", top: 20, alignSelf: "start" }}>
+                {p.images.map((x, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => scrollToImage(i)}
+                    style={{
+                      border: i === img ? "2px solid #a67c37" : "1px solid #e7e1d6",
+                      borderRadius: 6,
+                      overflow: "hidden",
+                      cursor: "pointer",
+                      padding: 0,
+                      background: "#ffffff",
+                      height: 80,
+                      transition: "all 0.2s ease"
+                    }}
+                  >
+                    <img
+                      src={x}
+                      alt={`${p.name} thumb ${i + 1}`}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
 
-            {/* Main Display Image */}
-            <div style={{ flex: 1, position: "relative", borderRadius: 8, overflow: "hidden", border: "1px solid #e7e1d6", background: "#ffffff" }}>
-              {p.badge && (
-                <span
-                  style={{
-                    position: "absolute",
-                    top: 14,
-                    left: 14,
-                    background: p.badge === "SALE" ? "#c83232" : "#a67c37",
-                    color: "#ffffff",
-                    fontSize: 10,
-                    fontWeight: 800,
-                    letterSpacing: "1px",
-                    padding: "4px 10px",
-                    borderRadius: 3,
-                    textTransform: "uppercase",
-                    zIndex: 2
-                  }}
-                >
-                  {p.badge}
-                </span>
+            {/* Main Image Stack */}
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 20 }}>
+              {p.images && p.images.length > 0 ? (
+                p.images.map((imgUrl, i) => (
+                  <div
+                    key={i}
+                    id={`product-img-${i}`}
+                    style={{
+                      position: "relative",
+                      borderRadius: 8,
+                      overflow: "hidden",
+                      border: "1px solid #e7e1d6",
+                      background: "#ffffff",
+                      cursor: "zoom-in"
+                    }}
+                    onClick={() => setLightboxImg(imgUrl)}
+                  >
+                    {i === 0 && p.badge && (
+                      <span
+                        style={{
+                          position: "absolute",
+                          top: 14,
+                          left: 14,
+                          background: p.badge === "SALE" ? "#c83232" : "#a67c37",
+                          color: "#ffffff",
+                          fontSize: 10,
+                          fontWeight: 800,
+                          letterSpacing: "1px",
+                          padding: "4px 10px",
+                          borderRadius: 3,
+                          textTransform: "uppercase",
+                          zIndex: 2
+                        }}
+                      >
+                        {p.badge}
+                      </span>
+                    )}
+
+                    <img
+                      src={imgUrl}
+                      alt={`${p.name} view ${i + 1}`}
+                      style={{ width: "100%", height: "auto", minHeight: 480, maxHeight: 680, objectFit: "cover", display: "block" }}
+                    />
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLightboxImg(imgUrl);
+                      }}
+                      style={{
+                        position: "absolute",
+                        bottom: 16,
+                        right: 16,
+                        width: 38,
+                        height: 38,
+                        borderRadius: "50%",
+                        background: "rgba(255, 255, 255, 0.9)",
+                        backdropFilter: "blur(4px)",
+                        border: "1px solid #e7e1d6",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                        boxShadow: "0 2px 10px rgba(0,0,0,0.12)"
+                      }}
+                      aria-label="Zoom image"
+                    >
+                      <Search size={18} color="#1c1917" />
+                    </button>
+                  </div>
+                ))
+              ) : null}
+
+              {/* Craft & Quality Feature Banner if 2 or fewer images */}
+              {(!p.images || p.images.length <= 2) && (
+                <div style={{ background: "#ffffff", border: "1px solid #e7e1d6", borderRadius: 8, padding: "24px 28px" }}>
+                  <h4 style={{ fontSize: 12, fontWeight: 800, letterSpacing: "1px", textTransform: "uppercase", color: "#1c1917", marginBottom: 14 }}>
+                    ARTISANAL CRAFT &amp; QUALITY HIGHLIGHTS
+                  </h4>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                    <div style={{ background: "#faf8f5", padding: "14px 16px", borderRadius: 6, border: "1px solid #eee8dd" }}>
+                      <strong style={{ fontSize: 12, color: "#1c1917", display: "block", marginBottom: 4 }}>100% Pure Percale Cotton</strong>
+                      <span style={{ fontSize: 11, color: "#666", lineHeight: 1.4, display: "block" }}>Ultra-soft 300 Thread Count weave for cool, crisp, all-night comfort.</span>
+                    </div>
+                    <div style={{ background: "#faf8f5", padding: "14px 16px", borderRadius: 6, border: "1px solid #eee8dd" }}>
+                      <strong style={{ fontSize: 12, color: "#1c1917", display: "block", marginBottom: 4 }}>Traditional Handblock Print</strong>
+                      <span style={{ fontSize: 11, color: "#666", lineHeight: 1.4, display: "block" }}>Hand-carved wooden blocks stamped by master artisans in Jaipur.</span>
+                    </div>
+                    <div style={{ background: "#faf8f5", padding: "14px 16px", borderRadius: 6, border: "1px solid #eee8dd" }}>
+                      <strong style={{ fontSize: 12, color: "#1c1917", display: "block", marginBottom: 4 }}>Color Fast &amp; Pre-Shrunk</strong>
+                      <span style={{ fontSize: 11, color: "#666", lineHeight: 1.4, display: "block" }}>Lab-tested to maintain rich colors wash after wash without shrinkage.</span>
+                    </div>
+                    <div style={{ background: "#faf8f5", padding: "14px 16px", borderRadius: 6, border: "1px solid #eee8dd" }}>
+                      <strong style={{ fontSize: 12, color: "#1c1917", display: "block", marginBottom: 4 }}>Sustainable &amp; Skin-Safe</strong>
+                      <span style={{ fontSize: 11, color: "#666", lineHeight: 1.4, display: "block" }}>Non-toxic eco dyes gentle on sensitive skin and safe for all ages.</span>
+                    </div>
+                  </div>
+                </div>
               )}
-
-              <img
-                src={p.images[img] || p.images[0]}
-                alt={p.name}
-                style={{ width: "100%", height: 560, objectFit: "cover", display: "block" }}
-              />
-
-              {/* Floating Zoom Button */}
-              <button
-                type="button"
-                style={{
-                  position: "absolute",
-                  bottom: 16,
-                  right: 16,
-                  width: 38,
-                  height: 38,
-                  borderRadius: "50%",
-                  background: "#ffffff",
-                  border: "1px solid #e7e1d6",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                  boxShadow: "0 2px 10px rgba(0,0,0,0.1)"
-                }}
-                aria-label="Zoom image"
-              >
-                <Search size={18} color="#1c1917" />
-              </button>
             </div>
           </div>
 
-          {/* Right: Product Details & Controls */}
-          <div style={{ background: "#ffffff", border: "1px solid #e7e1d6", borderRadius: 8, padding: "28px 32px" }}>
+          {/* Right: Product Details & Controls (Sticky) */}
+          <div style={{ background: "#ffffff", border: "1px solid #e7e1d6", borderRadius: 8, padding: "28px 32px", position: "sticky", top: 20, alignSelf: "start" }}>
             <h1
               className="serif"
               style={{
