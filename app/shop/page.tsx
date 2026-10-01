@@ -26,7 +26,7 @@ function ShopContent() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All Bedsheets");
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
-  const [maxPrice, setMaxPrice] = useState<number>(2499);
+  const [maxPrice, setMaxPrice] = useState<number>(10000);
   const [minRating, setMinRating] = useState<number>(0);
   const [sort, setSort] = useState<string>("featured");
   const [viewMode, setViewMode] = useState<"grid4" | "grid3">("grid4");
@@ -107,23 +107,23 @@ function ShopContent() {
     // Size Filter
     if (selectedSizes.length > 0) {
       result = result.filter((p) =>
-        p.sizes.some((s) => selectedSizes.includes(s))
+        (Array.isArray(p.sizes) ? p.sizes : []).some((s) => selectedSizes.includes(s))
       );
     }
 
     // Color Filter
     if (selectedColors.length > 0) {
       result = result.filter((p) =>
-        p.colors.some((c) => selectedColors.includes(c))
+        (Array.isArray(p.colors) ? p.colors : []).some((c) => selectedColors.includes(c))
       );
     }
 
     // Price Filter
-    result = result.filter((p) => p.price <= maxPrice);
+    result = result.filter((p) => (p.price || 0) <= maxPrice);
 
     // Rating Filter
     if (minRating > 0) {
-      result = result.filter((p) => p.rating >= minRating);
+      result = result.filter((p) => (p.rating || 0) >= minRating);
     }
 
     // Sorting
@@ -135,13 +135,13 @@ function ShopContent() {
         result = [...result.filter((p) => p.badge === "BESTSELLER"), ...result.filter((p) => p.badge !== "BESTSELLER")];
         break;
       case "price-low":
-        result = [...result].sort((a, b) => a.price - b.price);
+        result = [...result].sort((a, b) => (a.price || 0) - (b.price || 0));
         break;
       case "price-high":
-        result = [...result].sort((a, b) => b.price - a.price);
+        result = [...result].sort((a, b) => (b.price || 0) - (a.price || 0));
         break;
       case "rating":
-        result = [...result].sort((a, b) => b.rating - a.rating);
+        result = [...result].sort((a, b) => (b.rating || 0) - (a.rating || 0));
         break;
     }
 
@@ -153,7 +153,7 @@ function ShopContent() {
     selectedSizes.length > 0 ||
     selectedColors.length > 0 ||
     minRating > 0 ||
-    maxPrice < 2499;
+    maxPrice < 10000;
 
   const clearFilters = () => {
     setSelectedCategory("All Bedsheets");
