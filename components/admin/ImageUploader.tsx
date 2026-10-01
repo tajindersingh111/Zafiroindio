@@ -23,45 +23,48 @@ export default function ImageUploader({
   const [error, setError] = useState<string>("");
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
 
     setError("");
     setUploading(true);
 
     try {
-      // 1. Client-side WebP Conversion Pre-processing
-      const webpResult = await convertImageToWebP(file, 0.85);
+      for (const file of files) {
+        // 1. Client-side WebP Conversion Pre-processing
+        const webpResult = await convertImageToWebP(file, 0.85);
 
-      // 2. Upload to Server for Sharp Processing & Permanent WebP Storage
-      const formData = new FormData();
-      formData.append("file", webpResult.file);
+        // 2. Upload to Server for Sharp Processing & Permanent WebP Storage
+        const formData = new FormData();
+        formData.append("file", webpResult.file);
 
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: formData
-      });
+        const res = await fetch("/api/admin/upload", {
+          method: "POST",
+          body: formData
+        });
 
-      const data = await res.json();
+        const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to upload image.");
+        if (!res.ok) {
+          throw new Error(data.error || "Failed to upload image.");
+        }
+
+        setPreviewUrl(data.url);
+        setStats({
+          originalSize: (webpResult.originalSize / 1024).toFixed(1) + " KB",
+          webpSize: (webpResult.webpSize / 1024).toFixed(1) + " KB",
+          savings: data.savingsPercent || `${webpResult.savingsPercent}%`
+        });
+
+        onImageUploaded(data.url);
       }
-
-      setPreviewUrl(data.url);
-      setStats({
-        originalSize: (webpResult.originalSize / 1024).toFixed(1) + " KB",
-        webpSize: (webpResult.webpSize / 1024).toFixed(1) + " KB",
-        savings: data.savingsPercent || `${webpResult.savingsPercent}%`
-      });
-
-      onImageUploaded(data.url);
 
     } catch (err: any) {
       console.error("WebP Upload Error:", err);
       setError(err.message || "Image conversion/upload failed.");
     } finally {
       setUploading(false);
+      e.target.value = "";
     }
   };
 
@@ -145,6 +148,7 @@ export default function ImageUploader({
           <input
             type="file"
             accept="image/*"
+            multiple
             onChange={handleFileChange}
             disabled={uploading}
             className="hidden"
