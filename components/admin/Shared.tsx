@@ -77,9 +77,10 @@ const STATUS_LABELS: Record<string, string> = {
   partially_paid: "Partial",
 };
 
-export function StatusBadge({ status }: { status: string }) {
-  const cls = STATUS_MAP[status] ?? "bg-stone/15 text-ink-soft border border-stone/20";
-  const label = STATUS_LABELS[status] ?? status.charAt(0).toUpperCase() + status.slice(1).replace(/_/g, " ");
+export function StatusBadge({ status }: { status?: string }) {
+  const safeStatus = String(status || "draft").toLowerCase();
+  const cls = STATUS_MAP[safeStatus] ?? "bg-stone/15 text-ink-soft border border-stone/20";
+  const label = STATUS_LABELS[safeStatus] ?? (safeStatus ? safeStatus.charAt(0).toUpperCase() + safeStatus.slice(1).replace(/_/g, " ") : "Draft");
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded-sm text-[10px] font-medium uppercase tracking-wider whitespace-nowrap ${cls}`}>
       {label}

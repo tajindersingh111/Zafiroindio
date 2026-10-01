@@ -37,21 +37,28 @@ export default function ProductsPage() {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
-    const params = new URLSearchParams({ page: String(page), pageSize: "20" });
-    if (search) params.set("search", search);
-    if (category) params.set("category", category);
-    if (status) params.set("status", status);
-    if (stockStatus) params.set("stock", stockStatus);
-    const [pRes, catRes] = await Promise.all([
-      fetch(`/api/admin/products?${params}`),
-      fetch("/api/admin/products/categories"),
-    ]);
-    const [pData, catData] = await Promise.all([pRes.json(), catRes.json()]);
-    setProducts(pData.products ?? []);
-    setTotal(pData.total ?? 0);
-    setTotalPages(pData.totalPages ?? 1);
-    setCategories(catData.categories ?? []);
-    setLoading(false);
+    try {
+      const params = new URLSearchParams({ page: String(page), pageSize: "20" });
+      if (search) params.set("search", search);
+      if (category) params.set("category", category);
+      if (status) params.set("status", status);
+      if (stockStatus) params.set("stock", stockStatus);
+      const [pRes, catRes] = await Promise.all([
+        fetch(`/api/admin/products?${params}`).catch(() => null),
+        fetch("/api/admin/products/categories").catch(() => null),
+      ]);
+      const pData = pRes && pRes.ok ? await pRes.json().catch(() => ({})) : {};
+      const catData = catRes && catRes.ok ? await catRes.json().catch(() => ({})) : {};
+      setProducts(Array.isArray(pData.products) ? pData.products : []);
+      setTotal(Number(pData.total) || 0);
+      setTotalPages(Number(pData.totalPages) || 1);
+      setCategories(Array.isArray(catData.categories) ? catData.categories : []);
+    } catch (err) {
+      console.error("Failed to fetch products:", err);
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
   }, [page, search, category, status, stockStatus]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
