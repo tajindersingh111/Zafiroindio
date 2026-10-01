@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Leaf, Sparkles, RotateCcw, ShieldCheck, HeartHandshake } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
-import { getStorefrontProducts, collections } from "@/lib/data";
+import { getStorefrontProducts, getStorefrontBanners, collections } from "@/lib/data";
 import SmartRecommendations from "@/components/site/SmartRecommendations";
 
 const BASE_URL = "https://zafiroindio.com";
@@ -85,6 +85,15 @@ const websiteJsonLd = {
 
 export default function Home() {
   const products = getStorefrontProducts();
+  const banners = getStorefrontBanners();
+  const heroBanner = banners[0] || {
+    title: "Make Your Bedroom Feel Like Sanctuary.",
+    subtitle: "Handcrafted 100% pure cotton bedsheets designed for everyday comfort and timeless Indian heritage.",
+    ctaText: "Shop Collection",
+    ctaLink: "/shop",
+    image: "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=2000&q=85"
+  };
+
   const featured = products.filter(p => p.badge === "BESTSELLER" || !p.badge).slice(0, 8);
 
   return (
@@ -101,22 +110,18 @@ export default function Home() {
       {/* ── 1. HERO SECTION ──────────────────────────────────── */}
       <section className="hero">
         <img
-          src="https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=2000&q=85"
-          alt="Zafiro luxury bedsheet bedroom sanctuary"
+          src={heroBanner.image}
+          alt={heroBanner.title}
           className="heroImg"
         />
         <div className="container">
           <div className="heroContent">
             <p className="eyebrow">The Art of Fine Living</p>
-            <h1 className="serif">
-              Make Your Bedroom Feel Like Sanctuary.
-            </h1>
-            <p>
-              Handcrafted 100% pure cotton bedsheets designed for everyday comfort and timeless Indian heritage.
-            </p>
+            <h1 className="serif">{heroBanner.title}</h1>
+            <p>{heroBanner.subtitle}</p>
             <div className="heroBtns">
-              <Link href="/shop" className="btn gold">
-                Shop Collection <ArrowRight size={14} />
+              <Link href={heroBanner.ctaLink || "/shop"} className="btn gold">
+                {heroBanner.ctaText || "Shop Collection"} <ArrowRight size={14} />
               </Link>
               <Link href="/collections" className="btn outline">
                 Explore Edits

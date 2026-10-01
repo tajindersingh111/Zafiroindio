@@ -138,13 +138,13 @@ export default function Footer() {
 
           <div className="footerBottom">
             <span>© 2026 Zafiro. All rights reserved.</span>
-            <span>
-              <Link href="/about" style={{ color: "inherit" }}>Privacy Policy</Link>
-              &nbsp; · &nbsp;
-              <Link href="/about" style={{ color: "inherit" }}>Terms &amp; Conditions</Link>
-              &nbsp; · &nbsp;
-              <Link href="/about" style={{ color: "inherit" }}>Shipping Policy</Link>
-            </span>
+            <div className="footerLegalLinks">
+              <Link href="/about">Privacy Policy</Link>
+              <span className="dot">•</span>
+              <Link href="/about">Terms &amp; Conditions</Link>
+              <span className="dot">•</span>
+              <Link href="/about">Shipping Policy</Link>
+            </div>
           </div>
         </div>
       </footer>

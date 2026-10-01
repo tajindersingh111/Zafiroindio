@@ -53,12 +53,50 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
   const [noteText, setNoteText] = useState("");
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
+  const [courierProvider, setCourierProvider] = useState("Shipmozo");
+  const [packageWeight, setPackageWeight] = useState(1.2);
+  const [dispatching, setDispatching] = useState(false);
+
+  const reloadOrder = () => {
     fetch(`/api/admin/orders/${id}`).then((r) => r.json()).then((d) => {
       setOrder(d.order ?? null);
       setLoading(false);
     });
+  };
+
+  useEffect(() => {
+    reloadOrder();
   }, [id]);
+
+  async function handleDispatchShipment() {
+    if (!order) return;
+    setDispatching(true);
+    try {
+      const res = await fetch("/api/shipments/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId: order.id,
+          courierName: courierProvider,
+          weightKg: packageWeight,
+          dimensionsCm: "30x20x10"
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        addToast(`Shipment created via ${data.shipment?.courierName || courierProvider}! AWB: ${data.shipment?.trackingNumber}`);
+        reloadOrder();
+      } else {
+        const data = await res.json();
+        addToast(data.error || "Failed to create shipment.", "error");
+      }
+    } catch {
+      addToast("Network error creating shipment.", "error");
+    } finally {
+      setDispatching(false);
+    }
+  }
 
   async function updateStatus() {
     if (!newStatus) return;
@@ -299,15 +337,85 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
             </div>
           </SectionCard>
 
-          {/* Status */}
-          <SectionCard title="Order Status">
-            <div className="flex items-center gap-2 mb-4">
-              <StatusBadge status={order.status} />
-              <span className="text-xs text-stone">Payment: <StatusBadge status={order.paymentStatus} /></span>
-            </div>
-            <div className="flex gap-2">
-              <FilterSelect value={newStatus} onChange={setNewStatus} options={STATUS_OPTIONS} placeholder="Change status…" />
-              <Btn size="sm" onClick={updateStatus} disabled={saving || !newStatus}>Update</Btn>
+          {/* Status & Courier Dispatch Card */}
+          <SectionCard title="Order Status & Courier Dispatch">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between pb-2 border-b border-stone/10">
+                <span className="text-xs text-stone font-medium uppercase tracking-wide">Current Status</span>
+                <div className="flex items-center gap-2">
+                  <StatusBadge status={order.status} />
+                  <span className="text-xs text-stone"><StatusBadge status={order.paymentStatus} /></span>
+                </div>
+              </div>
+
+              {/* Status Update Dropdown */}
+              <div>
+                <label className="block text-xs text-stone font-semibold uppercase tracking-wide mb-1.5">Update Order Status</label>
+                <div className="flex gap-2">
+                  <FilterSelect value={newStatus} onChange={setNewStatus} options={STATUS_OPTIONS} placeholder="Change status…" />
+                  <Btn size="sm" onClick={updateStatus} disabled={saving || !newStatus}>Update</Btn>
+                </div>
+              </div>
+
+              {/* Courier Dispatch Section */}
+              <div className="pt-3 border-t border-stone/15">
+                <p className="text-xs font-semibold text-ink uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <span>🚚</span> Automated Courier Dispatch
+                </p>
+
+                {order.trackingNumber ? (
+                  <div className="bg-emerald-950/20 border border-emerald-800/30 p-3 rounded text-xs space-y-2">
+                    <p className="font-semibold text-emerald-800 dark:text-emerald-300 flex items-center gap-1">
+                      <span>✓</span> Shipment Dispatched via {order.courierName || "Courier"}
+                    </p>
+                    <p className="text-stone">AWB Tracking #: <span className="font-mono font-bold text-ink">{order.trackingNumber}</span></p>
+                    {order.trackingUrl && (
+                      <a href={order.trackingUrl} target="_blank" rel="noopener noreferrer" className="inline-block text-madder hover:underline font-medium">
+                        Track Shipment Live →
+                      </a>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-3 bg-stone/5 p-3 rounded border border-stone/15">
+                    <p className="text-xs text-stone leading-relaxed">
+                      Push order details to <strong>Shipmozo / Courier API</strong> to generate a live AWB tracking number, shipping label, and trigger email to customer.
+                    </p>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div>
+                        <label className="block text-[10px] uppercase font-semibold text-stone mb-1">Courier Partner</label>
+                        <select
+                          value={courierProvider}
+                          onChange={(e) => setCourierProvider(e.target.value)}
+                          className="w-full px-2 py-1.5 border border-stone/30 rounded bg-paper text-xs text-ink"
+                        >
+                          <option value="Shipmozo">Shipmozo API</option>
+                          <option value="Delhivery Express">Delhivery Express</option>
+                          <option value="Blue Dart">Blue Dart</option>
+                          <option value="DTDC Express">DTDC Express</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] uppercase font-semibold text-stone mb-1">Weight (Kg)</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={packageWeight}
+                          onChange={(e) => setPackageWeight(parseFloat(e.target.value) || 1.2)}
+                          className="w-full px-2 py-1.5 border border-stone/30 rounded bg-paper text-xs text-ink"
+                        />
+                      </div>
+                    </div>
+                    <Btn
+                      size="sm"
+                      onClick={handleDispatchShipment}
+                      disabled={dispatching}
+                      className="w-full justify-center font-bold bg-madder text-white hover:bg-madder/90"
+                    >
+                      {dispatching ? "Pushing to Courier API..." : "🚀 Dispatch & Generate AWB"}
+                    </Btn>
+                  </div>
+                )}
+              </div>
             </div>
           </SectionCard>
 
