@@ -15,14 +15,14 @@ export async function GET(request: Request) {
   const page = parseInt(searchParams.get("page") ?? "1");
   const pageSize = parseInt(searchParams.get("pageSize") ?? "20");
 
-  let products = readCollection<Product>("products");
+  let products = readCollection<Product>("products") || [];
 
   if (search) {
     products = products.filter(
       (p) =>
-        p.name.toLowerCase().includes(search) ||
-        p.sku.toLowerCase().includes(search) ||
-        p.tags.some((t) => t.toLowerCase().includes(search))
+        (p.name || "").toLowerCase().includes(search) ||
+        (p.sku || "").toLowerCase().includes(search) ||
+        (Array.isArray(p.tags) && p.tags.some((t) => t && String(t).toLowerCase().includes(search)))
     );
   }
   if (category) products = products.filter((p) => p.categoryId === category);
@@ -33,7 +33,7 @@ export async function GET(request: Request) {
   const start = (page - 1) * pageSize;
   const paginated = products.slice(start, start + pageSize);
 
-  return NextResponse.json({ products: paginated, total, page, pageSize, totalPages: Math.ceil(total / pageSize) });
+  return NextResponse.json({ products: paginated, total, page, pageSize, totalPages: Math.max(1, Math.ceil(total / pageSize)) });
 }
 
 export async function POST(request: Request) {
