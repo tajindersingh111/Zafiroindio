@@ -16,7 +16,7 @@ interface Product {
 }
 interface Category { id: string; name: string; }
 
-function fmt(n: number) { return "₹" + n.toLocaleString("en-IN"); }
+function fmt(n?: number) { return "₹" + (Number(n) || 0).toLocaleString("en-IN"); }
 
 export default function ProductsPage() {
   const router = useRouter();
