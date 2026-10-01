@@ -295,9 +295,25 @@ export default function ProductClient({ p }: { p: Product }) {
             <div style={{ fontSize: 11, color: "#888", marginBottom: 18 }}>Inclusive of all taxes</div>
 
             {/* Description */}
-            <p style={{ fontSize: 13.5, color: "#555", lineHeight: 1.6, margin: "0 0 24px" }}>
-              {p.description}
-            </p>
+            {(() => {
+              if (!p.description) return null;
+              const cleaned = p.description.replace(/\\n/g, "\n");
+              const isHtml = /<[a-z][\s\S]*>/i.test(cleaned);
+              if (isHtml) {
+                return (
+                  <div
+                    className="product-description-content text-stone-700 leading-relaxed mb-6"
+                    style={{ fontSize: 13.5, color: "#555", lineHeight: 1.6, margin: "0 0 24px" }}
+                    dangerouslySetInnerHTML={{ __html: cleaned }}
+                  />
+                );
+              }
+              return (
+                <div style={{ fontSize: 13.5, color: "#555", lineHeight: 1.6, margin: "0 0 24px", whiteSpace: "pre-line" }}>
+                  {cleaned}
+                </div>
+              );
+            })()}
 
             {/* Select Size */}
             <div style={{ marginBottom: 20 }}>

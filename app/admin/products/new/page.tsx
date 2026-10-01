@@ -217,19 +217,98 @@ export default function ProductFormPage({ params }: { params: Promise<{ id: stri
                 <input value={form.tags} onChange={(e) => set("tags", e.target.value)} className={inputCls} placeholder="cotton, block-print, bedsheet" />
               </Field>
 
-              {/* Product Media Image Upload (Auto WebP Conversion) */}
-              <div className="pt-2">
+              {/* Product Media Multi-Image Gallery */}
+              <div className="pt-2 space-y-3">
+                <label className="block text-xs font-semibold uppercase tracking-wide text-stone">
+                  Product Images ({form.images.length})
+                </label>
+
+                {/* Existing Images Grid */}
+                {form.images.length > 0 && (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                    {form.images.map((imgUrl, index) => (
+                      <div key={index} className="relative group border border-stone/20 rounded-md overflow-hidden bg-paper p-1">
+                        <img src={imgUrl} alt={`Product ${index + 1}`} className="w-full h-28 object-cover rounded-sm" />
+                        <span className={`absolute top-2 left-2 text-[9px] font-bold px-1.5 py-0.5 rounded text-white ${index === 0 ? "bg-amber-600" : "bg-stone-700/80"}`}>
+                          {index === 0 ? "Primary" : `#${index + 1}`}
+                        </span>
+
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5">
+                          {index !== 0 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newImgs = [...form.images];
+                                const [selected] = newImgs.splice(index, 1);
+                                newImgs.unshift(selected);
+                                setForm((prev) => ({ ...prev, images: newImgs }));
+                              }}
+                              className="text-[10px] bg-white text-ink font-semibold px-2 py-1 rounded shadow hover:bg-amber-50"
+                            >
+                              Make Primary
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setForm((prev) => ({
+                                ...prev,
+                                images: prev.images.filter((_, i) => i !== index),
+                              }));
+                            }}
+                            className="text-[10px] bg-red-600 text-white font-semibold px-2 py-1 rounded shadow hover:bg-red-700"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Add New Image Uploader */}
                 <ImageUploader
-                  label="Product Primary Image (Auto-Converted to WebP)"
-                  currentImage={form.images[0] || ""}
+                  label="Add Image to Gallery (Auto WebP Conversion)"
                   onImageUploaded={(webpUrl) => {
                     if (webpUrl) {
-                      setForm((prev) => ({ ...prev, images: [webpUrl, ...prev.images.slice(1)] }));
-                    } else {
-                      setForm((prev) => ({ ...prev, images: prev.images.slice(1) }));
+                      setForm((prev) => ({ ...prev, images: [...prev.images, webpUrl] }));
                     }
                   }}
                 />
+
+                {/* Paste External Image URL */}
+                <div className="flex gap-2 pt-1">
+                  <input
+                    type="text"
+                    id="extra-image-url"
+                    placeholder="Or paste external image URL (e.g. https://...)"
+                    className={inputCls}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        const input = e.currentTarget;
+                        const url = input.value.trim();
+                        if (url) {
+                          setForm((prev) => ({ ...prev, images: [...prev.images, url] }));
+                          input.value = "";
+                        }
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const el = document.getElementById("extra-image-url") as HTMLInputElement;
+                      if (el && el.value.trim()) {
+                        setForm((prev) => ({ ...prev, images: [...prev.images, el.value.trim()] }));
+                        el.value = "";
+                      }
+                    }}
+                    className="px-3 py-1.5 text-xs font-semibold bg-stone-200 text-stone-800 rounded hover:bg-stone-300 shrink-0"
+                  >
+                    + Add URL
+                  </button>
+                </div>
               </div>
             </div>
           </SectionCard>
