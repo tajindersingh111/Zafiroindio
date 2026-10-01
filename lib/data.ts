@@ -87,9 +87,25 @@ export function getStorefrontProducts(): Product[] {
 
           const categoryName = catMap[p.categoryId] || p.category || "Bedsheets";
 
+          const colorsArr = Array.isArray(p.attributes?.Color)
+            ? p.attributes.Color
+            : Array.isArray(p.colors)
+            ? p.colors
+            : typeof p.colors === "string"
+            ? [p.colors]
+            : ["Sage Green", "Indigo Blue", "Terracotta", "Ivory"];
+
+          const sizesArr = Array.isArray(p.attributes?.Size)
+            ? p.attributes.Size
+            : Array.isArray(p.sizes)
+            ? p.sizes
+            : typeof p.sizes === "string"
+            ? [p.sizes]
+            : ["Single", "Double", "Queen", "King"];
+
           return {
             slug: p.slug || p.id,
-            name: p.name,
+            name: p.name || "Product",
             price,
             oldPrice,
             discount,
@@ -98,8 +114,8 @@ export function getStorefrontProducts(): Product[] {
             badge,
             fabric: p.fabric || "100% Cotton",
             category: categoryName,
-            colors: p.attributes?.Color || p.colors || ["Sage Green", "Indigo Blue", "Terracotta", "Ivory"],
-            sizes: p.attributes?.Size || p.sizes || ["Single", "Double", "Queen", "King"],
+            colors: colorsArr,
+            sizes: sizesArr,
             description: p.description || p.shortDescription || "",
             images
           };

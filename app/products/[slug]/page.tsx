@@ -21,8 +21,10 @@ export async function generateMetadata({
   );
   if (!p) return {};
 
+  const sizes = Array.isArray(p.sizes) ? p.sizes : [];
+  const colors = Array.isArray(p.colors) ? p.colors : [];
   const title = `${p.name} | Handblock Cotton Bedsheet | Zafiro Indio`;
-  const description = `Buy ${p.name} – ${p.description} Available in ${p.sizes.join(", ")} sizes. ${p.fabric}. Free shipping above ₹999. Easy 7-day returns.`;
+  const description = `Buy ${p.name} – ${p.description || ""} Available in ${sizes.join(", ")} sizes. ${p.fabric || "100% Cotton"}. Free shipping above ₹999. Easy 7-day returns.`;
 
   return {
     title,
@@ -35,7 +37,7 @@ export async function generateMetadata({
       "Jaipur cotton bedsheet",
       "handblock print bedsheet",
       "buy bedsheet online",
-      ...p.colors.map((c) => `${c} bedsheet`),
+      ...colors.map((c) => `${c} bedsheet`),
     ],
     openGraph: {
       title,
@@ -44,7 +46,7 @@ export async function generateMetadata({
       url: `${BASE_URL}/products/${p.slug}`,
       images: [
         {
-          url: p.images[0],
+          url: p.images?.[0] || "",
           width: 1200,
           height: 900,
           alt: `${p.name} – ${p.category} cotton bedsheet by Zafiro Indio`,
@@ -55,7 +57,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title,
       description,
-      images: [p.images[0]],
+      images: [p.images?.[0] || ""],
     },
     alternates: {
       canonical: `${BASE_URL}/products/${p.slug}`,
@@ -74,6 +76,9 @@ export default async function ProductPage({
     (x) => x.slug === slug || x.slug.toLowerCase() === slug.toLowerCase()
   );
   if (!p) notFound();
+
+  const sizes = Array.isArray(p.sizes) ? p.sizes : [];
+  const colors = Array.isArray(p.colors) ? p.colors : [];
 
   // JSON-LD Product structured data
   const jsonLd = {
@@ -109,12 +114,12 @@ export default async function ProductPage({
     material: p.fabric,
     category: p.category,
     additionalProperty: [
-      ...p.sizes.map((s) => ({
+      ...sizes.map((s) => ({
         "@type": "PropertyValue",
         name: "Size",
         value: s,
       })),
-      ...p.colors.map((c) => ({
+      ...colors.map((c) => ({
         "@type": "PropertyValue",
         name: "Color",
         value: c,
