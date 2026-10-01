@@ -9,7 +9,18 @@ import { ChevronDown, ChevronUp, LayoutGrid, Grid, Check, Heart } from "lucide-r
 
 function ShopContent() {
   const searchParams = useSearchParams();
-  const allProducts = getStorefrontProducts();
+  const [allProducts, setAllProducts] = useState(() => getStorefrontProducts());
+
+  useEffect(() => {
+    fetch("/api/products")
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => {
+        if (data && Array.isArray(data.products) && data.products.length > 0) {
+          setAllProducts(data.products);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Filter states
   const [selectedCategory, setSelectedCategory] = useState<string>("All Bedsheets");

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { readCollection, writeCollection } from "@/lib/db/store";
 
 interface Banner {
@@ -37,6 +38,9 @@ export async function POST(request: Request) {
     };
     banners.push(newBanner);
     writeCollection("banners", banners);
+
+    try { revalidatePath("/"); } catch {}
+
     return NextResponse.json(newBanner);
   } catch (error) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
@@ -52,6 +56,9 @@ export async function PATCH(request: Request) {
 
     banners[idx] = { ...banners[idx], ...body };
     writeCollection("banners", banners);
+
+    try { revalidatePath("/"); } catch {}
+
     return NextResponse.json(banners[idx]);
   } catch (error) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
@@ -85,6 +92,8 @@ export async function DELETE(request: NextRequest) {
     recordId: id,
     previousData: target
   });
+
+  try { revalidatePath("/"); } catch {}
 
   return NextResponse.json({ success: true });
 }

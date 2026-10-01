@@ -1,5 +1,38 @@
 [
   {
+    "id": "eml-1790762139626-1978",
+    "eventType": "ORDER_SHIPPED",
+    "toEmail": "manisha@gmail.com",
+    "toName": "Manisha Verma",
+    "orderId": "5cc24ebc-0091-4f13-9f70-bb6ac4ba2622",
+    "orderNumber": "ZI-10354",
+    "subject": "Your Order Has Shipped — ZI-10354 | Zafiro Indio",
+    "sentAt": "2026-09-30T09:55:39.626Z",
+    "status": "LOGGED_ONLY"
+  },
+  {
+    "id": "eml-1790761635956-uypr",
+    "eventType": "INVOICE_GENERATED",
+    "toEmail": "manisha@gmail.com",
+    "toName": "Manisha Verma",
+    "orderId": "7530e610-8381-4acc-8595-1603fd5c2154",
+    "orderNumber": "ZI-10356",
+    "subject": "Tax Invoice ZI-2026-000004 | Zafiro Indio",
+    "sentAt": "2026-09-30T09:47:15.956Z",
+    "status": "LOGGED_ONLY"
+  },
+  {
+    "id": "eml-1790761635953-72fm",
+    "eventType": "ORDER_CREATED",
+    "toEmail": "manisha@gmail.com",
+    "toName": "Manisha Verma",
+    "orderId": "7530e610-8381-4acc-8595-1603fd5c2154",
+    "orderNumber": "ZI-10356",
+    "subject": "Order Confirmed — ZI-10356 | Zafiro Indio",
+    "sentAt": "2026-09-30T09:47:15.953Z",
+    "status": "LOGGED_ONLY"
+  },
+  {
     "id": "eml-1789458146313-6etf",
     "eventType": "INVOICE_GENERATED",
     "toEmail": "manisha@gmail.com",

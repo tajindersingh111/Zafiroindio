@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { readCollection, writeCollection } from "@/lib/db/store";
 import type { Product } from "@/lib/db/types";
 import { v4 as uuidv4 } from "uuid";
@@ -84,6 +85,11 @@ export async function POST(request: Request) {
     products.push(newProduct);
     writeCollection("products", products);
 
+    try {
+      revalidatePath("/shop");
+      revalidatePath("/");
+    } catch {}
+
     return NextResponse.json({ product: newProduct }, { status: 201 });
   } catch (err) {
     console.error(err);
@@ -115,6 +121,11 @@ export async function DELETE(request: NextRequest) {
     recordId: ids.join(", "),
     previousData: previous
   });
+
+  try {
+    revalidatePath("/shop");
+    revalidatePath("/");
+  } catch {}
 
   return NextResponse.json({ success: true, deleted: ids.length });
 }

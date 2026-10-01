@@ -11,11 +11,13 @@ interface Order {
   id: string; orderNumber: string; customerName: string; customerEmail: string;
   total: number; status: string; paymentMethod: string; type: string;
   createdAt: string; items: { quantity: number }[];
+  trackingNumber?: string; courierName?: string;
 }
 
 const STATUS_OPTIONS = [
   { label: "Pending Payment", value: "pending_payment" },
   { label: "Processing", value: "processing" },
+  { label: "Shipped", value: "shipped" },
   { label: "On Hold", value: "on_hold" },
   { label: "Completed", value: "completed" },
   { label: "Cancelled", value: "cancelled" },
@@ -101,9 +103,34 @@ export default function OrdersPage() {
     { key: "status", label: "Status", render: (o) => <StatusBadge status={o.status} /> },
     { key: "createdAt", label: "Date", render: (o) => <span className="text-xs text-stone">{fmtDate(o.createdAt)}</span> },
     {
-      key: "actions", label: "", render: (o) => (
+      key: "actions", label: "Actions", render: (o) => (
         <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-          <button onClick={() => router.push(`/admin/orders/${o.id}`)} className="text-xs text-indigo hover:underline">View</button>
+          <button onClick={() => router.push(`/admin/orders/${o.id}`)} className="text-xs font-medium text-indigo hover:underline px-2 py-1 rounded bg-indigo/5">View</button>
+          {o.trackingNumber ? (
+            <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-emerald-900/10 text-emerald-800 dark:text-emerald-300 border border-emerald-800/20">
+              AWB: {o.trackingNumber}
+            </span>
+          ) : (
+            <button
+              onClick={async () => {
+                const res = await fetch("/api/shipments/create", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ orderId: o.id, courierName: "Shipmozo" })
+                });
+                if (res.ok) {
+                  const data = await res.json();
+                  addToast(`Dispatched ${o.orderNumber} via Shipmozo! AWB: ${data.shipment?.trackingNumber}`);
+                  fetchOrders();
+                } else {
+                  addToast("Failed to dispatch order.", "error");
+                }
+              }}
+              className="text-[11px] font-semibold text-white bg-madder hover:bg-madder/90 px-2.5 py-1 rounded transition-colors"
+            >
+              🚀 Dispatch
+            </button>
+          )}
         </div>
       ),
     },

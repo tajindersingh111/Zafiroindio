@@ -40,6 +40,8 @@ export async function createShipmentForOrder(params: CreateShipmentParams): Prom
   let realLabelUrl = `/api/shipments/${order.id}/label`;
   let liveTrackingUrl = "";
 
+  let isLiveCourier = false;
+
   // 1. Try Shipmozo API push if enabled and credentials provided
   if (apiKey && (settings.shipmozo_enabled ?? true)) {
     try {
@@ -90,6 +92,7 @@ export async function createShipmentForOrder(params: CreateShipmentParams): Prom
           assignedCourier = data.courier_name || courierName;
           realLabelUrl = data.label_url || realLabelUrl;
           liveTrackingUrl = data.tracking_url || `https://track.shipmozo.com/${realAWB}`;
+          isLiveCourier = true;
         }
       }
     } catch (err) {
@@ -113,6 +116,7 @@ export async function createShipmentForOrder(params: CreateShipmentParams): Prom
     trackingNumber: realAWB,
     trackingUrl: liveTrackingUrl,
     labelUrl: realLabelUrl,
+    isLiveCourier,
     status: "SHIPMENT_CREATED",
     weight: weightKg,
     dimensions: dimensionsCm,

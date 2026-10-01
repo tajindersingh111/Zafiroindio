@@ -1,0 +1,17 @@
+[
+  {
+    "id": "shp-1790762139606-mkug",
+    "orderId": "5cc24ebc-0091-4f13-9f70-bb6ac4ba2622",
+    "orderNumber": "ZI-10354",
+    "courierName": "Shipmozo",
+    "trackingNumber": "AWB892591425",
+    "trackingUrl": "https://track.zafiroindio.com/tracking?awb=AWB892591425",
+    "labelUrl": "/api/shipments/5cc24ebc-0091-4f13-9f70-bb6ac4ba2622/label",
+    "status": "SHIPMENT_CREATED",
+    "weight": 0.2,
+    "dimensions": "30x20x10",
+    "shippedAt": "2026-09-30T09:55:39.604Z",
+    "createdAt": "2026-09-30T09:55:39.604Z",
+    "updatedAt": "2026-09-30T09:55:39.604Z"
+  }
+]

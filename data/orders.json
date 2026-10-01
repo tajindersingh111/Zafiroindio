@@ -20875,7 +20875,7 @@
     "customerEmail": "manisha@gmail.com",
     "customerPhone": "9876543210",
     "type": "retail",
-    "status": "processing",
+    "status": "shipped",
     "items": [
       {
         "productId": "sage-serenity",
@@ -20939,7 +20939,11 @@
     "paymentStatus": "paid",
     "notes": [],
     "createdAt": "2026-09-15T07:25:06.163Z",
-    "updatedAt": "2026-09-15T07:25:06.163Z"
+    "updatedAt": "2026-09-30T09:55:39.604Z",
+    "trackingNumber": "AWB892591425",
+    "courierName": "Shipmozo",
+    "trackingUrl": "https://track.zafiroindio.com/tracking?awb=AWB892591425",
+    "shippingDate": "2026-09-30T09:55:39.604Z"
   },
   {
     "id": "4ccef05b-1f8f-4eea-82ed-ce1c8f5a5690",
@@ -21013,5 +21017,99 @@
     "notes": [],
     "createdAt": "2026-09-15T07:42:26.199Z",
     "updatedAt": "2026-09-15T07:42:26.199Z"
+  },
+  {
+    "id": "7530e610-8381-4acc-8595-1603fd5c2154",
+    "orderNumber": "ZI-10356",
+    "customerName": "Manisha Verma",
+    "customerEmail": "manisha@gmail.com",
+    "customerPhone": "9876543210",
+    "type": "retail",
+    "status": "processing",
+    "items": [
+      {
+        "productId": "indigo-haven",
+        "name": "Zafiro Indigo Haven",
+        "sku": "ZI-INDIGO-HAVEN",
+        "quantity": 1,
+        "price": 1299,
+        "costPrice": 520,
+        "discount": 0,
+        "tax": 0,
+        "total": 1299,
+        "attributes": [
+          {
+            "name": "Size",
+            "value": "Double"
+          },
+          {
+            "name": "Color",
+            "value": "Indigo Blue"
+          }
+        ]
+      },
+      {
+        "productId": "indigo-haven",
+        "name": "Zafiro Indigo Haven",
+        "sku": "ZI-INDIGO-HAVEN",
+        "quantity": 1,
+        "price": 1299,
+        "costPrice": 520,
+        "discount": 0,
+        "tax": 0,
+        "total": 1299,
+        "attributes": [
+          {
+            "name": "Size",
+            "value": "Queen"
+          },
+          {
+            "name": "Color",
+            "value": "Indigo Blue"
+          }
+        ]
+      }
+    ],
+    "billing": {
+      "firstName": "Manisha",
+      "lastName": "Verma",
+      "address1": "22, 9th Cross, Sarjapur Road",
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "postalCode": "560035",
+      "country": "India",
+      "phone": "9876543210",
+      "email": "manisha@gmail.com"
+    },
+    "shipping": {
+      "firstName": "Manisha",
+      "lastName": "Verma",
+      "address1": "22, 9th Cross, Sarjapur Road",
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "postalCode": "560035",
+      "country": "India",
+      "phone": "9876543210",
+      "email": "manisha@gmail.com"
+    },
+    "couponCode": "WELCOME10",
+    "couponDiscount": 260,
+    "subtotal": 2598,
+    "shippingCost": 0,
+    "tax": 0,
+    "discount": 260,
+    "total": 2338,
+    "costSnapshot": {
+      "shippingCost": 0,
+      "paymentFee": 47,
+      "packagingCost": 50,
+      "marketingAttributionCost": 0,
+      "otherOrderCost": 0
+    },
+    "paymentMethod": "upi",
+    "paymentStatus": "paid",
+    "notes": [],
+    "createdAt": "2026-09-30T09:47:15.933Z",
+    "updatedAt": "2026-09-30T09:47:15.933Z"
   }
 ]

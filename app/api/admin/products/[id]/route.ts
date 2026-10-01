@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { readCollection, writeCollection } from "@/lib/db/store";
 import type { Product } from "@/lib/db/types";
 import { v4 as uuidv4 } from "uuid";
@@ -61,6 +62,12 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   products[idx] = { ...products[idx], ...body, id, updatedAt: new Date().toISOString() };
   writeCollection("products", products);
 
+  try {
+    revalidatePath("/shop");
+    revalidatePath("/");
+    if (products[idx].slug) revalidatePath(`/products/${products[idx].slug}`);
+  } catch {}
+
   return NextResponse.json({ product: products[idx] });
 }
 
@@ -88,6 +95,11 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   products = products.filter((p) => p.id !== id);
   writeCollection("products", products);
 
+  try {
+    revalidatePath("/shop");
+    revalidatePath("/");
+  } catch {}
+
   return NextResponse.json({ success: true, message: "Product moved to Recycle Bin." });
 }
 
@@ -110,5 +122,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   };
   products.push(duplicate);
   writeCollection("products", products);
+
+  try {
+    revalidatePath("/shop");
+    revalidatePath("/");
+  } catch {}
+
   return NextResponse.json({ product: duplicate }, { status: 201 });
 }

@@ -1,13 +1,13 @@
 [
   {
-    "id": "9c139aff-2442-487c-a92b-b5f58be72748",
+    "id": "bf0f0671-52d4-4132-8e14-9b021912ed7e",
     "phone": "9876543210",
-    "hashedOtp": "42b06e9190dd25f27c3d955977a074d846982d9df03b9e41d8b0082ac8cdf142",
+    "hashedOtp": "bffcf54c1ed56f36d3b57335607ab8f55c9609530e8e1e312c1574f7964cc5b3",
     "attempts": 0,
     "maxAttempts": 5,
-    "expiresAt": "2026-09-15T12:43:53.412Z",
-    "cooldownUntil": "2026-09-15T12:39:53.412Z",
-    "isUsed": false,
-    "createdAt": "2026-09-15T12:38:53.412Z"
+    "expiresAt": "2026-09-30T09:52:13.148Z",
+    "cooldownUntil": "2026-09-30T09:48:13.148Z",
+    "isUsed": true,
+    "createdAt": "2026-09-30T09:47:13.148Z"
   }
 ]

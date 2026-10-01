@@ -1,5 +1,115 @@
 [
   {
+    "id": "inv-1790761635949-9kdo",
+    "invoiceNumber": "ZI-2026-000004",
+    "orderId": "7530e610-8381-4acc-8595-1603fd5c2154",
+    "orderNumber": "ZI-10356",
+    "invoiceDate": "2026-09-30T09:47:15.933Z",
+    "businessSnapshot": {
+      "storeName": "Zafiro Indio",
+      "storeEmail": "support@zafiroindio.com",
+      "storePhone": "+91 98765 43210",
+      "storeAddress": {
+        "firstName": "Zafiro",
+        "lastName": "Indio HQ",
+        "company": "Zafiro Indio Private Limited",
+        "address1": "Plot 42, Craft Heritage Zone, Sanganer",
+        "address2": "Tonk Road",
+        "city": "Jaipur",
+        "state": "Rajasthan",
+        "postalCode": "302029",
+        "country": "India",
+        "phone": "+91 98765 43210",
+        "email": "support@zafiroindio.com"
+      },
+      "gstin": "08ABCDE1234F1Z5",
+      "pan": "ABCDE1234F",
+      "logoUrl": "/images/logo.png"
+    },
+    "customerSnapshot": {
+      "customerName": "Manisha Verma",
+      "customerEmail": "manisha@gmail.com",
+      "customerPhone": "9876543210",
+      "billing": {
+        "firstName": "Manisha",
+        "lastName": "Verma",
+        "address1": "22, 9th Cross, Sarjapur Road",
+        "city": "Bangalore",
+        "state": "Karnataka",
+        "postalCode": "560035",
+        "country": "India",
+        "phone": "9876543210",
+        "email": "manisha@gmail.com"
+      },
+      "shipping": {
+        "firstName": "Manisha",
+        "lastName": "Verma",
+        "address1": "22, 9th Cross, Sarjapur Road",
+        "city": "Bangalore",
+        "state": "Karnataka",
+        "postalCode": "560035",
+        "country": "India",
+        "phone": "9876543210",
+        "email": "manisha@gmail.com"
+      }
+    },
+    "itemsSnapshot": [
+      {
+        "productId": "indigo-haven",
+        "name": "Zafiro Indigo Haven",
+        "sku": "ZI-INDIGO-HAVEN",
+        "quantity": 1,
+        "price": 1299,
+        "discount": 0,
+        "tax": 0,
+        "total": 1299,
+        "attributes": [
+          {
+            "name": "Size",
+            "value": "Double"
+          },
+          {
+            "name": "Color",
+            "value": "Indigo Blue"
+          }
+        ]
+      },
+      {
+        "productId": "indigo-haven",
+        "name": "Zafiro Indigo Haven",
+        "sku": "ZI-INDIGO-HAVEN",
+        "quantity": 1,
+        "price": 1299,
+        "discount": 0,
+        "tax": 0,
+        "total": 1299,
+        "attributes": [
+          {
+            "name": "Size",
+            "value": "Queen"
+          },
+          {
+            "name": "Color",
+            "value": "Indigo Blue"
+          }
+        ]
+      }
+    ],
+    "subtotal": 2598,
+    "discount": 260,
+    "couponDiscount": 260,
+    "shipping": 0,
+    "tax": 0,
+    "grandTotal": 2338,
+    "amountPaid": 2338,
+    "amountDue": 0,
+    "paymentMethod": "upi",
+    "paymentStatus": "paid",
+    "orderStatus": "processing",
+    "createdAt": "2026-09-30T09:47:15.949Z",
+    "updatedAt": "2026-09-30T09:47:15.949Z"
+  },
+  {
     "id": "inv-1789976250411-o59x",
     "invoiceNumber": "ZI-2026-000003",
     "orderId": "ord-9197",

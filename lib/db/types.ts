@@ -481,6 +481,7 @@ export interface ShipmentRecord {
   trackingNumber: string;
   trackingUrl?: string;
   labelUrl?: string;
+  isLiveCourier?: boolean;
   status: "SHIPMENT_CREATED" | "PICKED_UP" | "IN_TRANSIT" | "REACHED_HUB" | "OUT_FOR_DELIVERY" | "DELIVERED" | "CANCELLED" | "RTO" | "RETURNED";
   weight?: number;
   dimensions?: string;
