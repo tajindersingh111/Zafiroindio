@@ -80,23 +80,50 @@ export default function ProductFormPage({ params }: { params: Promise<{ id: stri
     });
 
     if (isEdit && id) {
-      fetch(`/api/admin/products/${id}`).then((r) => r.json()).then((d) => {
-        if (d.product) {
-          const p = d.product;
-          setForm({
-            name: p.name, slug: p.slug, type: p.type, status: p.status,
-            description: p.description, shortDescription: p.shortDescription,
-            sku: p.sku, price: p.price, salePrice: p.salePrice, mrp: p.mrp, costPrice: p.costPrice, costBreakdown: p.costBreakdown, images: p.images ?? [],
-            categoryId: p.categoryId, brandId: p.brandId, tags: p.tags.join(", "),
-            weight: p.weight, stock: p.stock, stockStatus: p.stockStatus,
-            lowStockThreshold: p.lowStockThreshold, taxClass: p.taxClass,
-            manageStock: p.manageStock, backordersAllowed: p.backordersAllowed,
-            codAllowed: p.codAllowed ?? true, codShippingCharge: p.codShippingCharge, freeShipping: p.freeShipping ?? false,
-            attributes: p.attributes, variations: p.variations,
-          });
-        }
-        setLoading(false);
-      });
+      fetch(`/api/admin/products/${id}`)
+        .then((r) => r.ok ? r.json() : null)
+        .then((d) => {
+          if (d && d.product) {
+            const p = d.product;
+            const tagsStr = Array.isArray(p.tags) ? p.tags.join(", ") : (typeof p.tags === "string" ? p.tags : "");
+            setForm({
+              name: p.name || "",
+              slug: p.slug || "",
+              type: p.type || "simple",
+              status: p.status || "draft",
+              description: p.description || "",
+              shortDescription: p.shortDescription || "",
+              sku: p.sku || "",
+              price: Number(p.price) || 0,
+              salePrice: p.salePrice ? Number(p.salePrice) : undefined,
+              mrp: p.mrp ? Number(p.mrp) : undefined,
+              costPrice: p.costPrice ? Number(p.costPrice) : undefined,
+              costBreakdown: p.costBreakdown,
+              images: Array.isArray(p.images) ? p.images : [],
+              categoryId: p.categoryId || "",
+              brandId: p.brandId,
+              tags: tagsStr,
+              weight: p.weight,
+              stock: Number(p.stock) || 0,
+              stockStatus: p.stockStatus || "in_stock",
+              lowStockThreshold: p.lowStockThreshold || 10,
+              taxClass: p.taxClass || "standard",
+              manageStock: p.manageStock ?? true,
+              backordersAllowed: p.backordersAllowed ?? false,
+              codAllowed: p.codAllowed ?? true,
+              codShippingCharge: p.codShippingCharge,
+              freeShipping: p.freeShipping ?? false,
+              attributes: p.attributes || {},
+              variations: Array.isArray(p.variations) ? p.variations : [],
+            });
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to load product for editing:", err);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     }
   }, [id, isEdit]);
 
