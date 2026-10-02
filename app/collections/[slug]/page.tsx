@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ProductCard from "@/components/ProductCard";
-import { getStorefrontProducts, collections } from "@/lib/data";
+import { getStorefrontProducts, getStorefrontCollections, collections } from "@/lib/data";
 import { ArrowRight } from "lucide-react";
 
 const BASE_URL = "https://zafiroindio.com";
@@ -249,7 +249,8 @@ const collectionContent: Record<
 };
 
 export async function generateStaticParams() {
-  return Object.keys(collectionContent).map((slug) => ({ slug }));
+  const allCols = getStorefrontCollections();
+  return allCols.map((c) => ({ slug: c.slug }));
 }
 
 export async function generateMetadata({
@@ -259,16 +260,20 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const content = collectionContent[slug];
-  if (!content) return {};
+  const allCols = getStorefrontCollections();
+  const meta = allCols.find((c) => c.slug === slug);
+
+  const title = content?.metaTitle || `${meta?.name || slug} Collection | Zafiro Indio`;
+  const description = content?.metaDesc || meta?.desc || `Explore Zafiro Indio's ${meta?.name || slug} bedsheet collection. 100% pure cotton, handcrafted luxury.`;
 
   return {
-    title: content.metaTitle,
-    description: content.metaDesc,
-    keywords: content.keywords,
+    title,
+    description,
+    keywords: content?.keywords || [meta?.name || "bedsheet collection"],
     alternates: { canonical: `${BASE_URL}/collections/${slug}` },
     openGraph: {
-      title: content.metaTitle,
-      description: content.metaDesc,
+      title,
+      description,
       type: "website",
       url: `${BASE_URL}/collections/${slug}`,
     },
@@ -281,14 +286,49 @@ export default async function CollectionLandingPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const content = collectionContent[slug];
-  if (!content) notFound();
-
-  const collectionMeta = collections.find((c) => c.slug === slug);
-  const allProducts = getStorefrontProducts();
-  const collectionProducts = allProducts.filter(
-    (p) => p.category === content.categoryFilter
+  const allCollections = getStorefrontCollections();
+  const collectionMeta = allCollections.find(
+    (c) => c.slug === slug || c.slug === slug.toLowerCase() || c.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") === slug
   );
+  const staticContent = collectionContent[slug];
+
+  const content = staticContent || (collectionMeta ? {
+    headline: collectionMeta.name,
+    subheadline: "Handcrafted 100% Pure Cotton · Zafiro Indio Collection",
+    heroDesc: collectionMeta.desc || `Explore our exclusive ${collectionMeta.name} bedsheet selection handcrafted with premium pure percale cotton.`,
+    bodyTitle: `About ${collectionMeta.name}`,
+    bodyPara1: collectionMeta.desc || `Each piece in the ${collectionMeta.name} is woven from long-staple pure cotton and designed for everyday luxury and breathability.`,
+    bodyPara2: "Crafted by skilled artisans using eco-friendly non-toxic dyes. Easy care, machine washable, and long lasting.",
+    faqs: [
+      { q: `Are products in ${collectionMeta.name} 100% cotton?`, a: "Yes. All Zafiro Indio bedding is crafted from 100% pure long-staple cotton." },
+      { q: "What delivery options are available?", a: "We offer free shipping across India on orders above ₹999 with standard 3-5 day delivery." }
+    ],
+    categoryFilter: collectionMeta.name
+  } : null);
+
+  if (!content && !collectionMeta) notFound();
+
+  const finalContent = content || {
+    headline: collectionMeta?.name || slug.replace(/-/g, " ").toUpperCase(),
+    subheadline: "Handcrafted 100% Pure Cotton · Zafiro Indio Collection",
+    heroDesc: collectionMeta?.desc || "Explore our exclusive handcrafted bedsheet selection.",
+    bodyTitle: "Handcrafted Quality",
+    bodyPara1: "Woven from long-staple pure cotton.",
+    bodyPara2: "Crafted by skilled artisans.",
+    faqs: [],
+    categoryFilter: collectionMeta?.name || slug
+  };
+
+  const allProducts = getStorefrontProducts();
+  const normSlug = slug.toLowerCase();
+  const collectionProducts = allProducts.filter((p) => {
+    const catNorm = (p.category || "").toLowerCase();
+    return (
+      catNorm.includes(normSlug) ||
+      normSlug.includes(catNorm) ||
+      (collectionMeta && catNorm.includes(collectionMeta.name.toLowerCase()))
+    );
+  });
 
   // JSON-LD: CollectionPage + BreadcrumbList
   const breadcrumbJsonLd = {

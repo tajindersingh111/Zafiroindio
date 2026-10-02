@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { collections } from "@/lib/data";
+import { getStorefrontCollections } from "@/lib/data";
 
 export const metadata = {
   title: "Bedsheet Collections | Floral, Minimal, Luxury, Block Print | Zafiro Indio",
@@ -9,6 +9,8 @@ export const metadata = {
 };
 
 export default function Collections() {
+  const collectionsList = getStorefrontCollections();
+
   return (
     <main style={{ background: "#faf8f5", minHeight: "100vh" }}>
       <style>{`
@@ -80,7 +82,7 @@ export default function Collections() {
               gap: 28
             }}
           >
-            {collections.map((c) => (
+            {collectionsList.map((c) => (
               <article
                 key={c.slug}
                 id={c.slug}
