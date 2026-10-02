@@ -21,6 +21,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
+        <script src="https://fastrr-cdn.shiprocket.in/fastrr.js" data-app-id="A9Atin8sWzfSto3V" defer></script>
+        <script src="https://checkout.shiprocket.in/shiprocket-checkout.js" data-app-id="A9Atin8sWzfSto3V" defer></script>
       </head>
       <body>
         <StoreProvider>
