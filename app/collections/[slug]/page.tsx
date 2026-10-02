@@ -328,6 +328,16 @@ export default async function CollectionLandingPage({
   const catFilterNorm = (content?.categoryFilter || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 
   let collectionProducts = allProducts.filter((p) => {
+    // 1. Direct collection assignment match
+    if (Array.isArray(p.collections) && p.collections.length > 0) {
+      const hasDirectMatch = p.collections.some((colItem) => {
+        const itemNorm = String(colItem).toLowerCase().replace(/[^a-z0-9]/g, "");
+        return itemNorm === normSlug || itemNorm === colNameNorm || itemNorm === catFilterNorm;
+      });
+      if (hasDirectMatch) return true;
+    }
+
+    // 2. Text/category heuristic match
     const pCat = (p.category || "").toLowerCase().replace(/[^a-z0-9]/g, "");
     const pName = (p.name || "").toLowerCase().replace(/[^a-z0-9]/g, "");
     const pDesc = (p.description || "").toLowerCase().replace(/[^a-z0-9]/g, "");

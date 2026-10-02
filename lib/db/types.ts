@@ -50,6 +50,7 @@ export interface Product {
   costPrice?: number;
   costBreakdown?: CostBreakdown;
   categoryId: string;
+  collections?: string[]; // collection slugs/IDs product belongs to
   subcategoryId?: string;
   brandId?: string;
   tags: string[];
