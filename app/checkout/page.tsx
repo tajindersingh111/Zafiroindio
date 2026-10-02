@@ -289,8 +289,15 @@ export default function CheckoutPage() {
     setOtpError("");
     setOtpSentMsg("");
     setDevOtpHint("");
+    setShowOtpModal(true); // Open Shiprocket Modal Popup Immediately!
 
     const cleanPhone = phone.trim().replace(/\D/g, "");
+
+    if (!cleanPhone || cleanPhone.length < 10) {
+      setOtpError("Please enter a valid 10-digit Indian mobile number.");
+      setOtpLoading(false);
+      return;
+    }
 
     try {
       const res = await fetch("/api/auth/send-otp", {
@@ -306,7 +313,6 @@ export default function CheckoutPage() {
           setDevOtpHint(data.devOtp);
           setOtpInput(data.devOtp); // Auto-fill in dev mode for smooth demo
         }
-        setShowOtpModal(true);
         setResendCooldown(30);
       } else {
         setOtpError(data.error || "Failed to send OTP. Please check mobile number.");
@@ -1923,9 +1929,11 @@ export default function CheckoutPage() {
                   <div style={{ display: "flex", alignItems: "center", border: "1px solid #d4cdbf", borderRadius: 6, background: "#fcfaf7", padding: "10px 14px" }}>
                     <span style={{ fontSize: 13, fontWeight: 700, color: "#1c1917", marginRight: 8 }}>🇮🇳 +91</span>
                     <input
-                      type="text"
-                      readOnly
+                      type="tel"
+                      maxLength={10}
                       value={phone}
+                      onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
+                      placeholder="e.g. 9876543210"
                       style={{ border: 0, outline: "none", background: "transparent", fontSize: 14, fontWeight: 700, color: "#1c1917", flex: 1 }}
                     />
                     <span style={{ fontSize: 11, fontWeight: 700, color: "#2e7d32", background: "#eef7ee", padding: "2px 8px", borderRadius: 4 }}>OTP Sent</span>
