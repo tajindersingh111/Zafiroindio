@@ -11,9 +11,7 @@ function OrderSuccessContent() {
   const orderId = searchParams.get("orderId");
   const orderNumber = rawOrderNumber ? (rawOrderNumber.startsWith("#") ? rawOrderNumber : `#${rawOrderNumber}`) : "#ZI-10025";
 
-  const invoiceUrl = orderId
-    ? `/api/invoices/${orderId}/download`
-    : `/admin/orders/1/invoice`;
+  const invoiceUrl = `/api/invoices/${orderId || rawOrderNumber || "latest"}/download`;
 
   return (
     <main style={{ padding: "64px 20px", background: "var(--cream)", minHeight: "75vh", display: "flex", alignItems: "center", justifyContent: "center" }}>

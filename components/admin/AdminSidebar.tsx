@@ -53,6 +53,7 @@ const NAV: NavItem[] = [
       { label: "All Products", href: "/admin/products" },
       { label: "Add Product", href: "/admin/products/new" },
       { label: "Categories", href: "/admin/products/categories" },
+      { label: "Collections", href: "/admin/products/collections" },
       { label: "Brands", href: "/admin/products/brands" },
       { label: "Attributes", href: "/admin/products/attributes" },
       { label: "Inventory", href: "/admin/products/inventory" },
