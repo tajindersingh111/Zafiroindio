@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from "uuid";
 interface Category { id: string; name: string; }
 interface Brand { id: string; name: string; }
 interface Attribute { id: string; name: string; values: string[]; }
+interface CollectionItem { id: string; name: string; slug: string; }
 interface Variation {
   id: string; sku: string; price: number; salePrice?: number;
   stock: number; stockStatus: string; weight?: number;
@@ -21,6 +22,7 @@ interface ProductForm {
   costBreakdown?: { fabricCost?: number; printingCost?: number; stitchingCost?: number; packagingCost?: number; otherCost?: number };
   images: string[];
   categoryId: string; brandId?: string; tags: string;
+  collections: string[];
   weight?: number; stock: number; stockStatus: string; lowStockThreshold: number;
   taxClass: string; manageStock: boolean; backordersAllowed: boolean;
   codAllowed?: boolean; codShippingCharge?: number; freeShipping?: boolean;
@@ -35,7 +37,7 @@ const DEFAULT_FORM: ProductForm = {
   taxClass: "standard", manageStock: true, backordersAllowed: false,
   codAllowed: true, codShippingCharge: undefined, freeShipping: false,
   images: [],
-  categoryId: "", tags: "",
+  categoryId: "", tags: "", collections: [],
   attributes: {}, variations: [],
 };
 
@@ -64,6 +66,7 @@ export default function ProductFormPage({ params }: { params: Promise<{ id: stri
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [allAttrs, setAllAttrs] = useState<Attribute[]>([]);
+  const [allCollections, setAllCollections] = useState<CollectionItem[]>([]);
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [activeAttr, setActiveAttr] = useState("");
@@ -73,10 +76,12 @@ export default function ProductFormPage({ params }: { params: Promise<{ id: stri
       fetch("/api/admin/products/categories").then((r) => r.json()),
       fetch("/api/admin/products/brands").then((r) => r.json()),
       fetch("/api/admin/products/attributes").then((r) => r.json()),
-    ]).then(([catData, brandData, attrData]) => {
+      fetch("/api/admin/collections").then((r) => r.json()).catch(() => ({})),
+    ]).then(([catData, brandData, attrData, colData]) => {
       setCategories(catData.categories ?? []);
       setBrands(brandData.brands ?? []);
       setAllAttrs(attrData.attributes ?? []);
+      setAllCollections(colData.collections ?? []);
     });
 
     if (isEdit && id) {
@@ -103,6 +108,7 @@ export default function ProductFormPage({ params }: { params: Promise<{ id: stri
               categoryId: p.categoryId || "",
               brandId: p.brandId,
               tags: tagsStr,
+              collections: Array.isArray(p.collections) ? p.collections : [],
               weight: p.weight,
               stock: Number(p.stock) || 0,
               stockStatus: p.stockStatus || "in_stock",
@@ -713,6 +719,47 @@ export default function ProductFormPage({ params }: { params: Promise<{ id: stri
                   <option value="none">No Tax</option>
                 </select>
               </Field>
+            </div>
+          </SectionCard>
+
+          <SectionCard title="Collections">
+            <div className="space-y-2">
+              <label className="block text-xs font-semibold uppercase tracking-wide text-stone mb-1">
+                Select Collections
+              </label>
+              {allCollections.length === 0 ? (
+                <p className="text-xs text-stone italic">No collections available.</p>
+              ) : (
+                <div className="space-y-1.5 max-h-48 overflow-y-auto border border-stone/20 rounded p-2 bg-paper">
+                  {allCollections.map((col) => {
+                    const colSlug = col.slug || col.id;
+                    const isSelected = form.collections.includes(colSlug);
+                    return (
+                      <label key={colSlug} className="flex items-center gap-2.5 text-xs text-ink cursor-pointer hover:bg-stone-100 p-1.5 rounded transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            setForm((prev) => {
+                              const current = prev.collections || [];
+                              const next = checked
+                                ? [...current, colSlug]
+                                : current.filter((s) => s !== colSlug);
+                              return { ...prev, collections: next };
+                            });
+                          }}
+                          className="accent-indigo w-4 h-4 rounded"
+                        />
+                        <span className="font-medium text-stone-800">{col.name}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+              <p className="text-[11px] text-stone mt-1">
+                Check all collections where this product should be featured on the store.
+              </p>
             </div>
           </SectionCard>
 

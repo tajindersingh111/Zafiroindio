@@ -12,6 +12,7 @@ export type Product = {
   fabric: string;
   description: string;
   category: string;
+  collections?: string[];
   colors: string[];
   sizes: string[];
   images: string[];
@@ -114,6 +115,7 @@ export function getStorefrontProducts(): Product[] {
             badge,
             fabric: p.fabric || "100% Cotton",
             category: categoryName,
+            collections: Array.isArray(p.collections) ? p.collections : [],
             colors: colorsArr,
             sizes: sizesArr,
             description: p.description || p.shortDescription || "",

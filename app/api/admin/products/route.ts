@@ -61,6 +61,7 @@ export async function POST(request: Request) {
       costPrice: body.costPrice ?? (body.costBreakdown ? Object.values(body.costBreakdown).reduce((a, b) => a + (Number(b) || 0), 0) : 0),
       costBreakdown: body.costBreakdown,
       categoryId: body.categoryId ?? "",
+      collections: Array.isArray(body.collections) ? body.collections : [],
       subcategoryId: body.subcategoryId,
       brandId: body.brandId,
       tags: body.tags ?? [],
