@@ -163,5 +163,23 @@ export function getStorefrontBanners(): Banner[] {
   ];
 }
 
+export function getStorefrontCollections(): { name: string; slug: string; desc: string; image: string }[] {
+  try {
+    const dbCollections = readCollection<any>("collections");
+    if (dbCollections && dbCollections.length > 0) {
+      return dbCollections.map((c: any) => ({
+        name: c.name || "Collection",
+        slug: c.slug || c.name?.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+        desc: c.desc || c.description || "Curated luxury bedsheet collection.",
+        image: c.image || "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+      }));
+    }
+  } catch (err) {
+    console.error("Failed to read storefront collections from store", err);
+  }
+  return collections;
+}
+
+
 
 
