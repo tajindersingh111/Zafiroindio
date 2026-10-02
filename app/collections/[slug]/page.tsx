@@ -5,6 +5,9 @@ import ProductCard from "@/components/ProductCard";
 import { getStorefrontProducts, getStorefrontCollections, collections } from "@/lib/data";
 import { ArrowRight } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const BASE_URL = "https://zafiroindio.com";
 
 // Rich editorial content per collection — real content for real customers

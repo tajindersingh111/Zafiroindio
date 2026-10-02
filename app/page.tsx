@@ -2,8 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Leaf, Sparkles, RotateCcw, ShieldCheck, HeartHandshake } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
-import { getStorefrontProducts, getStorefrontBanners, collections } from "@/lib/data";
+import { getStorefrontProducts, getStorefrontBanners, getStorefrontCollections } from "@/lib/data";
 import SmartRecommendations from "@/components/site/SmartRecommendations";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const BASE_URL = "https://zafiroindio.com";
 
@@ -86,6 +89,7 @@ const websiteJsonLd = {
 export default function Home() {
   const products = getStorefrontProducts();
   const banners = getStorefrontBanners();
+  const collectionsList = getStorefrontCollections();
   const heroBanner = banners[0] || {
     title: "Make Your Bedroom Feel Like Sanctuary.",
     subtitle: "Handcrafted 100% pure cotton bedsheets designed for everyday comfort and timeless Indian heritage.",
@@ -177,7 +181,7 @@ export default function Home() {
           </div>
 
           <div className="collections">
-            {collections.map((c) => (
+            {collectionsList.map((c) => (
               <Link
                 href={`/shop?collection=${c.slug}`}
                 className="collection"

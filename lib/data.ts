@@ -1,4 +1,4 @@
-import { readCollection } from "@/lib/db/store";
+import { readCollection, writeCollection } from "@/lib/db/store";
 
 export type Product = {
   slug: string;
@@ -173,6 +173,16 @@ export function getStorefrontCollections(): { name: string; slug: string; desc: 
         desc: c.desc || c.description || "Curated luxury bedsheet collection.",
         image: c.image || "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
       }));
+    } else {
+      const seeded = collections.map((c, idx) => ({
+        id: `col-${idx + 1}`,
+        name: c.name,
+        slug: c.slug,
+        desc: c.desc,
+        image: c.image,
+      }));
+      writeCollection("collections", seeded);
+      return collections;
     }
   } catch (err) {
     console.error("Failed to read storefront collections from store", err);

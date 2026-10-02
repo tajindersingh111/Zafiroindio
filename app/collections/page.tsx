@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { getStorefrontCollections } from "@/lib/data";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata = {
   title: "Bedsheet Collections | Floral, Minimal, Luxury, Block Print | Zafiro Indio",
   description: "Explore Zafiro Indio's curated bedsheet collections — hand-block printed floral, clean minimal, bold printed, premium luxury & everyday comfort cotton bedsheets from Jaipur.",
