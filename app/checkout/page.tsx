@@ -1543,40 +1543,45 @@ export default function CheckoutPage() {
                 )}
               </div>
 
-              {/* Main Place Order Button */}
+              {/* Main Place Order Button — Powered by Shiprocket 1-Click Fast Checkout */}
               <button
                 type="submit"
                 disabled={submitting || otpLoading}
                 style={{
                   width: "100%",
-                  background: "#a67c37",
+                  background: "linear-gradient(135deg, #1c1917 0%, #2d2825 100%)",
                   color: "#ffffff",
-                  border: 0,
-                  padding: "15px 20px",
+                  border: "1px solid #c5a028",
+                  padding: "16px 20px",
                   fontSize: 13,
                   fontWeight: 800,
-                  letterSpacing: "1px",
+                  letterSpacing: "0.8px",
                   textTransform: "uppercase",
-                  borderRadius: 4,
+                  borderRadius: 6,
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: 8,
-                  transition: "background 0.2s ease"
+                  gap: 10,
+                  boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
+                  transition: "all 0.2s ease"
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "#8e682c")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "#a67c37")}
               >
-                <Lock size={15} />
-                {submitting
-                  ? "PLACING ORDER…"
-                  : otpLoading
-                  ? "SENDING OTP…"
-                  : isPhoneVerified
-                  ? "PLACE ORDER NOW"
-                  : "VERIFY MOBILE & PLACE ORDER"}
+                {submitting || otpLoading ? (
+                  <>
+                    <RefreshCw size={16} className="animate-spin" />
+                    <span>Processing Shiprocket Order…</span>
+                  </>
+                ) : (
+                  <>
+                    <Zap size={16} fill="#c5a028" color="#c5a028" />
+                    <span>SHIPROCKET 1-CLICK FAST CHECKOUT</span>
+                  </>
+                )}
               </button>
+              <div style={{ textAlign: "center", marginTop: 8, fontSize: 11, color: "#777" }}>
+                🔒 WhatsApp / SMS OTP Verified · Auto Customer Account Sync
+              </div>
 
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 12, fontSize: 11, color: "#777" }}>
                 <span>You won't be charged until you review your order</span>
