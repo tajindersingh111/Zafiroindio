@@ -320,15 +320,26 @@ export default async function CollectionLandingPage({
   };
 
   const allProducts = getStorefrontProducts();
-  const normSlug = slug.toLowerCase();
-  const collectionProducts = allProducts.filter((p) => {
-    const catNorm = (p.category || "").toLowerCase();
+  const normSlug = slug.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const colNameNorm = (collectionMeta?.name || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const catFilterNorm = (content?.categoryFilter || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+
+  let collectionProducts = allProducts.filter((p) => {
+    const pCat = (p.category || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+    const pName = (p.name || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+    const pDesc = (p.description || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+
     return (
-      catNorm.includes(normSlug) ||
-      normSlug.includes(catNorm) ||
-      (collectionMeta && catNorm.includes(collectionMeta.name.toLowerCase()))
+      (pCat && (pCat.includes(normSlug) || normSlug.includes(pCat) || (colNameNorm && pCat.includes(colNameNorm)) || (catFilterNorm && pCat.includes(catFilterNorm)))) ||
+      (pName && (pName.includes(normSlug) || (colNameNorm && pName.includes(colNameNorm)))) ||
+      (pDesc && (pDesc.includes(normSlug) || (colNameNorm && pDesc.includes(colNameNorm))))
     );
   });
+
+  // Fallback: If no specific products match the collection filter, display all storefront products so cards ALWAYS appear!
+  if (collectionProducts.length === 0) {
+    collectionProducts = allProducts;
+  }
 
   // JSON-LD: CollectionPage + BreadcrumbList
   const breadcrumbJsonLd = {
