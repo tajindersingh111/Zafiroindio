@@ -7,7 +7,7 @@ import { useStore } from "@/components/StoreProvider";
 import {
   ShoppingBag, Lock, Truck, CreditCard, ShieldCheck,
   AlertCircle, Tag, CheckCircle2, RotateCcw, Check, Info,
-  HelpCircle, ChevronRight, Phone, Mail, X, RefreshCw
+  HelpCircle, ChevronRight, Phone, Mail, X, RefreshCw, Zap
 } from "lucide-react";
 
 interface ValidationErrors {
@@ -563,6 +563,68 @@ export default function CheckoutPage() {
         <form onSubmit={handleFormSubmit} noValidate style={{ display: "grid", gridTemplateColumns: "1fr 380px", gap: 36 }}>
           {/* ── LEFT COLUMN: Form Steps ────────────────────────── */}
           <div>
+            {/* ⚡ SHIPROCKET 1-CLICK FAST CHECKOUT ENGINE BANNER */}
+            <div style={{
+              background: "linear-gradient(135deg, #1c1917 0%, #2d2825 100%)",
+              color: "#ffffff",
+              borderRadius: 10,
+              padding: "20px 24px",
+              marginBottom: 24,
+              boxShadow: "0 4px 18px rgba(0,0,0,0.08)",
+              border: "1px solid #3d3632",
+              display: "flex",
+              flexDirection: "column",
+              gap: 12
+            }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ background: "#c5a028", color: "#1c1917", fontSize: 11, fontWeight: 900, padding: "3px 8px", borderRadius: 4, letterSpacing: "0.5px" }}>
+                    1-CLICK FAST CHECKOUT
+                  </span>
+                  <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: "0.3px", color: "#f5f2eb" }}>
+                    Shiprocket Checkout Engine
+                  </span>
+                </div>
+                <span style={{ fontSize: 11, color: "#a8a29e", display: "flex", alignItems: "center", gap: 4 }}>
+                  <ShieldCheck size={14} color="#c5a028" /> WhatsApp / SMS OTP Verified
+                </span>
+              </div>
+
+              <p style={{ margin: 0, fontSize: 12.5, color: "#d6d3d1", lineHeight: 1.5 }}>
+                Pre-fill address automatically for 100M+ Indian shoppers. Verified via instant WhatsApp OTP — <strong>Zafiro Customer Account auto-created</strong>.
+              </p>
+
+              <button
+                type="button"
+                onClick={async () => {
+                  if (!phone || phone.trim().length < 10) {
+                    setErrorMsg("Please enter your 10-digit mobile number in the contact details below.");
+                    return;
+                  }
+                  await triggerSendOtp();
+                }}
+                style={{
+                  background: "linear-gradient(135deg, #c5a028 0%, #a67c37 100%)",
+                  color: "#1c1917",
+                  border: "none",
+                  padding: "13px 20px",
+                  borderRadius: 6,
+                  fontWeight: 800,
+                  fontSize: 13,
+                  letterSpacing: "0.6px",
+                  textTransform: "uppercase",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                  boxShadow: "0 2px 10px rgba(197, 160, 40, 0.3)"
+                }}
+              >
+                <Zap size={16} fill="#1c1917" /> Buy Fast via Shiprocket 1-Click OTP
+              </button>
+            </div>
+
             {errorMsg && (
               <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 18px", background: "#fdf2f0", border: "1px solid #e8c5be", borderRadius: 8, marginBottom: 20, fontSize: 13, color: "#c83232", fontWeight: 500 }}>
                 <AlertCircle size={18} style={{ flexShrink: 0 }} />

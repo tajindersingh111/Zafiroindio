@@ -15,6 +15,9 @@ interface Settings {
   whatsappPhoneId?: string;
   whatsappOrderConfirm?: boolean;
   whatsappOrderShipped?: boolean;
+  shiprocketCheckoutEnabled?: boolean;
+  shiprocketAppId?: string;
+  shiprocketToken?: string;
 }
 
 export default function SettingsPage() {
@@ -39,6 +42,9 @@ export default function SettingsPage() {
         whatsappPhoneId: s.whatsappPhoneId ?? "",
         whatsappOrderConfirm: s.whatsappOrderConfirm !== undefined ? s.whatsappOrderConfirm : true,
         whatsappOrderShipped: s.whatsappOrderShipped !== undefined ? s.whatsappOrderShipped : true,
+        shiprocketCheckoutEnabled: s.shiprocketCheckoutEnabled !== undefined ? s.shiprocketCheckoutEnabled : true,
+        shiprocketAppId: s.shiprocketAppId ?? "",
+        shiprocketToken: s.shiprocketToken ?? "",
         storeAddress: {
           address1: s.storeAddress?.address1 ?? "",
           city: s.storeAddress?.city ?? "",
@@ -126,6 +132,46 @@ export default function SettingsPage() {
             <label className="block text-xs font-semibold uppercase tracking-wide text-stone mb-1.5">Default Low Stock Threshold</label>
             <input type="number" min={1} value={settings.lowStockThreshold} onChange={(e) => set("lowStockThreshold", Number(e.target.value))} className={inputCls} />
             <p className="text-xs text-stone mt-1.5">Products with stock at or below this number will be flagged as low stock.</p>
+          </div>
+        </SectionCard>
+
+        {/* Shiprocket 1-Click Checkout Engine */}
+        <SectionCard title="Shiprocket 1-Click Fast Checkout Engine">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b border-stone/20">
+              <input
+                type="checkbox"
+                id="shiprocket-enable"
+                checked={settings.shiprocketCheckoutEnabled}
+                onChange={(e) => set("shiprocketCheckoutEnabled", e.target.checked)}
+                className="rounded-sm border-stone/30 text-indigo focus:ring-indigo/40"
+              />
+              <label htmlFor="shiprocket-enable" className="text-xs font-semibold uppercase text-ink cursor-pointer">
+                Enable Shiprocket 1-Click Fast Checkout (OTP + Autofill)
+              </label>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wide text-stone mb-1.5">Shiprocket App ID / Merchant Key</label>
+              <input
+                type="text"
+                placeholder="e.g. sr_app_982347"
+                value={settings.shiprocketAppId}
+                onChange={(e) => set("shiprocketAppId", e.target.value)}
+                className={inputCls}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wide text-stone mb-1.5">Shiprocket Secret Token</label>
+              <input
+                type="password"
+                placeholder="••••••••••••••••••••••••••••"
+                value={settings.shiprocketToken}
+                onChange={(e) => set("shiprocketToken", e.target.value)}
+                className={inputCls}
+              />
+            </div>
           </div>
         </SectionCard>
 
