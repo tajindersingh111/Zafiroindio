@@ -1,14 +1,16 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Search, UserRound, Heart, ShoppingBag, Menu, X } from "lucide-react";
+import { Search, UserRound, Heart, ShoppingBag, Menu, X, PackageCheck } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useStore } from "./StoreProvider";
+import BulkOrderModal from "./BulkOrderModal";
 
 export default function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [bulkModalOpen, setBulkModalOpen] = useState(false);
   const [announcements, setAnnouncements] = useState<string[]>([
     "🚚 FREE SHIPPING on orders above ₹999",
     "🎁 10% OFF on your first order | Use code: WELCOME10",
@@ -50,6 +52,7 @@ export default function Header() {
     { href: "/collections", label: "COLLECTIONS" },
     { href: "/shop?badge=new", label: "NEW ARRIVALS" },
     { href: "/shop?badge=bestseller", label: "BESTSELLERS" },
+    { href: "/bulk-order", label: "BULK ORDERS", isBulk: true },
     { href: "/about", label: "ABOUT US" },
   ];
 
@@ -82,24 +85,65 @@ export default function Header() {
           {/* Desktop nav */}
           <nav className="menu">
             {navLinks.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className={
-                  pathname === l.href ||
-                  (l.href === "/shop" && pathname?.startsWith("/shop")) ||
-                  (l.href === "/collections" && pathname?.startsWith("/collections"))
-                    ? "active"
-                    : ""
-                }
-              >
-                {l.label}
-              </Link>
+              l.isBulk ? (
+                <button
+                  key={l.label}
+                  type="button"
+                  onClick={() => setBulkModalOpen(true)}
+                  className="bulk-nav-link"
+                  style={{
+                    background: "none",
+                    border: "none",
+                    font: "inherit",
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "5px",
+                    color: "#a67c37",
+                    fontWeight: 700,
+                    fontSize: "12px",
+                    letterSpacing: "1px"
+                  }}
+                >
+                  <PackageCheck size={16} /> BULK ORDERS
+                </button>
+              ) : (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  className={
+                    pathname === l.href ||
+                    (l.href === "/shop" && pathname?.startsWith("/shop")) ||
+                    (l.href === "/collections" && pathname?.startsWith("/collections"))
+                      ? "active"
+                      : ""
+                  }
+                >
+                  {l.label}
+                </Link>
+              )
             ))}
           </nav>
 
           {/* Action icons */}
           <div className="actions">
+            {/* Bulk Order Icon Button */}
+            <button
+              type="button"
+              onClick={() => setBulkModalOpen(true)}
+              className="iconbtn"
+              title="Bulk Order Inquiry"
+              aria-label="Bulk Order Inquiry"
+              style={{
+                color: "#a67c37",
+                background: "rgba(166, 124, 55, 0.08)",
+                borderRadius: "50%",
+                padding: "6px"
+              }}
+            >
+              <PackageCheck size={20} />
+            </button>
+
             <Link className="iconbtn" href="/search" aria-label="Search">
               <Search size={20} />
             </Link>
@@ -137,7 +181,33 @@ export default function Header() {
             </button>
           </div>
           {navLinks.map((l) => (
-            <Link key={l.href} href={l.href}>{l.label}</Link>
+            l.isBulk ? (
+              <button
+                key={l.label}
+                onClick={() => {
+                  setOpen(false);
+                  setBulkModalOpen(true);
+                }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  width: "100%",
+                  textAlign: "left",
+                  background: "none",
+                  border: 0,
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: "#a67c37",
+                  padding: "12px 0",
+                  cursor: "pointer"
+                }}
+              >
+                <PackageCheck size={18} /> BULK ORDERS &amp; WHOLESALE
+              </button>
+            ) : (
+              <Link key={l.href} href={l.href}>{l.label}</Link>
+            )
           ))}
           <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid var(--line)", display: "flex", gap: 14 }}>
             <Link href="/account" style={{ fontSize: 12, color: "var(--muted)", display: "flex", alignItems: "center", gap: 6, border: "none", padding: 0, textTransform: "none", letterSpacing: 0 }}>
@@ -149,8 +219,12 @@ export default function Header() {
           </div>
         </div>
       </div>
+
+      {/* ── Bulk Order Modal ──────────────────────────────────── */}
+      <BulkOrderModal isOpen={bulkModalOpen} onClose={() => setBulkModalOpen(false)} />
     </>
   );
 }
 
 export { Header };
+
