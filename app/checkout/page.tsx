@@ -491,14 +491,29 @@ export default function CheckoutPage() {
         setErrorMsg(data.error || "Failed to place order. Please try again.");
         setSubmitting(false);
       } else {
+        const targetOrderNumber = data.order?.orderNumber || data.order?.id || `ZI-${Date.now()}`;
+        const targetOrderId = data.order?.id || targetOrderNumber;
         clearCart();
-        router.push(`/order-success?orderNumber=${encodeURIComponent(data.order.orderNumber)}&orderId=${data.order.id}`);
+        window.location.href = `/order-success?orderNumber=${encodeURIComponent(targetOrderNumber)}&orderId=${encodeURIComponent(targetOrderId)}`;
       }
-    } catch {
-      setErrorMsg("An error occurred while communicating with the server.");
+    } catch (err) {
+      console.error("Order submission error:", err);
+      setErrorMsg("An error occurred while communicating with the server. Please try again.");
       setSubmitting(false);
     }
   };
+
+  if (submitting) {
+    return (
+      <main style={{ background: "#faf8f5", minHeight: "100vh", padding: "100px 20px", textAlign: "center" }}>
+        <div style={{ maxWidth: 480, margin: "0 auto", background: "#ffffff", padding: "48px 36px", borderRadius: 12, border: "1px solid #e7e1d6", boxShadow: "0 10px 30px rgba(0,0,0,0.05)" }}>
+          <div style={{ width: 48, height: 48, border: "3px solid #f3ebe0", borderTopColor: "#a67c37", borderRadius: "50%", margin: "0 auto 20px", animation: "spin 1s linear infinite" }} />
+          <h2 className="serif" style={{ fontSize: 26, margin: "0 0 10px", color: "#1c1917" }}>Processing Your Order</h2>
+          <p style={{ color: "#666", fontSize: 14, margin: 0, lineHeight: 1.6 }}>Generating invoice and confirming your details with Shiprocket Engine. Please do not close or refresh this page…</p>
+        </div>
+      </main>
+    );
+  }
 
   if (cart.length === 0) {
     return (

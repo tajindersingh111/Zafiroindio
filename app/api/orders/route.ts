@@ -120,6 +120,12 @@ export async function POST(request: Request) {
     const updatedOrders = [newOrder, ...orders];
     writeCollection("orders", updatedOrders);
 
+    // Auto-create shipment AWB record
+    try {
+      const { createShipmentForOrder } = require("@/lib/shipping/provider");
+      createShipmentForOrder({ order: newOrder }).catch(() => {});
+    } catch {}
+
     return NextResponse.json({
       success: true,
       message: "Order placed successfully!",
