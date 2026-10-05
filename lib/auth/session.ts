@@ -15,7 +15,6 @@ export interface AdminSession {
   issuedAt: number;
 }
 
-// Simple Edge-compatible SHA256 HMAC signature helper using Web Crypto API
 async function sign(message: string, secretKey: string): Promise<string> {
   const encoder = new TextEncoder();
   const keyBuf = encoder.encode(secretKey);
@@ -31,7 +30,6 @@ async function sign(message: string, secretKey: string): Promise<string> {
   );
   const sigBuf = await cryptoSubtle.sign("HMAC", key, msgBuf);
   
-  // Convert sigBuf to base64url
   const bytes = new Uint8Array(sigBuf);
   let binary = "";
   for (let i = 0; i < bytes.byteLength; i++) {
@@ -46,7 +44,6 @@ async function verify(message: string, sigBase64Url: string, secretKey: string):
     const keyBuf = encoder.encode(secretKey);
     const msgBuf = encoder.encode(message);
     
-    // Decode base64url
     let base64 = sigBase64Url.replace(/-/g, "+").replace(/_/g, "/");
     while (base64.length % 4) {
       base64 += "=";
@@ -71,12 +68,18 @@ async function verify(message: string, sigBase64Url: string, secretKey: string):
   }
 }
 
-/** Get the current admin session from cookie (server-side only) */
 export async function getSession(): Promise<AdminSession | null> {
-  const cookieStore = await cookies();
-  const raw = cookieStore.get(SESSION_COOKIE)?.value;
-  if (!raw) return null;
-  
+  try {
+    const cookieStore = await cookies();
+    const raw = cookieStore.get(SESSION_COOKIE)?.value;
+    if (!raw) return null;
+    return await parseSessionString(raw);
+  } catch {
+    return null;
+  }
+}
+
+export async function parseSessionString(raw: string): Promise<AdminSession | null> {
   try {
     const parts = raw.split(".");
     if (parts.length !== 2) return null;
@@ -84,12 +87,10 @@ export async function getSession(): Promise<AdminSession | null> {
     const [payloadBase64, signature] = parts;
     const payloadStr = atob(payloadBase64);
     
-    // Verify signature
     const isValid = await verify(payloadBase64, signature, SECRET);
     if (!isValid) return null;
     
     const session = JSON.parse(payloadStr) as AdminSession;
-    // Expire after 7 days
     if (Date.now() - session.issuedAt > SESSION_DURATION * 1000) return null;
     return session;
   } catch {
@@ -97,8 +98,16 @@ export async function getSession(): Promise<AdminSession | null> {
   }
 }
 
-/** Create a session cookie (called from login API route) */
-export async function buildSessionCookie(user: AdminUser): Promise<string> {
+export async function getAdminSession(request: Request): Promise<AdminSession | null> {
+  const cookieHeader = request.headers.get("cookie") || "";
+  const match = cookieHeader.match(new RegExp(`${SESSION_COOKIE}=([^;]+)`));
+  if (match && match[1]) {
+    return await parseSessionString(match[1]);
+  }
+  return await getSession();
+}
+
+export async function buildSessionCookie(user: { id: string; name: string; email: string; role: AdminRole; allowedSections?: string[] }): Promise<string> {
   const session: AdminSession = {
     userId: user.id,
     name: user.name,
@@ -112,7 +121,6 @@ export async function buildSessionCookie(user: AdminUser): Promise<string> {
   return `${payloadBase64}.${signature}`;
 }
 
-/** Require auth — throws redirect if not authenticated */
 export async function requireSession(): Promise<AdminSession> {
   const session = await getSession();
   if (!session) {
@@ -121,7 +129,6 @@ export async function requireSession(): Promise<AdminSession> {
   return session;
 }
 
-/** Look up an admin user by email */
 export function findAdminByEmail(email: string): AdminUser | undefined {
   const users = readCollection<AdminUser>("admin-users");
   return users.find((u) => u.email === email && u.isActive);

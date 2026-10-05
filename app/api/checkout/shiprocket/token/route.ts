@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { calculateTrustedCartPricing } from "@/lib/pricing";
 import { shiprocketCheckoutClient } from "@/lib/shiprocket-checkout/client";
-import { checkRateLimit, rateLimitResponse } from "@/lib/security/rate-limit";
+import { checkRateLimit } from "@/lib/rate-limiter";
 
 const tokenRequestSchema = z.object({
   items: z.array(
@@ -19,9 +19,12 @@ const tokenRequestSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
-    const rateLimit = await checkRateLimit(`checkout-token:${ip}`, { windowMs: 60000, maxRequests: 15 });
+    const rateLimit = await checkRateLimit(`checkout-token:${ip}`, { windowMs: 60000, limit: 15 });
     if (!rateLimit.success) {
-      return rateLimitResponse(rateLimit.reset);
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        { status: 429, headers: { "Retry-After": "60" } }
+      );
     }
 
     const rawBody = await request.json();

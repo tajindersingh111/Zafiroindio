@@ -1,77 +1,72 @@
 import { NextResponse } from "next/server";
-import { readCollection, writeCollection } from "@/lib/db/store";
-import type { Order, ShipmentRecord, OrderStatus } from "@/lib/db/types";
-import { sendTransactionalEmail } from "@/lib/email/service";
+import { prisma } from "@/lib/db/prisma";
+import { verifyShiprocketTrackingWebhook } from "@/lib/shipping/shiprocket";
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { trackingNumber, orderNumber, status: incomingStatus } = body;
+    const rawBody = await request.text();
+    const signature = request.headers.get("x-shiprocket-signature") || request.headers.get("x-fastrr-signature");
 
-    const tracking = trackingNumber || body.awb;
-    if (!tracking && !orderNumber) {
-      return NextResponse.json({ error: "Missing tracking number or order number." }, { status: 400 });
-    }
-
-    const shipments = readCollection<ShipmentRecord>("shipments");
-    const shipmentIdx = shipments.findIndex(s => s.trackingNumber === tracking || s.orderNumber === orderNumber);
-
-    if (shipmentIdx < 0) {
-      return NextResponse.json({ error: "Associated shipment record not found." }, { status: 404 });
-    }
-
-    const shipment = shipments[shipmentIdx];
-    const now = new Date().toISOString();
-
-    // Map external status to internal status
-    let internalStatus: ShipmentRecord["status"] = "IN_TRANSIT";
-    let orderStatus: OrderStatus = "shipped";
-
-    const normalized = (incomingStatus || "").toUpperCase();
-    if (normalized.includes("PICK") || normalized === "PICKED_UP") {
-      internalStatus = "PICKED_UP";
-      orderStatus = "shipped";
-    } else if (normalized.includes("OUT_FOR_DELIVERY") || normalized.includes("OUT FOR DELIVERY")) {
-      internalStatus = "OUT_FOR_DELIVERY";
-      orderStatus = "out_for_delivery";
-    } else if (normalized.includes("DELIVER") || normalized === "DELIVERED") {
-      internalStatus = "DELIVERED";
-      orderStatus = "delivered";
-      shipment.deliveredAt = now;
-    } else if (normalized.includes("CANCEL")) {
-      internalStatus = "CANCELLED";
-      orderStatus = "cancelled";
-    }
-
-    shipment.status = internalStatus;
-    shipment.updatedAt = now;
-    shipments[shipmentIdx] = shipment;
-    writeCollection("shipments", shipments);
-
-    // Update order status
-    const orders = readCollection<Order>("orders");
-    const orderIdx = orders.findIndex(o => o.id === shipment.orderId || o.orderNumber === shipment.orderNumber);
-
-    if (orderIdx >= 0) {
-      const order = orders[orderIdx];
-      order.status = orderStatus;
-      if (orderStatus === "delivered") {
-        order.deliveredDate = now;
-      }
-      order.updatedAt = now;
-      orders[orderIdx] = order;
-      writeCollection("orders", orders);
-
-      // Trigger notification email
-      if (orderStatus === "out_for_delivery") {
-        await sendTransactionalEmail("OUT_FOR_DELIVERY", order);
-      } else if (orderStatus === "delivered") {
-        await sendTransactionalEmail("ORDER_DELIVERED", order);
+    if (process.env.SHIPROCKET_TRACKING_WEBHOOK_SECRET) {
+      const isValid = verifyShiprocketTrackingWebhook(rawBody, signature);
+      if (!isValid) {
+        return NextResponse.json({ error: "Invalid tracking webhook signature." }, { status: 401 });
       }
     }
 
-    return NextResponse.json({ success: true, status: internalStatus });
-  } catch (error) {
-    return NextResponse.json({ error: "Shipping webhook failed." }, { status: 500 });
+    const payload = JSON.parse(rawBody);
+    const orderNumber = payload.order_id || payload.orderNumber || payload.awb;
+    const currentStatus = (payload.current_status || payload.status || "").toUpperCase();
+    const eventId = payload.event_id || payload.scans?.[0]?.scan_id || `trkwb_${orderNumber}_${currentStatus}_${Date.now()}`;
+
+    if (!orderNumber) {
+      return NextResponse.json({ error: "Missing order_id or tracking identifier." }, { status: 400 });
+    }
+
+    const existingEvent = await prisma.webhookEvent.findUnique({
+      where: { eventId }
+    });
+
+    if (existingEvent) {
+      return NextResponse.json({ success: true, message: "Duplicate webhook event ignored." });
+    }
+
+    let mappedStatus: "shipped" | "out_for_delivery" | "delivered" | "cancelled" | "processing" = "processing";
+    if (currentStatus.includes("DELIVERED")) {
+      mappedStatus = "delivered";
+    } else if (currentStatus.includes("OUT FOR DELIVERY") || currentStatus.includes("OUT_FOR_DELIVERY")) {
+      mappedStatus = "out_for_delivery";
+    } else if (currentStatus.includes("IN TRANSIT") || currentStatus.includes("SHIPPED") || currentStatus.includes("DISPATCHED")) {
+      mappedStatus = "shipped";
+    } else if (currentStatus.includes("RTO") || currentStatus.includes("RETURN") || currentStatus.includes("CANCELED") || currentStatus.includes("CANCELLED")) {
+      mappedStatus = "cancelled";
+    }
+
+    const order = await prisma.order.findFirst({
+      where: {
+        OR: [{ orderNumber: String(orderNumber) }, { id: String(orderNumber) }]
+      }
+    });
+
+    if (order) {
+      await prisma.order.update({
+        where: { id: order.id },
+        data: { status: mappedStatus }
+      });
+    }
+
+    await prisma.webhookEvent.create({
+      data: {
+        provider: "shiprocket_tracking",
+        eventId,
+        eventType: currentStatus,
+        payload
+      }
+    });
+
+    return NextResponse.json({ success: true, mappedStatus });
+  } catch (error: any) {
+    console.error("Shiprocket tracking webhook error:", error);
+    return NextResponse.json({ error: error?.message || "Webhook processing error" }, { status: 500 });
   }
 }

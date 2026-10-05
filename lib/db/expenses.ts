@@ -1,17 +1,12 @@
-import { readCollection, writeCollection } from "@/lib/db/store";
 import type { Expense } from "@/lib/db/types";
 
+const expensesBuffer: Expense[] = [];
+
 export function getAllExpenses(): Expense[] {
-  try {
-    return readCollection<Expense>("expenses");
-  } catch (err) {
-    console.error("Failed to read expenses collection:", err);
-    return [];
-  }
+  return expensesBuffer;
 }
 
 export function saveExpense(expenseData: Partial<Expense> & { title: string; amount: number; category: Expense["category"]; classification: Expense["classification"] }): Expense {
-  const expenses = getAllExpenses();
   const now = new Date().toISOString();
 
   const newExpense: Expense = {
@@ -31,21 +26,19 @@ export function saveExpense(expenseData: Partial<Expense> & { title: string; amo
     updatedAt: now
   };
 
-  const existingIndex = expenses.findIndex((e) => e.id === newExpense.id);
+  const existingIndex = expensesBuffer.findIndex((e) => e.id === newExpense.id);
   if (existingIndex >= 0) {
-    expenses[existingIndex] = { ...expenses[existingIndex], ...newExpense, updatedAt: now };
+    expensesBuffer[existingIndex] = { ...expensesBuffer[existingIndex], ...newExpense, updatedAt: now };
   } else {
-    expenses.unshift(newExpense);
+    expensesBuffer.unshift(newExpense);
   }
 
-  writeCollection("expenses", expenses);
   return newExpense;
 }
 
 export function deleteExpense(id: string): boolean {
-  const expenses = getAllExpenses();
-  const filtered = expenses.filter((e) => e.id !== id);
-  if (filtered.length === expenses.length) return false;
-  writeCollection("expenses", filtered);
+  const idx = expensesBuffer.findIndex((e) => e.id === id);
+  if (idx < 0) return false;
+  expensesBuffer.splice(idx, 1);
   return true;
 }
