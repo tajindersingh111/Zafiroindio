@@ -92,6 +92,25 @@ export default function CheckoutPage() {
 
   const discount = Math.round((subtotal * discountPercent) / 100);
 
+  // Auto-initiate Shiprocket Fastrr 1-Click Checkout as soon as Checkout loads
+  useEffect(() => {
+    setShowFastrrDrawer(true);
+    if (typeof window !== "undefined") {
+      try {
+        const w = window as any;
+        if (typeof w.fastrrCheckout === "function") {
+          w.fastrrCheckout();
+        } else if (typeof w.Fastrr?.open === "function") {
+          w.Fastrr.open();
+        } else if (typeof w.ShiprocketCheckout?.init === "function") {
+          w.ShiprocketCheckout.init();
+        }
+      } catch (e) {
+        console.error("Fastrr auto-initiate error:", e);
+      }
+    }
+  }, []);
+
   // Auto-load saved customer profile from localStorage if present
   useEffect(() => {
     try {
