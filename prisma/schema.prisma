@@ -319,8 +319,9 @@ model Payment {
   orderId           String
   amount            Float
   currency          String        @default("INR")
-  gateway           String        @default("razorpay")
+  gateway           String        @default("shiprocket")
   status            PaymentStatus @default(pending)
+  providerPaymentId String?       @unique
   razorpayOrderId   String?
   razorpayPaymentId String?
   razorpaySignature String?
