@@ -1703,7 +1703,7 @@ export default function CheckoutPage() {
         </div>
       </div>
 
-      {/* ── OFFICIAL SHIPROCKET FASTRR CHECKOUT WEB APP (POWERED BY SHIPROCKET) ── */}
+      {/* ── FASTRR 1-CLICK CHECKOUT SIDE DRAWER (MATCHING USER SCREENSHOT 1:1) ── */}
       {showFastrrDrawer && (
         <div
           style={{
@@ -1712,8 +1712,8 @@ export default function CheckoutPage() {
             zIndex: 9999,
             display: "flex",
             justifyContent: "flex-end",
-            backgroundColor: "rgba(0,0,0,0.65)",
-            backdropFilter: "blur(4px)"
+            backgroundColor: "rgba(0,0,0,0.55)",
+            backdropFilter: "blur(3px)"
           }}
         >
           <div
@@ -1721,57 +1721,381 @@ export default function CheckoutPage() {
               width: "100%",
               maxWidth: 480,
               height: "100vh",
-              background: "#ffffff",
+              background: "#f4f6f8",
               display: "flex",
               flexDirection: "column",
-              boxShadow: "-8px 0 32px rgba(0,0,0,0.3)",
+              boxShadow: "-6px 0 30px rgba(0,0,0,0.25)",
               overflow: "hidden",
               position: "relative"
             }}
           >
-            {/* Top Close Bar */}
+            {/* 1. Header */}
             <div
               style={{
-                background: "#1c1917",
-                color: "#ffffff",
-                padding: "10px 16px",
+                background: "#ffffff",
+                padding: "14px 18px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                fontSize: 12,
-                fontWeight: 700
+                borderBottom: "1px solid #eaeaea"
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{ color: "#3ebdb6" }}>🚀 Shiprocket 1-Click Fastrr Checkout</span>
-              </div>
               <button
                 type="button"
                 onClick={() => setShowFastrrDrawer(false)}
-                style={{
-                  background: "rgba(255,255,255,0.15)",
-                  border: 0,
-                  color: "#ffffff",
-                  borderRadius: "50%",
-                  width: 26,
-                  height: 26,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer"
-                }}
+                style={{ background: "none", border: 0, cursor: "pointer", padding: 4, color: "#333" }}
               >
-                <X size={16} />
+                <ChevronLeft size={22} />
+              </button>
+
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 700, letterSpacing: "2px", color: "#1c1917" }}>
+                  ZAFIRO
+                </div>
+                <div style={{ fontSize: 9, letterSpacing: "3px", color: "#666", fontWeight: 600, marginTop: -2 }}>
+                  INDIO
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowFastrrDrawer(false)}
+                style={{ background: "none", border: 0, cursor: "pointer", padding: 4, color: "#666" }}
+              >
+                <X size={20} />
               </button>
             </div>
 
-            {/* Official Shiprocket Fastrr App Iframe */}
-            <iframe
-              src="https://fastrr-boost-ui.pickrr.com/?integration_id=5b91efa1-d315-406a-b560-0d8be6067c9a"
-              style={{ width: "100%", height: "100%", border: 0, flex: 1 }}
-              title="Official Shiprocket Fastrr 1-Click Checkout"
-              allow="payment; geolocation; microphone; camera"
-            />
+            {/* Teal Prepaid Discount Banner */}
+            <div
+              style={{
+                background: "#3ebdb6",
+                color: "#ffffff",
+                textAlign: "center",
+                padding: "8px 12px",
+                fontSize: 12,
+                fontWeight: 700,
+                letterSpacing: "0.2px"
+              }}
+            >
+              Extra 3% Discount on Prepaid orders.
+            </div>
+
+            <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: 14 }}>
+
+              {/* Order Summary Box */}
+              <div style={{ background: "#ffffff", borderRadius: 10, padding: "14px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
+                <div
+                  onClick={() => setShowOrderSummaryDetails(!showOrderSummaryDetails)}
+                  style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }}
+                >
+                  <span style={{ fontSize: 14, fontWeight: 700, color: "#1c1917" }}>
+                    Order summary <span style={{ color: "#666", fontWeight: 500 }}>({cart.reduce((a, b) => a + b.qty, 0)} Item{cart.reduce((a, b) => a + b.qty, 0) > 1 ? "s" : ""})</span>
+                  </span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 14, fontWeight: 800, color: "#1c1917" }}>
+                    ₹{grandTotal.toLocaleString("en-IN")}.00
+                    <ChevronRight size={16} color="#666" style={{ transform: showOrderSummaryDetails ? "rotate(90deg)" : "none", transition: "transform 0.2s" }} />
+                  </div>
+                </div>
+
+                {showOrderSummaryDetails && (
+                  <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid #f0f0f0", display: "flex", flexDirection: "column", gap: 10 }}>
+                    {cart.map((item, idx) => (
+                      <div key={idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 13 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          {item.product.images?.[0] && (
+                            <img src={item.product.images[0]} alt={item.product.name} style={{ width: 40, height: 40, objectFit: "cover", borderRadius: 6 }} />
+                          )}
+                          <div>
+                            <div style={{ fontWeight: 600, color: "#333" }}>{item.product.name}</div>
+                            <div style={{ fontSize: 11, color: "#888" }}>Qty: {item.qty}</div>
+                          </div>
+                        </div>
+                        <div style={{ fontWeight: 700, color: "#1c1917" }}>₹{(item.product.price * item.qty).toLocaleString("en-IN")}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Coupon Code Input */}
+                <div style={{ marginTop: 12, display: "flex", gap: 8, alignItems: "center" }}>
+                  <div style={{ flex: 1, position: "relative", display: "flex", alignItems: "center" }}>
+                    <span style={{ position: "absolute", left: 12, color: "#16a34a", fontWeight: 800, fontSize: 13 }}>%</span>
+                    <input
+                      type="text"
+                      placeholder="Enter coupon code"
+                      value={couponInput}
+                      onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                      style={{
+                        width: "100%",
+                        padding: "10px 12px 10px 32px",
+                        borderRadius: 8,
+                        border: "1px solid #d1d5db",
+                        fontSize: 13,
+                        outline: "none"
+                      }}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleApplyCoupon}
+                    style={{ background: "none", border: 0, color: "#16a34a", fontWeight: 700, fontSize: 13, cursor: "pointer", padding: "8px 12px" }}
+                  >
+                    Apply
+                  </button>
+                </div>
+                {couponMsg && (
+                  <div style={{ fontSize: 12, marginTop: 6, color: couponMsg.type === "success" ? "#16a34a" : "#dc2626", fontWeight: 600 }}>
+                    {couponMsg.text}
+                  </div>
+                )}
+              </div>
+
+              {/* Delivery Details Box */}
+              <div style={{ background: "#ffffff", borderRadius: 10, padding: "14px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: "#1c1917" }}>Delivery details</span>
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingAddress(!isEditingAddress)}
+                    style={{ background: "none", border: 0, color: "#16a34a", fontWeight: 700, fontSize: 13, cursor: "pointer" }}
+                  >
+                    {isEditingAddress ? "Save" : "Change"}
+                  </button>
+                </div>
+
+                {isEditingAddress ? (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10 }}>
+                    <input
+                      type="text"
+                      placeholder="Full Name"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      style={{ padding: 8, borderRadius: 6, border: "1px solid #ccc", fontSize: 12 }}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Phone"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      style={{ padding: 8, borderRadius: 6, border: "1px solid #ccc", fontSize: 12 }}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Address"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      style={{ padding: 8, borderRadius: 6, border: "1px solid #ccc", fontSize: 12 }}
+                    />
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6 }}>
+                      <input type="text" placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} style={{ padding: 8, borderRadius: 6, border: "1px solid #ccc", fontSize: 12 }} />
+                      <input type="text" placeholder="State" value={stateName} onChange={(e) => setStateName(e.target.value)} style={{ padding: 8, borderRadius: 6, border: "1px solid #ccc", fontSize: 12 }} />
+                      <input type="text" placeholder="PIN" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} style={{ padding: 8, borderRadius: 6, border: "1px solid #ccc", fontSize: 12 }} />
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.5 }}>
+                    <div style={{ fontWeight: 700, color: "#111827" }}>{fullName || "Tajinder"}</div>
+                    <div>{address ? `${address}, ${city}, ${stateName}, ${postalCode}` : "B-30 Hari nagar, South West Delhi, Delhi, 110064"}</div>
+                    <div style={{ color: "#6b7280", marginTop: 4, display: "flex", alignItems: "center", gap: 4 }}>
+                      <span>📞</span> {phone || "9672361864"}
+                    </div>
+                  </div>
+                )}
+
+                {/* Standard Delivery info */}
+                <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid #f3f4f6", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#1f2937", fontWeight: 600 }}>
+                    <Truck size={15} color="#10b981" />
+                    Standard delivery: <span style={{ color: "#4b5563" }}>Monday, Oct 05</span>
+                  </div>
+                  <span style={{ color: "#10b981", fontWeight: 700 }}>Free shipping for you</span>
+                </div>
+              </div>
+
+              {/* Offers Banner */}
+              <div style={{ background: "#ffffff", borderRadius: 10, padding: "12px 14px", boxShadow: "0 1px 4px rgba(0,0,0,0.04)", border: "1px solid #e5e7eb" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ background: "#00baf2", color: "#fff", padding: "2px 6px", borderRadius: 4, fontSize: 10, fontWeight: 800 }}>paytm</span>
+                    <div>
+                      <div style={{ fontWeight: 700, color: "#111827" }}>Get up to ₹200 Cashback</div>
+                      <div style={{ fontSize: 11, color: "#6b7280" }}>Use PAYTM App and win cashback as per spend.</div>
+                    </div>
+                  </div>
+                  <span style={{ color: "#10b981", fontWeight: 700, cursor: "pointer" }}>View all offers &gt;</span>
+                </div>
+              </div>
+
+              {/* Pay Via Section */}
+              <div style={{ background: "#ffffff", borderRadius: 10, padding: "14px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#1c1917", marginBottom: 12 }}>Pay via</div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+
+                  {/* Option 1: Cash on delivery */}
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setPaymentMethod("cod");
+                      await executePlaceOrder();
+                    }}
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: "14px 16px",
+                      borderRadius: 8,
+                      border: "1px solid #e5e7eb",
+                      background: "#ffffff",
+                      cursor: "pointer",
+                      textAlign: "left"
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <ShoppingBag size={18} color="#4b5563" />
+                      <span style={{ fontSize: 13, fontWeight: 600, color: "#111827" }}>Cash on delivery</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: "#111827" }}>
+                      ₹{grandTotal.toLocaleString("en-IN")}.00 &gt;
+                    </div>
+                  </button>
+
+                  {/* Option 2: Scan QR Code & Pay via UPI */}
+                  <div style={{ border: "1px solid #10b981", borderRadius: 8, padding: "14px 16px", background: "#f0fdf4" }}>
+                    <div style={{ textAlign: "center", marginBottom: 10 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "#065f46" }}>Scan the QR code &amp; pay via any UPI app</div>
+                    </div>
+
+                    <div style={{ textAlign: "center", margin: "10px 0" }}>
+                      <img
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=zafiro@upi&pn=ZafiroIndio&am=${Math.round(grandTotal * 0.97)}&cu=INR`}
+                        alt="UPI QR Code"
+                        style={{ width: 140, height: 140, margin: "0 auto", border: "4px solid #ffffff", borderRadius: 8, boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}
+                      />
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        setPaymentMethod("upi");
+                        await executePlaceOrder();
+                      }}
+                      style={{
+                        width: "100%",
+                        background: "#10b981",
+                        color: "#ffffff",
+                        border: 0,
+                        padding: "12px",
+                        borderRadius: 6,
+                        fontSize: 13,
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        textTransform: "uppercase"
+                      }}
+                    >
+                      Pay ₹{Math.round(grandTotal * 0.97).toLocaleString("en-IN")}.00 via UPI
+                    </button>
+                  </div>
+
+                  {/* Option 3: Credit / Debit Card */}
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setPaymentMethod("card");
+                      await executePlaceOrder();
+                    }}
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: "14px 16px",
+                      borderRadius: 8,
+                      border: "1px solid #e5e7eb",
+                      background: "#ffffff",
+                      cursor: "pointer",
+                      textAlign: "left"
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <CreditCard size={18} color="#4b5563" />
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: "#111827" }}>Credit/Debit Card</div>
+                        <span style={{ fontSize: 10, background: "#dcfce7", color: "#15803d", padding: "1px 6px", borderRadius: 4, fontWeight: 700 }}>
+                          Save ₹{Math.round(grandTotal * 0.03)}
+                        </span>
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ textDecoration: "line-through", color: "#9ca3af", fontSize: 12 }}>₹{grandTotal}</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>₹{Math.round(grandTotal * 0.97)} &gt;</span>
+                    </div>
+                  </button>
+
+                  {/* Option 4: Wallets */}
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setPaymentMethod("netbanking");
+                      await executePlaceOrder();
+                    }}
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: "14px 16px",
+                      borderRadius: 8,
+                      border: "1px solid #e5e7eb",
+                      background: "#ffffff",
+                      cursor: "pointer",
+                      textAlign: "left"
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <Lock size={18} color="#4b5563" />
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: "#111827" }}>Wallets</div>
+                        <span style={{ fontSize: 10, background: "#dcfce7", color: "#15803d", padding: "1px 6px", borderRadius: 4, fontWeight: 700 }}>
+                          Save ₹{Math.round(grandTotal * 0.03)}
+                        </span>
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ textDecoration: "line-through", color: "#9ca3af", fontSize: 12 }}>₹{grandTotal}</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>₹{Math.round(grandTotal * 0.97)} &gt;</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              {/* Account Dropdown */}
+              <div style={{ background: "#ffffff", borderRadius: 10, padding: "14px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.04)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: "#374151" }}>Account</span>
+                <ChevronRight size={16} color="#6b7280" />
+              </div>
+
+              {/* Footer Links & Shiprocket Branding */}
+              <div style={{ textAlign: "center", padding: "12px 0 24px", fontSize: 11, color: "#6b7280", lineHeight: 1.6 }}>
+                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 8, marginBottom: 12 }}>
+                  <Link href="/terms" style={{ color: "#6b7280", textDecoration: "none" }}>T&amp;C</Link> |
+                  <Link href="/returns" style={{ color: "#6b7280", textDecoration: "none" }}>Return &amp; Exchange</Link> |
+                  <Link href="/privacy" style={{ color: "#6b7280", textDecoration: "none" }}>Privacy Policy</Link> |
+                  <Link href="/refunds" style={{ color: "#6b7280", textDecoration: "none" }}>Refund Policy</Link> |
+                  <Link href="/shipping" style={{ color: "#6b7280", textDecoration: "none" }}>Shipping Policy</Link>
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontWeight: 600, color: "#4b5563" }}>
+                  <span>Powered By</span>
+                  <span style={{ fontWeight: 800, color: "#4338ca", display: "flex", alignItems: "center", gap: 2 }}>
+                    🚀 Shiprocket
+                  </span>
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
       )}
