@@ -1,5 +1,3 @@
-import { readCollection, writeCollection } from "@/lib/db/store";
-
 export type Product = {
   slug: string;
   name: string;
@@ -57,101 +55,10 @@ export const collections = [
 ];
 
 export function getStorefrontProducts(): Product[] {
-  try {
-    const dbProducts = readCollection<any>("products");
-    const categories = readCollection<any>("categories");
-    const catMap = Object.fromEntries(categories.map((c) => [c.id, c.name]));
-
-    if (dbProducts && dbProducts.length > 0) {
-      const activeProducts = dbProducts.filter((p) => p.status !== "inactive" && p.status !== "draft");
-      if (activeProducts.length > 0) {
-        return activeProducts.map((p) => {
-          const defaultImage = "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85";
-          const images = Array.isArray(p.images) && p.images.length > 0 
-            ? p.images.map((img: any) => typeof img === "string" ? img : img.url || defaultImage)
-            : [defaultImage];
-            
-          const price = Number(p.price) || 1299;
-          const oldPrice = Number(p.mrp) || Number(p.oldPrice) || Math.round(price * 1.4);
-          const discount = oldPrice > price ? Math.round(((oldPrice - price) / oldPrice) * 100) : 0;
-          
-          let badge: string | undefined = undefined;
-          if (p.stock !== undefined && p.stock <= 0) {
-            badge = "OUT OF STOCK";
-          } else if (p.tags && p.tags.includes("bestseller")) {
-            badge = "BESTSELLER";
-          } else if (p.tags && p.tags.includes("new")) {
-            badge = "NEW";
-          } else if (p.tags && p.tags.includes("sale")) {
-            badge = "SALE";
-          }
-
-          const categoryName = catMap[p.categoryId] || p.category || "Bedsheets";
-
-          const colorsArr = Array.isArray(p.attributes?.Color)
-            ? p.attributes.Color
-            : Array.isArray(p.colors)
-            ? p.colors
-            : typeof p.colors === "string"
-            ? [p.colors]
-            : ["Sage Green", "Indigo Blue", "Terracotta", "Ivory"];
-
-          const sizesArr = Array.isArray(p.attributes?.Size)
-            ? p.attributes.Size
-            : Array.isArray(p.sizes)
-            ? p.sizes
-            : typeof p.sizes === "string"
-            ? [p.sizes]
-            : ["Single", "Double", "Queen", "King"];
-
-          return {
-            slug: p.slug || p.id,
-            name: p.name || "Product",
-            price,
-            oldPrice,
-            discount,
-            rating: p.rating || 4.8,
-            reviews: p.reviews || 24,
-            badge,
-            fabric: p.fabric || "100% Cotton",
-            category: categoryName,
-            collections: Array.isArray(p.collections) ? p.collections : [],
-            colors: colorsArr,
-            sizes: sizesArr,
-            description: p.description || p.shortDescription || "",
-            images
-          };
-        });
-      }
-    }
-  } catch (err) {
-    console.error("Failed to read storefront products from store", err);
-  }
-
   return fallbackProducts;
 }
 
 export function getStorefrontBanners(): Banner[] {
-  try {
-    const dbBanners = readCollection<any>("banners");
-    if (dbBanners && dbBanners.length > 0) {
-      const active = dbBanners.filter((b) => b.isActive !== false);
-      if (active.length > 0) {
-        return active.map((b, idx) => ({
-          id: b.id || `ban-${idx}`,
-          title: b.heading || b.title || "Handcrafted Luxury Bedsheets",
-          subtitle: b.subheading || b.subtitle || "Experience pure cotton comfort with traditional Indian block prints",
-          ctaText: b.ctaText || "Shop Collection",
-          ctaLink: b.ctaUrl || b.ctaLink || "/shop",
-          image: b.image || "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85",
-          isActive: true
-        }));
-      }
-    }
-  } catch (err) {
-    console.error("Failed to read storefront banners from store", err);
-  }
-
   return [
     {
       id: "b1",
@@ -166,32 +73,5 @@ export function getStorefrontBanners(): Banner[] {
 }
 
 export function getStorefrontCollections(): { name: string; slug: string; desc: string; image: string }[] {
-  try {
-    const dbCollections = readCollection<any>("collections");
-    if (dbCollections && dbCollections.length > 0) {
-      return dbCollections.map((c: any) => ({
-        name: c.name || "Collection",
-        slug: c.slug || c.name?.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-        desc: c.desc || c.description || "Curated luxury bedsheet collection.",
-        image: c.image || "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
-      }));
-    } else {
-      const seeded = collections.map((c, idx) => ({
-        id: `col-${idx + 1}`,
-        name: c.name,
-        slug: c.slug,
-        desc: c.desc,
-        image: c.image,
-      }));
-      writeCollection("collections", seeded);
-      return collections;
-    }
-  } catch (err) {
-    console.error("Failed to read storefront collections from store", err);
-  }
   return collections;
 }
-
-
-
-

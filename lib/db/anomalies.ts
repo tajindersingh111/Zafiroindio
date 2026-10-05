@@ -1,5 +1,4 @@
 import { createAuditLog } from "@/lib/db/audit";
-import { readCollection, writeCollection } from "@/lib/db/store";
 
 export type RiskLevel = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
@@ -17,7 +16,8 @@ export interface SecurityAlert {
   resolvedAt?: string;
 }
 
-/** Create a security alert in data/security-alerts.json */
+const securityAlertsBuffer: SecurityAlert[] = [];
+
 export function createSecurityAlert(params: {
   type: "auth" | "permission" | "business" | "system";
   severity: RiskLevel;
@@ -27,7 +27,6 @@ export function createSecurityAlert(params: {
   userRole?: string;
 }) {
   try {
-    const alerts = readCollection<SecurityAlert>("security-alerts");
     const newAlert: SecurityAlert = {
       id: `ALT-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`,
       type: params.type,
@@ -40,8 +39,8 @@ export function createSecurityAlert(params: {
       status: "new"
     };
 
-    alerts.unshift(newAlert);
-    writeCollection("security-alerts", alerts.slice(0, 500));
+    securityAlertsBuffer.unshift(newAlert);
+    if (securityAlertsBuffer.length > 500) securityAlertsBuffer.pop();
     return newAlert;
   } catch (err) {
     console.error("Failed to create security alert:", err);
@@ -49,7 +48,6 @@ export function createSecurityAlert(params: {
   }
 }
 
-/** Evaluate price change for safety thresholds */
 export function evaluatePriceChange(
   productId: string,
   productName: string,
@@ -104,7 +102,6 @@ export function evaluatePriceChange(
   return { riskLevel, percentChange, warningMessage };
 }
 
-/** Evaluate inventory anomaly */
 export function evaluateInventoryChange(
   productId: string,
   productName: string,
@@ -155,4 +152,8 @@ export function evaluateInventoryChange(
   });
 
   return { riskLevel, stockDiff };
+}
+
+export function getSecurityAlerts(): SecurityAlert[] {
+  return securityAlertsBuffer;
 }

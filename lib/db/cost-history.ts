@@ -1,5 +1,6 @@
-import { readCollection, writeCollection } from "@/lib/db/store";
 import type { CostHistoryEntry } from "@/lib/db/types";
+
+const costHistoryBuffer: CostHistoryEntry[] = [];
 
 export function recordCostHistory(params: {
   productId: string;
@@ -12,7 +13,6 @@ export function recordCostHistory(params: {
   if (params.previousCost === params.newCost) return null;
 
   try {
-    const history = readCollection<CostHistoryEntry>("cost-history");
     const entry: CostHistoryEntry = {
       id: `ch-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`,
       productId: params.productId,
@@ -24,8 +24,8 @@ export function recordCostHistory(params: {
       createdAt: new Date().toISOString()
     };
 
-    history.unshift(entry);
-    writeCollection("cost-history", history.slice(0, 500));
+    costHistoryBuffer.unshift(entry);
+    if (costHistoryBuffer.length > 500) costHistoryBuffer.pop();
     return entry;
   } catch (err) {
     console.error("Failed to record cost history:", err);
@@ -34,6 +34,5 @@ export function recordCostHistory(params: {
 }
 
 export function getProductCostHistory(productId: string): CostHistoryEntry[] {
-  const history = readCollection<CostHistoryEntry>("cost-history");
-  return history.filter((h) => h.productId === productId);
+  return costHistoryBuffer.filter((h) => h.productId === productId);
 }

@@ -1,40 +1,39 @@
 import { NextResponse } from "next/server";
-import { readCollection } from "@/lib/db/store";
-import type { Order } from "@/lib/db/types";
+import { getAdminSession } from "@/lib/auth/session";
 import { createShipmentForOrder } from "@/lib/shipping/provider";
-import { sendTransactionalEmail } from "@/lib/email/service";
+import { prisma } from "@/lib/db/prisma";
 
 export async function POST(request: Request) {
   try {
+    const adminSession = await getAdminSession(request);
+    if (!adminSession) {
+      return NextResponse.json({ error: "Unauthorized access." }, { status: 401 });
+    }
+
     const body = await request.json();
-    const { orderId, courierName, weightKg, dimensionsCm } = body;
+    const { orderId } = body;
 
     if (!orderId) {
       return NextResponse.json({ error: "orderId is required." }, { status: 400 });
     }
 
-    const orders = readCollection<Order>("orders");
-    const order = orders.find(o => o.id === orderId || o.orderNumber === orderId);
-
+    const order = await prisma.order.findUnique({ where: { id: orderId } });
     if (!order) {
       return NextResponse.json({ error: "Order not found." }, { status: 404 });
     }
 
-    const shipment = await createShipmentForOrder({
-      order,
-      courierName: courierName || "Delhivery Express",
-      weightKg: weightKg || 1.2,
-      dimensionsCm: dimensionsCm || "30x20x10"
-    });
+    const result = await createShipmentForOrder({ orderId: order.id });
 
-    // Send shipment tracking email
-    await sendTransactionalEmail("ORDER_SHIPPED", order, {
-      trackingNumber: shipment.trackingNumber,
-      trackingUrl: shipment.trackingUrl
-    });
+    if (!result.success) {
+      return NextResponse.json(
+        { error: result.error || "Failed to create shipment in Shiprocket." },
+        { status: 500 }
+      );
+    }
 
-    return NextResponse.json({ success: true, shipment }, { status: 201 });
-  } catch (error) {
-    return NextResponse.json({ error: "Failed to create shipment." }, { status: 500 });
+    return NextResponse.json({ success: true, result }, { status: 200 });
+  } catch (error: any) {
+    console.error("POST /api/shipments/create error:", error);
+    return NextResponse.json({ error: error?.message || "Internal server error." }, { status: 500 });
   }
 }

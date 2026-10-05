@@ -1,6 +1,4 @@
 import { prisma } from "./db/prisma";
-import { readCollection } from "./db/store";
-import type { Product } from "./db/types";
 
 export interface PricingInputItem {
   productId: string;
@@ -36,25 +34,11 @@ export async function calculateTrustedCartPricing(
     throw new Error("Cart items are required for price calculation.");
   }
 
-  let dbProducts: Array<{ id: string; slug: string; name: string; price: number; stock: number; sku?: string | null }> = [];
-
-  try {
-    const slugs = inputItems.map((i) => i.productId);
-    dbProducts = await prisma.product.findMany({
-      where: { OR: [{ slug: { in: slugs } }, { id: { in: slugs } }] },
-      select: { id: true, slug: true, name: true, price: true, stock: true, sku: true }
-    });
-  } catch {
-    const jsonProducts = readCollection<Product>("products");
-    dbProducts = jsonProducts.map((p) => ({
-      id: p.id,
-      slug: p.slug,
-      name: p.name,
-      price: Number(p.price || 0),
-      stock: Number(p.stock || 0),
-      sku: p.sku
-    }));
-  }
+  const slugs = inputItems.map((i) => i.productId);
+  const dbProducts = await prisma.product.findMany({
+    where: { OR: [{ slug: { in: slugs } }, { id: { in: slugs } }] },
+    select: { id: true, slug: true, name: true, price: true, stock: true, sku: true }
+  });
 
   const processedItems = inputItems.map((input) => {
     const product = dbProducts.find((p) => p.slug === input.productId || p.id === input.productId);
@@ -64,7 +48,7 @@ export async function calculateTrustedCartPricing(
     const quantity = Math.max(1, Math.floor(Number(input.qty || 1)));
     const price = Number(product.price || 0);
     const total = price * quantity;
-    const sku = product.sku || `ZI-${product.slug.toUpperCase().slice(0, 8)}`;
+    const sku = product.sku || `ZI-${(product.slug || product.id).toUpperCase().slice(0, 8)}`;
 
     return {
       productId: product.id,

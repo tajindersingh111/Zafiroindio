@@ -1,4 +1,3 @@
-import { readCollection, writeCollection } from "@/lib/db/store";
 import type { Order } from "@/lib/db/types";
 
 export type EmailEventType =
@@ -26,9 +25,11 @@ export interface EmailLogEntry {
   error?: string;
 }
 
+const emailLogsBuffer: EmailLogEntry[] = [];
+
 export async function sendTransactionalEmail(
   eventType: EmailEventType,
-  order: Order,
+  order: Partial<Order> & { id: string; orderNumber: string; customerEmail: string; customerName: string; total: number },
   extraDetails?: { trackingNumber?: string; trackingUrl?: string; refundAmount?: number; invoiceNumber?: string }
 ): Promise<{ success: boolean; logId: string }> {
   const now = new Date().toISOString();
@@ -42,7 +43,7 @@ export async function sendTransactionalEmail(
     case "ORDER_CREATED":
       subject = `Order Confirmed — ${order.orderNumber} | Zafiro Indio`;
       headline = "Thank You For Your Order!";
-      bodyMessage = `We have received your order ${order.orderNumber} for ₹${order.total.toLocaleString("en-IN")}. We are preparing your handcrafted heritage bedding.`;
+      bodyMessage = `We have received your order ${order.orderNumber} for ₹${order.total.toLocaleString("en-IN")}.`;
       break;
     case "PAYMENT_SUCCESS":
       subject = `Payment Received — ${order.orderNumber} | Zafiro Indio`;
@@ -52,42 +53,42 @@ export async function sendTransactionalEmail(
     case "PAYMENT_FAILED":
       subject = `Payment Action Required — ${order.orderNumber} | Zafiro Indio`;
       headline = "Payment Failed";
-      bodyMessage = `Payment attempt for order ${order.orderNumber} was unsuccessful. Please complete payment to avoid order cancellation.`;
+      bodyMessage = `Payment attempt for order ${order.orderNumber} was unsuccessful.`;
       break;
     case "INVOICE_GENERATED":
       subject = `Tax Invoice ${extraDetails?.invoiceNumber || order.orderNumber} | Zafiro Indio`;
       headline = "Your Tax Invoice Is Ready";
-      bodyMessage = `Your official tax invoice for order ${order.orderNumber} has been generated and attached to your account.`;
+      bodyMessage = `Your official tax invoice for order ${order.orderNumber} has been generated.`;
       break;
     case "ORDER_SHIPPED":
       subject = `Your Order Has Shipped — ${order.orderNumber} | Zafiro Indio`;
       headline = "On Its Way!";
-      bodyMessage = `Great news! Order ${order.orderNumber} has been handed over to ${order.courierName || "our courier partner"}. Tracking Number: ${extraDetails?.trackingNumber || order.trackingNumber || "N/A"}.`;
+      bodyMessage = `Great news! Order ${order.orderNumber} has been handed over to courier.`;
       break;
     case "OUT_FOR_DELIVERY":
       subject = `Out For Delivery Today — ${order.orderNumber} | Zafiro Indio`;
       headline = "Arriving Today!";
-      bodyMessage = `Your package ${order.orderNumber} is out for delivery today. Please ensure someone is available to receive it.`;
+      bodyMessage = `Your package ${order.orderNumber} is out for delivery today.`;
       break;
     case "ORDER_DELIVERED":
       subject = `Order Delivered — ${order.orderNumber} | Zafiro Indio`;
       headline = "Delivered!";
-      bodyMessage = `Your order ${order.orderNumber} has been delivered successfully. We hope you love your Zafiro bedsheet!`;
+      bodyMessage = `Your order ${order.orderNumber} has been delivered successfully.`;
       break;
     case "ORDER_CANCELLED":
       subject = `Order Cancelled — ${order.orderNumber} | Zafiro Indio`;
       headline = "Order Cancelled";
-      bodyMessage = `Order ${order.orderNumber} has been cancelled. If any payment was captured, your refund will be processed within 5-7 business days.`;
+      bodyMessage = `Order ${order.orderNumber} has been cancelled.`;
       break;
     case "REFUND_COMPLETED":
       subject = `Refund Processed — ₹${extraDetails?.refundAmount || order.total} | Zafiro Indio`;
       headline = "Refund Completed";
-      bodyMessage = `A refund of ₹${(extraDetails?.refundAmount || order.total).toLocaleString("en-IN")} for order ${order.orderNumber} has been credited to your original payment method.`;
+      bodyMessage = `A refund for order ${order.orderNumber} has been credited.`;
       break;
     case "RETURN_REQUESTED":
       subject = `Return Request Received — ${order.orderNumber} | Zafiro Indio`;
       headline = "Return Request Received";
-      bodyMessage = `We have received your return request for order ${order.orderNumber}. Our team will review it within 24 hours.`;
+      bodyMessage = `We have received your return request for order ${order.orderNumber}.`;
       break;
   }
 
@@ -104,7 +105,6 @@ export async function sendTransactionalEmail(
     errorMsg = err.message || "Email dispatch failed";
   }
 
-  const logs = readCollection<EmailLogEntry>("email_logs");
   const newLog: EmailLogEntry = {
     id: logId,
     eventType,
@@ -117,8 +117,9 @@ export async function sendTransactionalEmail(
     status: sentStatus,
     error: errorMsg,
   };
-  logs.unshift(newLog);
-  writeCollection("email_logs", logs);
+
+  emailLogsBuffer.unshift(newLog);
+  if (emailLogsBuffer.length > 500) emailLogsBuffer.pop();
 
   return { success: sentStatus !== "FAILED", logId };
 }

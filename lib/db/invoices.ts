@@ -1,5 +1,4 @@
-import { readCollection, writeCollection } from "@/lib/db/store";
-import type { Invoice, Order, StoreSettings, BusinessSnapshot } from "@/lib/db/types";
+import type { Invoice, Order, BusinessSnapshot, Address } from "@/lib/db/types";
 
 const DEFAULT_BUSINESS_SNAPSHOT: BusinessSnapshot = {
   storeName: "Zafiro Indio",
@@ -23,20 +22,26 @@ const DEFAULT_BUSINESS_SNAPSHOT: BusinessSnapshot = {
   logoUrl: "/images/logo.png"
 };
 
+const DEFAULT_ADDRESS: Address = {
+  firstName: "Customer",
+  lastName: "",
+  address1: "Address Line 1",
+  city: "Jaipur",
+  state: "Rajasthan",
+  postalCode: "302001",
+  country: "India"
+};
+
+const invoicesBuffer: Invoice[] = [];
+
 export function getAllInvoices(): Invoice[] {
-  try {
-    return readCollection<Invoice>("invoices");
-  } catch (err) {
-    console.error("Failed to read invoices collection:", err);
-    return [];
-  }
+  return invoicesBuffer;
 }
 
 export function generateInvoiceNumber(invoices: Invoice[]): string {
   const currentYear = new Date().getFullYear();
   const yearPrefix = `ZI-${currentYear}-`;
 
-  // Find max sequential counter for current year
   let maxSeq = 0;
   invoices.forEach((inv) => {
     if (inv.invoiceNumber && inv.invoiceNumber.startsWith(yearPrefix)) {
@@ -53,12 +58,10 @@ export function generateInvoiceNumber(invoices: Invoice[]): string {
   return `${yearPrefix}${seqPadded}`;
 }
 
-export function generateInvoiceForOrder(order: Order): Invoice {
-  const invoices = getAllInvoices();
-  const existing = invoices.find((inv) => inv.orderId === order.id || inv.orderNumber === order.orderNumber);
+export function generateInvoiceForOrder(order: Partial<Order> & { id: string; orderNumber: string; customerName: string; customerEmail: string; total: number; subtotal: number; items: any[]; paymentStatus?: any; status?: any; paymentMethod?: any }): Invoice {
+  const existing = invoicesBuffer.find((inv) => inv.orderId === order.id || inv.orderNumber === order.orderNumber);
 
   if (existing) {
-    // If order status or payment status updated, update payment metrics on existing snapshot without changing price history
     let amountPaid = existing.amountPaid;
     let amountDue = existing.amountDue;
 
@@ -72,40 +75,19 @@ export function generateInvoiceForOrder(order: Order): Invoice {
 
     const updatedInvoice: Invoice = {
       ...existing,
-      paymentStatus: order.paymentStatus,
-      orderStatus: order.status,
+      paymentStatus: order.paymentStatus || existing.paymentStatus,
+      orderStatus: order.status || existing.orderStatus,
       amountPaid,
       amountDue,
       updatedAt: new Date().toISOString()
     };
 
-    const idx = invoices.findIndex((i) => i.id === existing.id);
-    if (idx >= 0) invoices[idx] = updatedInvoice;
-    writeCollection("invoices", invoices);
+    const idx = invoicesBuffer.findIndex((i) => i.id === existing.id);
+    if (idx >= 0) invoicesBuffer[idx] = updatedInvoice;
     return updatedInvoice;
   }
 
-  // Load store settings if present
-  let businessSnapshot = { ...DEFAULT_BUSINESS_SNAPSHOT };
-  try {
-    const settings = readCollection<StoreSettings>("settings");
-    if (settings && settings.length > 0) {
-      const s = settings[0];
-      businessSnapshot = {
-        storeName: s.storeName || DEFAULT_BUSINESS_SNAPSHOT.storeName,
-        storeEmail: s.storeEmail || DEFAULT_BUSINESS_SNAPSHOT.storeEmail,
-        storePhone: s.storePhone || DEFAULT_BUSINESS_SNAPSHOT.storePhone,
-        storeAddress: s.storeAddress || DEFAULT_BUSINESS_SNAPSHOT.storeAddress,
-        gstin: DEFAULT_BUSINESS_SNAPSHOT.gstin,
-        pan: DEFAULT_BUSINESS_SNAPSHOT.pan,
-        logoUrl: s.logoUrl || DEFAULT_BUSINESS_SNAPSHOT.logoUrl
-      };
-    }
-  } catch (e) {
-    // Fallback to default
-  }
-
-  const invoiceNumber = generateInvoiceNumber(invoices);
+  const invoiceNumber = generateInvoiceNumber(invoicesBuffer);
   const grandTotal = order.total;
 
   let amountPaid = 0;
@@ -125,15 +107,15 @@ export function generateInvoiceForOrder(order: Order): Invoice {
     orderNumber: order.orderNumber || order.id,
     customerId: order.customerId,
     invoiceDate: order.createdAt || now,
-    businessSnapshot,
+    businessSnapshot: DEFAULT_BUSINESS_SNAPSHOT,
     customerSnapshot: {
       customerName: order.customerName,
       customerEmail: order.customerEmail,
       customerPhone: order.customerPhone,
-      billing: order.billing,
-      shipping: order.shipping
+      billing: order.billing || DEFAULT_ADDRESS,
+      shipping: order.shipping || DEFAULT_ADDRESS
     },
-    itemsSnapshot: order.items.map((item) => ({
+    itemsSnapshot: (order.items || []).map((item) => ({
       productId: item.productId,
       variationId: item.variationId,
       name: item.name,
@@ -153,21 +135,19 @@ export function generateInvoiceForOrder(order: Order): Invoice {
     grandTotal,
     amountPaid,
     amountDue,
-    paymentMethod: order.paymentMethod,
-    paymentStatus: order.paymentStatus,
-    orderStatus: order.status,
+    paymentMethod: order.paymentMethod || "cod",
+    paymentStatus: order.paymentStatus || "pending",
+    orderStatus: order.status || "pending",
     createdAt: now,
     updatedAt: now
   };
 
-  invoices.unshift(newInvoice);
-  writeCollection("invoices", invoices);
+  invoicesBuffer.unshift(newInvoice);
   return newInvoice;
 }
 
 export function getInvoiceByOrderId(orderId: string, orderFallback?: Order): Invoice | null {
-  const invoices = getAllInvoices();
-  const found = invoices.find((i) => i.orderId === orderId || i.orderNumber === orderId);
+  const found = invoicesBuffer.find((i) => i.orderId === orderId || i.orderNumber === orderId);
 
   if (found) return found;
 
