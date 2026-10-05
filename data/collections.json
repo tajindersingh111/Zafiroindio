@@ -1,0 +1,44 @@
+[
+  {
+    "id": "col-1",
+    "name": "Floral Collection",
+    "slug": "floral",
+    "desc": "Bring nature's beauty into your bedroom with our stunning floral designs.",
+    "image": "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85"
+  },
+  {
+    "id": "col-2",
+    "name": "Minimal Collection",
+    "slug": "minimal",
+    "desc": "Clean. Simple. Timeless. Perfect for modern living.",
+    "image": "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=1200&q=85"
+  },
+  {
+    "id": "col-3",
+    "name": "Printed Collection",
+    "slug": "printed",
+    "desc": "Beautiful prints that add character and charm to your space.",
+    "image": "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=85"
+  },
+  {
+    "id": "col-4",
+    "name": "Luxury Collection",
+    "slug": "luxury",
+    "desc": "Indulge in premium fabrics and exquisite craftsmanship.",
+    "image": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=85"
+  },
+  {
+    "id": "col-5",
+    "name": "Everyday Comfort Collection",
+    "slug": "everyday",
+    "desc": "Soft, durable and perfect for everyday use.",
+    "image": "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=1200&q=85"
+  },
+  {
+    "id": "col-6",
+    "name": "New Arrivals",
+    "slug": "new",
+    "desc": "Explore the latest designs and freshest additions to our collection.",
+    "image": "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1200&q=85"
+  }
+]

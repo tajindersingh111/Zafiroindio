@@ -17,10 +17,14 @@ export async function getShiprocketToken(): Promise<string | null> {
   }
 
   const settings = (readSettings<any>("settings") || {}) as any;
-  const apiKey = process.env.SHIPROCKET_API_KEY || settings.shiprocket_api_key || settings.shiprocketAppId || "A9Atin8sWzfSto3V";
-  const apiSecret = process.env.SHIPROCKET_SECRET_KEY || settings.shiprocket_secret_key || settings.shiprocketToken || "0leSNCGKgWtEdapZEScLtBJxaFjynO10";
-  const email = process.env.SHIPROCKET_EMAIL || settings.shiprocketEmail || "hello@zafiroindio.com";
+  const apiKey = process.env.SHIPROCKET_API_KEY || settings.shiprocket_api_key || settings.shiprocketAppId;
+  const apiSecret = process.env.SHIPROCKET_SECRET_KEY || settings.shiprocket_secret_key;
+  const email = process.env.SHIPROCKET_EMAIL || settings.shiprocketEmail;
   const password = process.env.SHIPROCKET_PASSWORD || settings.shiprocketPassword;
+
+  if (!email || (!password && !apiSecret)) {
+    return apiKey || null;
+  }
 
   try {
     const payload = password
@@ -42,8 +46,8 @@ export async function getShiprocketToken(): Promise<string | null> {
       }
     }
   } catch (err) {
-    console.warn("Shiprocket auth token request failed, using configured key directly:", err);
+    console.warn("Shiprocket auth token request failed:", err);
   }
 
-  return apiKey;
+  return apiKey || null;
 }

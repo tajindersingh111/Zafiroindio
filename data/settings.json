@@ -18,10 +18,5 @@
   "logoUrl": null,
   "lowStockThreshold": 10,
   "shiprocketCheckoutEnabled": true,
-  "shiprocketAppId": "5b91efa1-d315-406a-b560-0d8be6067c9a",
-  "fastrrIntegrationId": "5b91efa1-d315-406a-b560-0d8be6067c9a",
-  "shiprocketToken": "0leSNCGKgWtEdapZEScLtBJxaFjynO10",
-  "shiprocket_api_key": "5b91efa1-d315-406a-b560-0d8be6067c9a",
-  "shiprocket_secret_key": "0leSNCGKgWtEdapZEScLtBJxaFjynO10",
   "shiprocket_enabled": true
 }

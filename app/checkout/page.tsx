@@ -105,24 +105,43 @@ export default function CheckoutPage() {
 
   const discount = Math.round((subtotal * discountPercent) / 100);
 
-  // Auto-initiate Shiprocket Fastrr 1-Click Checkout as soon as Checkout loads
+  // Auto-initiate Shiprocket Fastrr 1-Click Checkout via server token
   useEffect(() => {
+    if (cart.length === 0) return;
     setShowFastrrDrawer(true);
-    if (typeof window !== "undefined") {
-      try {
-        const w = window as any;
-        if (typeof w.fastrrCheckout === "function") {
-          w.fastrrCheckout();
-        } else if (typeof w.Fastrr?.open === "function") {
-          w.Fastrr.open();
-        } else if (typeof w.ShiprocketCheckout?.init === "function") {
-          w.ShiprocketCheckout.init();
+
+    fetch("/api/checkout/shiprocket/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        items: cart.map((x) => ({
+          productId: x.product.slug,
+          qty: x.qty,
+          size: x.size,
+          color: x.color
+        })),
+        couponCode: appliedCoupon || undefined
+      })
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.token && typeof window !== "undefined") {
+          try {
+            const w = window as any;
+            if (typeof w.fastrrCheckout === "function") {
+              w.fastrrCheckout(data.token);
+            } else if (typeof w.Fastrr?.open === "function") {
+              w.Fastrr.open(data.token);
+            } else if (typeof w.ShiprocketCheckout?.init === "function") {
+              w.ShiprocketCheckout.init(data.token);
+            }
+          } catch (e) {
+            console.warn("Fastrr SDK token trigger notice:", e);
+          }
         }
-      } catch (e) {
-        console.error("Fastrr auto-initiate error:", e);
-      }
-    }
-  }, []);
+      })
+      .catch((err) => console.error("Checkout token fetch failed:", err));
+  }, [cart, appliedCoupon]);
 
   // Auto-load saved customer profile from localStorage if present
   useEffect(() => {
@@ -308,38 +327,81 @@ export default function CheckoutPage() {
     }
   };
 
-  // Trigger Send OTP Request
+  // Trigger Send OTP Request via REAL Backend API (/api/auth/send-otp)
   const triggerSendOtp = async () => {
+    const cleanPhone = phone.trim().replace(/\D/g, "");
+    if (!cleanPhone || !/^[6-9]\d{9}$/.test(cleanPhone)) {
+      setOtpError("Please enter a valid 10-digit Indian mobile number starting with 6-9.");
+      return;
+    }
+
     setOtpLoading(true);
     setOtpError("");
     setOtpSentMsg("");
 
-    const cleanPhone = phone.trim().replace(/\D/g, "") || "9672361864";
-    const devCode = "123456";
-    setDevOtpHint(devCode);
-    setOtpSentMsg(`OTP code sent via WhatsApp & SMS to +91 ${cleanPhone}`);
-    setOtpLoading(false);
-    setResendCooldown(30);
+    try {
+      const res = await fetch("/api/auth/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: cleanPhone })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setOtpError(data.error || "Failed to send OTP SMS. Please try again.");
+      } else {
+        setOtpSentMsg(data.message || `OTP code sent via SMS to +91 ${cleanPhone}`);
+        if (data.devOtp) {
+          setDevOtpHint(data.devOtp);
+        } else {
+          setDevOtpHint("");
+        }
+        setResendCooldown(60);
+      }
+    } catch (err) {
+      console.error("Send OTP failed:", err);
+      setOtpError("Network error sending OTP. Please try again.");
+    } finally {
+      setOtpLoading(false);
+    }
   };
 
-  // Verify OTP Code
-  const handleVerifyOtp = (e?: React.FormEvent) => {
+  // Verify OTP Code via REAL Backend API (/api/auth/verify-otp)
+  const handleVerifyOtp = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setOtpError("");
-    if (!otpInput || otpInput.trim().length !== 6) {
-      setOtpError("Please enter 6-digit OTP code (e.g. 123456).");
+    const cleanPhone = phone.trim().replace(/\D/g, "");
+    const cleanOtp = otpInput.trim().replace(/\D/g, "");
+
+    if (!cleanOtp || cleanOtp.length !== 6) {
+      setOtpError("Please enter 6-digit OTP code received on your mobile.");
       return;
     }
-    const cleanPhone = phone.trim().replace(/\D/g, "");
-    if (otpInput.trim() === "123456" || otpInput.trim() === devOtpHint || otpInput.trim().length === 6) {
-      setIsPhoneVerified(true);
-      try {
-        localStorage.setItem("zafiro_verified_phone", cleanPhone);
-      } catch {}
-      setOtpSentMsg("Mobile number verified successfully!");
-      setOtpError("");
-    } else {
-      setOtpError("Invalid OTP code. Please enter 123456.");
+
+    setOtpLoading(true);
+    try {
+      const res = await fetch("/api/auth/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: cleanPhone, otp: cleanOtp })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setOtpError(data.error || "Invalid OTP code. Please try again.");
+      } else {
+        setIsPhoneVerified(true);
+        try {
+          localStorage.setItem("zafiro_verified_phone", cleanPhone);
+        } catch {}
+        setOtpSentMsg("Mobile number verified successfully!");
+        setOtpError("");
+      }
+    } catch (err) {
+      console.error("Verify OTP failed:", err);
+      setOtpError("Network error verifying OTP. Please try again.");
+    } finally {
+      setOtpLoading(false);
     }
   };
 
