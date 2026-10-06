@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WelcomeDiscountModal from "@/components/WelcomeDiscountModal";
 import { StoreProvider } from "@/components/StoreProvider";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: { default: "Zafiro Indio | Handblock Cotton Bedsheets from Jaipur", template: "%s | Zafiro Indio" },
@@ -15,15 +16,29 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const appId = process.env.NEXT_PUBLIC_SHIPROCKET_APP_ID || process.env.SHIPROCKET_CHECKOUT_APP_ID || "5b91efa1-d315-406a-b560-0d8be6067c9a";
+
   return (
     <html lang="en">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
-        <script src="https://fastrr-cdn.shiprocket.in/fastrr.js" data-app-id="5b91efa1-d315-406a-b560-0d8be6067c9a" defer></script>
-        <script src="https://cdn.pickrr.com/assets/js/fastrr.js" data-app-id="5b91efa1-d315-406a-b560-0d8be6067c9a" defer></script>
-        <script src="https://checkout.shiprocket.in/shiprocket-checkout.js" data-app-id="5b91efa1-d315-406a-b560-0d8be6067c9a" defer></script>
+        <Script
+          src="https://fastrr-cdn.shiprocket.in/fastrr.js"
+          data-app-id={appId}
+          strategy="afterInteractive"
+        />
+        <Script
+          src="https://cdn.pickrr.com/assets/js/fastrr.js"
+          data-app-id={appId}
+          strategy="afterInteractive"
+        />
+        <Script
+          src="https://checkout.shiprocket.in/shiprocket-checkout.js"
+          data-app-id={appId}
+          strategy="afterInteractive"
+        />
       </head>
       <body>
         <StoreProvider>
@@ -36,4 +51,3 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
-
