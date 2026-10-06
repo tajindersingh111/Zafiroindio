@@ -3,12 +3,12 @@ import { parseSessionString, SESSION_COOKIE_NAME, type AdminSession } from "@/li
 import { isSessionActive, touchSession } from "@/lib/auth/session-manager";
 import { getDoc } from "@/lib/db/store";
 import { createAuditLog } from "@/lib/db/audit";
-import { normalizeRoleKey, defaultSectionsForRole } from "@/lib/auth/access";
+import { normalizeRoleKey, defaultSectionsForRole, DEFAULT_ROLE_PERMISSIONS, type UserRole } from "@/lib/auth/access";
 import type { AdminUser } from "@/lib/db/types";
 
 export const SESSION_COOKIE = SESSION_COOKIE_NAME;
 
-export type UserRole = "super_admin" | "admin" | "manager" | "staff";
+export { DEFAULT_ROLE_PERMISSIONS, type UserRole };
 
 /** Normalizes role strings e.g. "Super Admin" or "super_admin" or "order_manager" */
 export function normalizeRole(role: string): UserRole {
@@ -29,60 +29,7 @@ export function canUserDelete(role: string): boolean {
   return isSuperAdmin(role);
 }
 
-export const DEFAULT_ROLE_PERMISSIONS: Record<UserRole, Record<string, { view: boolean; create: boolean; edit: boolean; delete: boolean }>> = {
-  super_admin: {
-    dashboard: { view: true, create: true, edit: true, delete: true },
-    products: { view: true, create: true, edit: true, delete: true },
-    orders: { view: true, create: true, edit: true, delete: true },
-    customers: { view: true, create: true, edit: true, delete: true },
-    inventory: { view: true, create: true, edit: true, delete: true },
-    banners: { view: true, create: true, edit: true, delete: true },
-    coupons: { view: true, create: true, edit: true, delete: true },
-    users: { view: true, create: true, edit: true, delete: true },
-    roles: { view: true, create: true, edit: true, delete: true },
-    settings: { view: true, create: true, edit: true, delete: true },
-    audit_logs: { view: true, create: true, edit: true, delete: true },
-  },
-  admin: {
-    dashboard: { view: true, create: true, edit: true, delete: false },
-    products: { view: true, create: true, edit: true, delete: false },
-    orders: { view: true, create: true, edit: true, delete: false },
-    customers: { view: true, create: true, edit: true, delete: false },
-    inventory: { view: true, create: true, edit: true, delete: false },
-    banners: { view: true, create: true, edit: true, delete: false },
-    coupons: { view: true, create: true, edit: true, delete: false },
-    users: { view: true, create: false, edit: false, delete: false },
-    roles: { view: true, create: false, edit: false, delete: false },
-    settings: { view: true, create: false, edit: false, delete: false },
-    audit_logs: { view: true, create: false, edit: false, delete: false },
-  },
-  manager: {
-    dashboard: { view: true, create: false, edit: false, delete: false },
-    products: { view: true, create: true, edit: true, delete: false },
-    orders: { view: true, create: true, edit: true, delete: false },
-    customers: { view: true, create: false, edit: false, delete: false },
-    inventory: { view: true, create: true, edit: true, delete: false },
-    banners: { view: true, create: true, edit: true, delete: false },
-    coupons: { view: true, create: true, edit: true, delete: false },
-    users: { view: false, create: false, edit: false, delete: false },
-    roles: { view: false, create: false, edit: false, delete: false },
-    settings: { view: false, create: false, edit: false, delete: false },
-    audit_logs: { view: false, create: false, edit: false, delete: false },
-  },
-  staff: {
-    dashboard: { view: true, create: false, edit: false, delete: false },
-    products: { view: true, create: false, edit: false, delete: false },
-    orders: { view: true, create: false, edit: true, delete: false },
-    customers: { view: true, create: false, edit: false, delete: false },
-    inventory: { view: true, create: false, edit: true, delete: false },
-    banners: { view: false, create: false, edit: false, delete: false },
-    coupons: { view: false, create: false, edit: false, delete: false },
-    users: { view: false, create: false, edit: false, delete: false },
-    roles: { view: false, create: false, edit: false, delete: false },
-    settings: { view: false, create: false, edit: false, delete: false },
-    audit_logs: { view: false, create: false, edit: false, delete: false },
-  },
-};
+
 
 /**
  * Authoritative session check used by every admin API:
