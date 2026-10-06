@@ -120,7 +120,9 @@ export default function Home() {
         />
         <div className="container">
           <div className="heroContent">
-            <p className="eyebrow">The Art of Fine Living</p>
+            <span className="eyebrow">
+              <Sparkles size={12} className="text-[#c5a028]" /> Heritage Jaipur Handblock
+            </span>
             <h1 className="serif">{heroBanner.title}</h1>
             <p>{heroBanner.subtitle}</p>
             <div className="heroBtns">
@@ -147,7 +149,7 @@ export default function Home() {
         <div className="value">
           <span className="valueIcon"><Sparkles size={18} /></span>
           <div>
-            <strong>Artisanal Prints</strong>
+            <strong>Artisanal Block Prints</strong>
             <span>Hand-printed by master Karigars.</span>
           </div>
         </div>
@@ -204,44 +206,45 @@ export default function Home() {
       </section>
 
       {/* ── 4. FOUNDER & BRAND STORY SECTION ─────────────────── */}
-      <section className="section" style={{ background: "var(--cream)", borderTop: "1px solid var(--line)", borderBottom: "1px solid var(--line)" }}>
+      <section className="section" style={{ background: "linear-gradient(180deg, var(--cream) 0%, #f1ebd8 100%)", borderTop: "1px solid var(--line-gold)", borderBottom: "1px solid var(--line-gold)" }}>
         <div className="container">
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 56, alignItems: "center" }}>
             <div style={{ position: "relative" }}>
               <img
                 src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=85"
                 alt="Zafiro Karigar craftsmanship"
-                style={{ width: "100%", aspectRatio: "4/5", objectFit: "cover", borderRadius: 2 }}
+                style={{ width: "100%", aspectRatio: "4/5", objectFit: "cover", borderRadius: 2, border: "1px solid rgba(197, 160, 40, 0.3)" }}
               />
               <div
                 style={{
                   position: "absolute",
                   bottom: -20,
                   right: -20,
-                  background: "#0f172a",
+                  background: "#090d16",
                   color: "#fff",
                   padding: "24px 28px",
-                  maxWidth: 240,
-                  boxShadow: "0 10px 30px rgba(0,0,0,0.15)"
+                  maxWidth: 260,
+                  border: "1px solid #c5a028",
+                  boxShadow: "0 14px 40px rgba(0,0,0,0.25)"
                 }}
               >
                 <HeartHandshake size={28} style={{ color: "#c5a028", marginBottom: 8 }} />
-                <p style={{ margin: 0, fontSize: 12, lineHeight: 1.5, fontWeight: 600 }}>
-                  Crafted by traditional Karigars in Jaipur, India.
+                <p style={{ margin: 0, fontSize: 12, lineHeight: 1.6, fontWeight: 600, color: "#f1ebd8" }}>
+                  Hand-block printed by traditional 5th generation Karigars in Sanganer &amp; Bagru, Jaipur.
                 </p>
               </div>
             </div>
 
             <div>
               <p className="eyebrow">Our Philosophy</p>
-              <h2 className="serif" style={{ fontSize: 38, lineHeight: 1.15, margin: "12px 0 20px" }}>
-                "We believe restful sleep begins with textiles made with soul and integrity."
+              <h2 className="serif" style={{ fontSize: 42, lineHeight: 1.12, margin: "14px 0 22px", color: "var(--ink)" }}>
+                "We believe restful sleep begins with textiles made with soul, patience, and integrity."
               </h2>
-              <p style={{ color: "var(--ink-soft)", lineHeight: 1.8, fontSize: 14.5, marginBottom: 20 }}>
-                Zafiro Indio was born out of a passion for authentic Indian textile craftsmanship. Every sheet is woven from high-thread-count long-staple cotton, hand-printed with non-toxic dyes, and finished to bring a soothing tactile elegance into your personal home sanctuary.
+              <p style={{ color: "var(--ink-soft)", lineHeight: 1.85, fontSize: 15, marginBottom: 24 }}>
+                Zafiro Indio was born out of a passion for authentic Indian textile craftsmanship. Every sheet is woven from 100% long-staple combed cotton, printed using wooden block stamps carved by hand, and pre-washed for velvety softness that endures for years.
               </p>
               <Link href="/about" className="btn dark">
-                Read Our Story <ArrowRight size={14} />
+                Read Our Heritage Story <ArrowRight size={14} />
               </Link>
             </div>
           </div>
