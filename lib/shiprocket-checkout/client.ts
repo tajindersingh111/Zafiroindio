@@ -75,21 +75,30 @@ export class ShiprocketCheckoutClient {
       timestamp: new Date().toISOString(),
     });
 
-    const res = await fetch(`${this.baseUrl}${TOKEN_PATH}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Api-Key": apiKey, "X-Api-HMAC-SHA256": hmacBase64(apiSecret, body) },
-      body,
-      signal: AbortSignal.timeout(10_000),
-      cache: "no-store",
-    });
-
-    const data = (await res.json().catch(() => ({}))) as { result?: { token?: string; data?: { order_id?: string | number }; expires_at?: string }; message?: string; error?: string };
-    const token = data.result?.token;
-    if (!res.ok || !token) {
-      console.error("[shiprocket-checkout] token request rejected:", res.status, JSON.stringify(data).slice(0, 500));
-      throw new ShiprocketApiError(data.message || data.error || `Shiprocket rejected the checkout request (HTTP ${res.status}).`, res.status);
+    // Try the configured host first, then the known production hosts (keys only work on their own host).
+    const hosts = Array.from(new Set([this.baseUrl, DEFAULT_BASE_URL, "https://fastrr-api.shiprocket.in"]));
+    let lastStatus = 0;
+    let lastMessage = "";
+    for (const host of hosts) {
+      const res = await fetch(`${host}${TOKEN_PATH}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Api-Key": apiKey, "X-Api-HMAC-SHA256": hmacBase64(apiSecret, body) },
+        body,
+        signal: AbortSignal.timeout(10_000),
+        cache: "no-store",
+      });
+      const data = (await res.json().catch(() => ({}))) as { result?: { token?: string; data?: { order_id?: string | number }; expires_at?: string } | string; message?: string; error?: string };
+      const result = typeof data.result === "object" ? data.result : undefined;
+      const token = result?.token;
+      if (res.ok && token) {
+        if (host !== this.baseUrl) console.warn(`[shiprocket-checkout] token OK via ${host}; set SHIPROCKET_CHECKOUT_BASE_URL to this value.`);
+        return { token, orderId: result?.data?.order_id !== undefined ? String(result.data.order_id) : undefined, expiresAt: result?.expires_at };
+      }
+      lastStatus = res.status;
+      lastMessage = data.message || data.error || (typeof data.result === "string" ? data.result : "") || `HTTP ${res.status}`;
+      console.error(`[shiprocket-checkout] token request rejected by ${host}${TOKEN_PATH}:`, res.status, JSON.stringify(data).slice(0, 300));
     }
-    return { token, orderId: data.result?.data?.order_id !== undefined ? String(data.result.data.order_id) : undefined, expiresAt: data.result?.expires_at };
+    throw new ShiprocketApiError(lastMessage || "Shiprocket rejected the checkout request.", lastStatus);
   }
 
   /**

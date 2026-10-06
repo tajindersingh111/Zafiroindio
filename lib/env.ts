@@ -17,7 +17,7 @@ const envSchema = z.object({
   SHIPROCKET_CHECKOUT_API_KEY: z.string().optional(),
   SHIPROCKET_CHECKOUT_API_SECRET: z.string().optional(),
   SHIPROCKET_CHECKOUT_WEBHOOK_SECRET: z.string().optional(),
-  SHIPROCKET_CHECKOUT_BASE_URL: z.string().default("https://fastrr-api.shiprocket.in"),
+  SHIPROCKET_CHECKOUT_BASE_URL: z.string().default("https://checkout-api.shiprocket.com"),
 
   SHIPROCKET_CHECKOUT_TOKEN_PATH: z.string().optional(),
   SHIPROCKET_TRACKING_WEBHOOK_SECRET: z.string().optional(),
