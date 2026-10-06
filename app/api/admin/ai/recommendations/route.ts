@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { readSettings } from "@/lib/db/store";
+import { guarded } from "@/lib/auth/guard";
 
 interface Campaign {
   id: string;
@@ -12,8 +13,8 @@ interface Campaign {
   impressions: number;
 }
 
-export async function GET() {
-  const sandbox = readSettings<{ campaigns: Campaign[]; adsets: any[]; ads: any[] }>("meta-sandbox");
+async function handleGET() {
+  const sandbox = await readSettings<{ campaigns: Campaign[]; adsets: any[]; ads: any[] }>("meta-sandbox");
   const campaigns = sandbox?.campaigns ?? [];
 
   // Sort campaigns to recommend allocations
@@ -94,3 +95,5 @@ export async function GET() {
     ]
   });
 }
+
+export const GET = guarded(handleGET);

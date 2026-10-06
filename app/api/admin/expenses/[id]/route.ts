@@ -1,25 +1,28 @@
 import { NextResponse } from "next/server";
 import { getAllExpenses, saveExpense, deleteExpense } from "@/lib/db/expenses";
 import { createAuditLog } from "@/lib/db/audit";
+import { guarded } from "@/lib/auth/guard";
+import { getAuthSession } from "@/lib/auth/rbac";
 
-export async function PUT(
+async function handlePUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = (await getAuthSession(request))!;
     const { id } = await params;
     const body = await request.json();
-    const existing = getAllExpenses().find((e) => e.id === id);
+    const existing = (await getAllExpenses()).find((e) => e.id === id);
 
     if (!existing) {
       return NextResponse.json({ error: "Expense not found." }, { status: 404 });
     }
 
-    const updated = saveExpense({ ...existing, ...body, id });
+    const updated = await saveExpense({ ...existing, ...body, id });
 
-    createAuditLog({
-      userId: body.updatedBy || "usr-admin",
-      userName: body.updatedBy || "Admin User",
+    await createAuditLog({
+      userId: session.userId,
+      userName: session.name,
       userRole: body.updatedByRole || "admin",
       action: "UPDATE_EXPENSE",
       module: "settings",
@@ -38,25 +41,26 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
+async function handleDELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = (await getAuthSession(request))!;
     const { id } = await params;
     const { searchParams } = new URL(request.url);
-    const userRole = searchParams.get("role") || request.headers.get("x-user-role") || "admin";
-    const userName = searchParams.get("userName") || request.headers.get("x-user-name") || "Admin User";
-    const userId = searchParams.get("userId") || request.headers.get("x-user-id") || "usr-admin";
+    const userRole = session.role;
+    const userName = session.name;
+    const userId = session.userId;
 
-    const existing = getAllExpenses().find((e) => e.id === id);
+    const existing = (await getAllExpenses()).find((e) => e.id === id);
     if (!existing) {
       return NextResponse.json({ error: "Expense not found." }, { status: 404 });
     }
 
     // RBAC: Only Super Admin can permanently delete expense records
     if (userRole !== "super_admin") {
-      createAuditLog({
+      await createAuditLog({
         userId,
         userName,
         userRole,
@@ -74,9 +78,9 @@ export async function DELETE(
       );
     }
 
-    const success = deleteExpense(id);
+    const success = await deleteExpense(id);
 
-    createAuditLog({
+    await createAuditLog({
       userId,
       userName,
       userRole,
@@ -95,3 +99,6 @@ export async function DELETE(
     return NextResponse.json({ error: "Failed to delete expense." }, { status: 500 });
   }
 }
+
+export const PUT = guarded(handlePUT);
+export const DELETE = guarded(handleDELETE);

@@ -1,156 +1,72 @@
 import { NextRequest, NextResponse } from "next/server";
-import { shiprocketCheckoutClient, ShiprocketWebhookPayload } from "@/lib/shiprocket-checkout/client";
-import { prisma } from "@/lib/db/prisma";
+import { shiprocketCheckoutClient } from "@/lib/shiprocket-checkout/client";
+import { createOrderFromCheckout, normalizeCheckoutWebhook } from "@/lib/orders/service";
+import { findCheckoutSessionBySrOrder, completeCheckoutSession } from "@/lib/orders/checkout-session";
+import { createAuditLog } from "@/lib/db/audit";
+import { sendTransactionalEmail } from "@/lib/email/service";
+import { generateInvoiceForOrder } from "@/lib/db/invoices";
+import { rateLimit } from "@/lib/security/rate-limit";
+import crypto from "node:crypto";
 
+export const dynamic = "force-dynamic";
+
+/** Order webhook from Shiprocket Checkout (fastrr). Orders are ONLY created here, after the signature is verified. */
 export async function POST(request: NextRequest) {
+  const limited = await rateLimit(request, "sr-webhook", { windowMs: 60_000, maxRequests: 300 });
+  if (limited) return limited;
+
+  const rawBody = await request.text();
+
+  // Fail closed in EVERY environment: a forged webhook would create "paid" orders for free.
+  if (!shiprocketCheckoutClient.verifySignature(rawBody, request.headers)) {
+    return NextResponse.json({ error: "Invalid or missing webhook signature." }, { status: 401 });
+  }
+
+  let payload: Record<string, any>;
   try {
-    const rawBody = await request.text();
-    const signature = request.headers.get("x-shiprocket-signature") || request.headers.get("x-fastrr-signature");
+    payload = JSON.parse(rawBody);
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON payload." }, { status: 400 });
+  }
 
-    // 1. Mandatory Raw Body Signature Verification
-    const isValidSignature = shiprocketCheckoutClient.verifyWebhookSignature(rawBody, signature);
-    if (!isValidSignature && process.env.NODE_ENV === "production") {
-      return NextResponse.json(
-        { error: "Unauthorized: Invalid or missing webhook signature." },
-        { status: 401 }
-      );
-    }
+  const normalized = normalizeCheckoutWebhook(payload);
+  if (!normalized) return NextResponse.json({ error: "Missing order id in payload." }, { status: 400 });
 
-    let payload: ShiprocketWebhookPayload;
-    try {
-      payload = JSON.parse(rawBody);
-    } catch {
-      return NextResponse.json({ error: "Invalid JSON payload." }, { status: 400 });
-    }
+  // Deterministic id: a retry of the SAME delivery maps to the same event and is deduplicated.
+  const eventId = String(payload.eventId || payload.event_id || `sr_${normalized.externalOrderId}_${normalized.eventType}_${crypto.createHash("sha256").update(rawBody).digest("hex").slice(0, 16)}`);
 
-    const eventId = payload.eventId || `whk_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-    const eventType = payload.eventType || "order.created";
+  try {
+    const result = await createOrderFromCheckout(normalized, eventId, payload);
 
-    // 2. Idempotency Check: Prevent duplicate webhook event execution
-    try {
-      const existingEvent = await prisma.webhookEvent.findUnique({
-        where: { eventId }
-      });
-      if (existingEvent) {
-        return NextResponse.json({ message: "Event already processed (Idempotent)." }, { status: 200 });
-      }
-    } catch {
-      // Proceed if DB lookup falls back
-    }
+    if (result.status === "duplicate") return NextResponse.json({ success: true, message: "Already processed." });
+    if (result.status === "ignored") return NextResponse.json({ success: true, message: `Ignored: ${result.reason}` });
 
-    const orderData = payload.order;
-    if (!orderData || !orderData.orderNumber) {
-      return NextResponse.json({ error: "Missing order payload details." }, { status: 400 });
-    }
+    const { order } = result;
 
-    const cleanPhone = String(orderData.customer?.phone || "").trim().replace(/\D/g, "");
-    const customerEmail = orderData.customer?.email || `${cleanPhone}@customer.zafiroindio.com`;
-    const customerName = orderData.customer?.name || "Valued Customer";
-    const isCod = orderData.payment?.method === "cod";
-    const paymentStatus = isCod ? "pending" : "captured";
-    const orderStatus = isCod ? "processing" : "paid";
+    // Link the order to the browser session that started checkout so /order-success can show it.
+    const session = await findCheckoutSessionBySrOrder(normalized.externalOrderId);
+    if (session) await completeCheckoutSession(session, order.id, order.orderNumber);
 
-    // 3. ATOMIC DATABASE TRANSACTION: Create Order, Items, Payment & Decrement Stock
-    let createdOrder: any = null;
-
-    try {
-      createdOrder = await prisma.$transaction(async (tx) => {
-        // Record Webhook Event for Idempotency
-        await tx.webhookEvent.create({
-          data: {
-            eventId,
-            provider: "shiprocket_checkout",
-            eventType,
-            payload: rawBody.length > 2000 ? { summary: "truncated_payload" } : (payload as any),
-            status: "processed"
-          }
-        });
-
-        // Upsert Customer
-        let customer = await tx.customer.findUnique({ where: { phone: cleanPhone } });
-        if (!customer) {
-          customer = await tx.customer.create({
-            data: {
-              phone: cleanPhone,
-              email: customerEmail,
-              name: customerName,
-              status: "active"
-            }
-          });
-        }
-
-        // Decrement Product Inventory Stock Atomically
-        for (const item of orderData.items || []) {
-          const product = await tx.product.findFirst({
-            where: { OR: [{ id: item.productId }, { slug: item.productId }] }
-          });
-
-          if (product) {
-            // Atomic update: only decrement if stock >= qty
-            const updateResult = await tx.product.updateMany({
-              where: { id: product.id, stock: { gte: item.quantity } },
-              data: { stock: { decrement: item.quantity } }
-            });
-
-            if (updateResult.count === 0) {
-              console.warn(`Insufficient stock for product ${product.name} (ID: ${product.id}). Stock allocated below zero.`);
-              await tx.product.update({
-                where: { id: product.id },
-                data: { stock: 0, status: "out_of_stock" }
-              });
-            }
-          }
-        }
-
-        // Create Order Record
-        const newOrder = await tx.order.create({
-          data: {
-            orderNumber: orderData.orderNumber,
-            customerId: customer.id,
-            status: orderStatus as any,
-            paymentStatus: paymentStatus as any,
-            paymentMethod: (orderData.payment?.method || "cod") as any,
-            subtotal: Number(orderData.total || 0),
-            grandTotal: Number(orderData.total || 0),
-            shippingAddress: (orderData.shippingAddress || {}) as any,
-            billingAddress: (orderData.billingAddress || orderData.shippingAddress || {}) as any,
-            items: {
-              create: (orderData.items || []).map((it) => ({
-                productId: it.productId,
-                name: it.name,
-                sku: it.sku || `ZI-${it.productId.toUpperCase().slice(0, 8)}`,
-                quantity: it.quantity,
-                price: Number(it.price || 0),
-                total: Number(it.price || 0) * Number(it.quantity || 1)
-              }))
-            },
-            payments: {
-              create: {
-                amount: Number(orderData.total || 0),
-                gateway: "shiprocket_checkout",
-                status: paymentStatus as any,
-                providerPaymentId: orderData.payment?.transactionId || `tx_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`
-              }
-            }
-          }
-        });
-
-        return newOrder;
-      });
-    } catch (dbErr) {
-      console.error("Database transaction error during webhook order creation:", dbErr);
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: "Shiprocket Checkout webhook processed successfully.",
-      orderNumber: orderData.orderNumber
+    await createAuditLog({
+      userId: "shiprocket",
+      userName: "Shiprocket Checkout",
+      userRole: "system",
+      action: "ORDER_CREATED_FASTRR",
+      module: "orders",
+      recordId: order.id,
+      recordName: order.orderNumber,
+      updatedData: { total: order.total, status: order.status, paymentMethod: order.paymentMethod },
+      riskLevel: result.onHold ? "HIGH" : "LOW",
     });
-  } catch (error: any) {
-    console.error("Shiprocket webhook processing failure:", error);
-    return NextResponse.json(
-      { error: "Internal server error processing webhook." },
-      { status: 500 }
-    );
+
+    // Best-effort follow-ups: never fail (and re-trigger) the webhook because an email bounced.
+    await generateInvoiceForOrder(order).catch((e) => console.error("Invoice generation failed:", e));
+    await sendTransactionalEmail(order.paymentStatus === "paid" ? "PAYMENT_SUCCESS" : "ORDER_CREATED", order).catch((e) => console.error("Order email failed:", e));
+
+    return NextResponse.json({ success: true, orderNumber: order.orderNumber });
+  } catch (error) {
+    // 5xx => Shiprocket retries. The old code swallowed this and answered 200, silently losing paid orders.
+    console.error("Shiprocket checkout webhook failed:", error);
+    return NextResponse.json({ error: "Order could not be stored. Please retry." }, { status: 500 });
   }
 }

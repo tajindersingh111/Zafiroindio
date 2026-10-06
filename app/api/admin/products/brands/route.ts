@@ -2,15 +2,16 @@ import { NextResponse } from "next/server";
 import { readCollection, writeCollection } from "@/lib/db/store";
 import type { Brand } from "@/lib/db/types";
 import { v4 as uuidv4 } from "uuid";
+import { guarded } from "@/lib/auth/guard";
 
-export async function GET() {
-  const brands = readCollection<Brand>("brands");
+async function handleGET() {
+  const brands = await readCollection<Brand>("brands");
   return NextResponse.json({ brands });
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   const body = await request.json() as Partial<Brand>;
-  const brands = readCollection<Brand>("brands");
+  const brands = await readCollection<Brand>("brands");
   const now = new Date().toISOString();
   const newBrand: Brand = {
     id: uuidv4(),
@@ -21,6 +22,9 @@ export async function POST(request: Request) {
     createdAt: now,
   };
   brands.push(newBrand);
-  writeCollection("brands", brands);
+  await writeCollection("brands", brands);
   return NextResponse.json({ brand: newBrand }, { status: 201 });
 }
+
+export const GET = guarded(handleGET);
+export const POST = guarded(handlePOST);

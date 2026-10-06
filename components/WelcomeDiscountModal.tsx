@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { X, CheckCircle2, Gift, Sparkles } from "lucide-react";
-import { useStore } from "@/components/StoreProvider";
 
 export default function WelcomeDiscountModal() {
   const [open, setOpen] = useState(false);
@@ -15,7 +14,6 @@ export default function WelcomeDiscountModal() {
   const [errorMsg, setErrorMsg] = useState("");
   const [copied, setCopied] = useState(false);
 
-  const { applyCoupon } = useStore();
 
   useEffect(() => {
     try {
@@ -62,8 +60,6 @@ export default function WelcomeDiscountModal() {
     setLoading(true);
 
     try {
-      // Auto-apply WELCOME10 coupon in store state
-      applyCoupon("WELCOME10");
 
       // Post lead info to customer admin collection asynchronously
       const nameParts = fullName.trim().split(" ");

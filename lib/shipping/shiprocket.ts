@@ -1,4 +1,5 @@
-import { prisma } from "@/lib/db/prisma";
+import { getDoc, updateDoc, upsertDoc } from "@/lib/db/store";
+import type { Order, ShipmentRecord } from "@/lib/db/types";
 import crypto from "crypto";
 
 let cachedToken: string | null = null;
@@ -53,93 +54,102 @@ export interface CreateShipmentParams {
 }
 
 /**
- * Pushes a confirmed order to Shiprocket for fulfillment.
+ * Pushes a confirmed order to Shiprocket (Shiprocket Shipping API) for fulfilment and stores the
+ * resulting shipment/AWB on the order. Never changes order status on failure.
  */
-export async function createShipmentForOrder(orderId: string): Promise<{ success: boolean; awb?: string; error?: string }> {
+export async function createShipmentForOrder(orderId: string): Promise<{ success: boolean; awb?: string; shipmentId?: string; error?: string }> {
   try {
-    const order = await prisma.order.findUnique({
-      where: { id: orderId },
-      include: { items: true }
-    });
-
-    if (!order) {
-      return { success: false, error: "Order not found" };
+    const order = await getDoc<Order>("orders", orderId);
+    if (!order) return { success: false, error: "Order not found" };
+    if (order.status === "cancelled" || order.status === "refunded") {
+      return { success: false, error: `Order is ${order.status}; cannot ship.` };
+    }
+    if (order.trackingNumber) {
+      return { success: true, awb: order.trackingNumber };
     }
 
     const token = await getShiprocketToken();
-    if (!token) {
-      await prisma.order.update({
-        where: { id: orderId },
-        data: { status: "processing" }
-      });
-      return { success: false, error: "Shiprocket auth token unavailable" };
-    }
+    if (!token) return { success: false, error: "Shiprocket shipping credentials (SHIPROCKET_EMAIL/SHIPROCKET_PASSWORD) are not configured." };
 
-    const shippingAddr = (order.shippingAddress || order.billingAddress || {}) as Record<string, any>;
-    const pickupLocation = process.env.SHIPROCKET_PICKUP_LOCATION || "Primary";
+    const addr = order.shipping || order.billing;
+    if (!addr?.address1 || !addr.postalCode || !addr.city || !addr.state) {
+      return { success: false, error: "Order has an incomplete shipping address." };
+    }
+    const phone = addr.phone || order.customerPhone;
+    if (!phone) return { success: false, error: "Order has no phone number." };
 
     const payload = {
       order_id: order.orderNumber,
-      order_date: new Date(order.createdAt).toISOString().replace("T", " ").slice(0, 19),
-      pickup_location: pickupLocation,
-      billing_customer_name: shippingAddr.name || shippingAddr.firstName || "Customer",
-      billing_last_name: shippingAddr.lastName || "",
-      billing_address: shippingAddr.address1 || "Address Line 1",
-      billing_address_2: shippingAddr.address2 || "",
-      billing_city: shippingAddr.city || "New Delhi",
-      billing_pincode: shippingAddr.postalCode || "110001",
-      billing_state: shippingAddr.state || "Delhi",
-      billing_country: shippingAddr.country || "India",
-      billing_email: shippingAddr.email || "customer@example.com",
-      billing_phone: shippingAddr.phone || "9999999999",
+      order_date: new Date(order.createdAt).toISOString().replace("T", " ").slice(0, 16),
+      pickup_location: process.env.SHIPROCKET_PICKUP_LOCATION || "Primary",
+      billing_customer_name: addr.firstName || order.customerName || "Customer",
+      billing_last_name: addr.lastName || "",
+      billing_address: addr.address1,
+      billing_address_2: addr.address2 || "",
+      billing_city: addr.city,
+      billing_pincode: addr.postalCode,
+      billing_state: addr.state,
+      billing_country: addr.country || "India",
+      billing_email: addr.email || order.customerEmail,
+      billing_phone: phone,
       shipping_is_billing: true,
       order_items: order.items.map((item) => ({
         name: item.name,
-        sku: item.sku || item.productId || "SKU",
+        sku: item.sku || item.productId,
         units: item.quantity,
         selling_price: item.price,
-        discount: item.discount,
-        tax: item.tax,
-        hsn: 0
+        discount: 0,
+        tax: 0,
+        hsn: 0,
       })),
       payment_method: order.paymentMethod === "cod" ? "COD" : "Prepaid",
       sub_total: order.subtotal,
-      length: 10,
-      breadth: 10,
-      height: 10,
-      weight: 0.5
+      length: 30,
+      breadth: 25,
+      height: 8,
+      weight: 1.5,
     };
 
     const res = await fetch("https://apiv2.shiprocket.in/v1/external/orders/create/adhoc", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify(payload)
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(20_000),
     });
 
-    if (res.ok) {
-      const data = await res.json();
-      const awbCode = data.awb_code || (data.shipment_id ? String(data.shipment_id) : undefined);
-
-      await prisma.order.update({
-        where: { id: orderId },
-        data: { status: "processing" }
-      });
-
-      return { success: true, awb: awbCode };
-    } else {
+    if (!res.ok) {
       const errorData = await res.text();
-      console.error("Shiprocket order push failed:", errorData);
-
-      await prisma.order.update({
-        where: { id: orderId },
-        data: { status: "processing" }
-      });
-
-      return { success: false, error: errorData };
+      console.error("Shiprocket order push failed:", res.status, errorData.slice(0, 500));
+      return { success: false, error: `Shiprocket rejected the order (${res.status}).` };
     }
+
+    const data = await res.json();
+    const shipmentId = data.shipment_id ? String(data.shipment_id) : undefined;
+    const awb = data.awb_code ? String(data.awb_code) : undefined;
+    const now = new Date().toISOString();
+
+    await updateDoc<Order>("orders", orderId, (o) => ({
+      doc: {
+        ...o,
+        trackingNumber: awb || o.trackingNumber,
+        courierName: data.courier_name || o.courierName,
+        status: o.status === "paid" || o.status === "payment_pending" ? "processing" : o.status,
+        updatedAt: now,
+      },
+      result: undefined,
+    }));
+    await upsertDoc<ShipmentRecord>("shipments", {
+      id: `shp-${order.id}`,
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      courierName: data.courier_name || "Shiprocket",
+      trackingNumber: awb || shipmentId || "",
+      status: "SHIPMENT_CREATED",
+      isLiveCourier: true,
+      createdAt: now,
+      updatedAt: now,
+    });
+    return { success: true, awb, shipmentId };
   } catch (err: any) {
     console.error("createShipmentForOrder error:", err);
     return { success: false, error: err?.message || "Unknown error creating shipment" };
@@ -147,17 +157,16 @@ export async function createShipmentForOrder(orderId: string): Promise<{ success
 }
 
 /**
- * Verifies incoming Shiprocket Tracking Webhook signature.
+ * Verifies incoming Shiprocket Tracking Webhook signature (HMAC-SHA256 hex or base64). Fails closed.
  */
 export function verifyShiprocketTrackingWebhook(rawBody: string, signatureHeader: string | null): boolean {
   const secret = process.env.SHIPROCKET_TRACKING_WEBHOOK_SECRET || process.env.SHIPROCKET_CHECKOUT_WEBHOOK_SECRET;
-  if (!secret) return false;
-  if (!signatureHeader) return false;
-
-  try {
-    const expected = crypto.createHmac("sha256", secret).update(rawBody).digest("hex");
-    return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signatureHeader));
-  } catch {
-    return false;
-  }
+  if (!secret || !signatureHeader) return false;
+  const hex = crypto.createHmac("sha256", secret).update(rawBody).digest("hex");
+  const b64 = crypto.createHmac("sha256", secret).update(rawBody).digest("base64");
+  const sig = Buffer.from(signatureHeader);
+  return [hex, b64].some((expected) => {
+    const e = Buffer.from(expected);
+    return e.length === sig.length && crypto.timingSafeEqual(e, sig);
+  });
 }

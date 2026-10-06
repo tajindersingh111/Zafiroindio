@@ -12,9 +12,9 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [bulkModalOpen, setBulkModalOpen] = useState(false);
   const [announcements, setAnnouncements] = useState<string[]>([
-    "🚚 FREE SHIPPING on orders above ₹999",
-    "🎁 10% OFF on your first order | Use code: WELCOME10",
-    "↻ Easy Returns within 7 days"
+    "Complimentary shipping on orders above ₹999",
+    "Hand-block printed by artisans in Jaipur",
+    "Easy returns within 7 days"
   ]);
   const { cartCount, wishlist } = useStore();
 

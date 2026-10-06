@@ -1,23 +1,27 @@
 import { NextResponse } from "next/server";
 import { readCollection, writeCollection } from "@/lib/db/store";
 import type { Category } from "@/lib/db/types";
+import { guarded } from "@/lib/auth/guard";
 
-export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+async function handlePATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const body = await request.json() as Partial<Category>;
-  const cats = readCollection<Category>("categories");
+  const cats = await readCollection<Category>("categories");
   const idx = cats.findIndex((c) => c.id === id);
   if (idx < 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
   cats[idx] = { ...cats[idx], ...body, id };
-  writeCollection("categories", cats);
+  await writeCollection("categories", cats);
   return NextResponse.json({ category: cats[idx] });
 }
 
-export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
+async function handleDELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  let cats = readCollection<Category>("categories");
+  let cats = await readCollection<Category>("categories");
   if (!cats.some((c) => c.id === id)) return NextResponse.json({ error: "Not found" }, { status: 404 });
   cats = cats.filter((c) => c.id !== id);
-  writeCollection("categories", cats);
+  await writeCollection("categories", cats);
   return NextResponse.json({ success: true });
 }
+
+export const PATCH = guarded(handlePATCH);
+export const DELETE = guarded(handleDELETE);

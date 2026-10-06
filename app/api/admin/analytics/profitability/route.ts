@@ -7,12 +7,13 @@ import {
   calculateProductProfitabilitySummaries,
   calculateOrderProfitability
 } from "@/lib/analytics/profitability";
+import { guarded } from "@/lib/auth/guard";
 
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   try {
-    const products = readCollection<Product>("products");
-    const orders = readCollection<Order>("orders");
-    const expenses = getAllExpenses();
+    const products = await readCollection<Product>("products");
+    const orders = await readCollection<Order>("orders");
+    const expenses = await getAllExpenses();
 
     const globalProfitability = calculateGlobalProfitability(products, orders, expenses);
     const productSummaries = calculateProductProfitabilitySummaries(products, orders, expenses);
@@ -31,3 +32,5 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Failed to generate profitability analytics." }, { status: 500 });
   }
 }
+
+export const GET = guarded(handleGET);

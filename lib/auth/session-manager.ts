@@ -1,4 +1,5 @@
-import { readCollection, writeCollection } from "@/lib/db/store";
+import { randomUUID } from "node:crypto";
+import { readCollection, getDoc, upsertDoc, mutateCollection } from "@/lib/db/store";
 import { createAuditLog } from "@/lib/db/audit";
 import { createSecurityAlert } from "@/lib/db/anomalies";
 import type { AdminUser } from "@/lib/db/types";
@@ -18,104 +19,106 @@ export interface ActiveSession {
   status: "active" | "terminated" | "expired";
 }
 
-/** Record or update active user session upon login or activity */
-export function trackSessionActivity(params: {
+function describeAgent(userAgent: string) {
+  let device = "Desktop";
+  if (/Mobile|Android|iPhone/i.test(userAgent)) device = "Mobile Device";
+  else if (/Macintosh/i.test(userAgent)) device = "Mac";
+  else if (/Windows/i.test(userAgent)) device = "Windows PC";
+
+  let browser = "Unknown";
+  if (/Edg\//.test(userAgent)) browser = "Edge";
+  else if (/Firefox/.test(userAgent)) browser = "Firefox";
+  else if (/Chrome/.test(userAgent)) browser = "Chrome";
+  else if (/Safari/.test(userAgent)) browser = "Safari";
+  return { device, browser };
+}
+
+/** Create a server-side session record at login. Its id is stored in the signed cookie. */
+export async function createSession(params: {
   userId: string;
   userName: string;
   userEmail: string;
   userRole: string;
-  reqHeaders?: Headers;
+  userAgent?: string;
   ipAddress?: string;
-}): ActiveSession {
-  const sessions = readCollection<ActiveSession>("active-sessions");
-  const existingIdx = sessions.findIndex((s) => s.userId === params.userId && s.status === "active");
-
+}): Promise<ActiveSession> {
   const now = new Date().toISOString();
-  const userAgent = params.reqHeaders?.get("user-agent") || "Web Browser (Chrome/Windows)";
-  
-  let device = "Desktop (Windows)";
-  if (userAgent.includes("Mobile")) device = "Mobile Device";
-  else if (userAgent.includes("Macintosh")) device = "MacBook Pro";
-
-  let browser = "Chrome";
-  if (userAgent.includes("Firefox")) browser = "Firefox";
-  else if (userAgent.includes("Safari") && !userAgent.includes("Chrome")) browser = "Safari";
-
-  if (existingIdx >= 0) {
-    sessions[existingIdx].lastActivity = now;
-    sessions[existingIdx].ipAddress = params.ipAddress || sessions[existingIdx].ipAddress || "127.0.0.1";
-    writeCollection("active-sessions", sessions);
-    return sessions[existingIdx];
-  }
-
-  const newSession: ActiveSession = {
-    id: `sess-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`,
-    sessionId: `sid-${Date.now()}`,
+  const { device, browser } = describeAgent(params.userAgent || "");
+  const sid = randomUUID();
+  const session: ActiveSession = {
+    id: sid,
+    sessionId: sid,
     userId: params.userId,
     userName: params.userName,
     userEmail: params.userEmail,
     userRole: params.userRole,
     loginTime: now,
     lastActivity: now,
-    ipAddress: params.ipAddress || "127.0.0.1",
+    ipAddress: params.ipAddress || "unknown",
     device,
     browser,
-    status: "active"
+    status: "active",
   };
-
-  sessions.unshift(newSession);
-  writeCollection("active-sessions", sessions.slice(0, 200));
-  return newSession;
+  await upsertDoc("active-sessions", session);
+  return session;
 }
 
-/** Check if a session has been force-terminated by Super Admin */
-export function isSessionTerminated(userId: string): boolean {
-  const sessions = readCollection<ActiveSession>("active-sessions");
-  const userSess = sessions.find((s) => s.userId === userId);
-  return userSess ? userSess.status === "terminated" : false;
+/** True while the session exists and has not been terminated by a Super Admin. */
+export async function isSessionActive(sid: string): Promise<boolean> {
+  const s = await getDoc<ActiveSession>("active-sessions", sid);
+  return !!s && s.status === "active";
 }
+
+export async function touchSession(sid: string): Promise<void> {
+  const s = await getDoc<ActiveSession>("active-sessions", sid);
+  if (!s || s.status !== "active") return;
+  if (Date.now() - new Date(s.lastActivity).getTime() < 60_000) return; // at most once a minute
+  await upsertDoc("active-sessions", { ...s, lastActivity: new Date().toISOString() });
+}
+
+export async function endSession(sid: string): Promise<void> {
+  const s = await getDoc<ActiveSession>("active-sessions", sid);
+  if (s && s.status === "active") await upsertDoc("active-sessions", { ...s, status: "terminated" as const });
+}
+
+type Actor = { id?: string; email?: string; role?: string };
 
 /** Super Admin terminates a specific session */
-export function terminateSession(sessionId: string, superAdminUser: { id?: string; email?: string; role?: string }) {
-  const sessions = readCollection<ActiveSession>("active-sessions");
-  const idx = sessions.findIndex((s) => s.id === sessionId || s.sessionId === sessionId);
-  if (idx < 0) return false;
+export async function terminateSession(sessionId: string, superAdminUser: Actor) {
+  const s = await getDoc<ActiveSession>("active-sessions", sessionId);
+  if (!s) return false;
+  await upsertDoc("active-sessions", { ...s, status: "terminated" as const });
 
-  const target = sessions[idx];
-  sessions[idx].status = "terminated";
-  writeCollection("active-sessions", sessions);
-
-  createAuditLog({
+  await createAuditLog({
     userId: superAdminUser.id,
     userName: superAdminUser.email,
     userRole: superAdminUser.role,
     action: "SESSION_TERMINATED",
     module: "security",
-    recordId: target.userId,
-    recordName: `Terminated Session for ${target.userEmail}`,
+    recordId: s.userId,
+    recordName: `Terminated Session for ${s.userEmail}`,
     previousData: { status: "active" },
     updatedData: { status: "terminated" },
-    riskLevel: "HIGH"
+    riskLevel: "HIGH",
   });
-
   return true;
 }
 
 /** Super Admin force logs out all sessions for a specific user */
-export function terminateAllUserSessions(userId: string, superAdminUser: { id?: string; email?: string; role?: string }) {
-  const sessions = readCollection<ActiveSession>("active-sessions");
-  let updated = false;
-
-  sessions.forEach((s) => {
-    if (s.userId === userId && s.status === "active") {
-      s.status = "terminated";
-      updated = true;
+export async function terminateAllUserSessions(userId: string, superAdminUser: Actor) {
+  const updated = await mutateCollection<ActiveSession, boolean>("active-sessions", (sessions) => {
+    let changed = false;
+    for (const s of sessions) {
+      if (s.userId === userId && s.status === "active") {
+        s.status = "terminated";
+        changed = true;
+      }
     }
+    return changed;
   });
 
   if (updated) {
-    writeCollection("active-sessions", sessions);
-    createAuditLog({
+    await createAuditLog({
       userId: superAdminUser.id,
       userName: superAdminUser.email,
       userRole: superAdminUser.role,
@@ -123,42 +126,35 @@ export function terminateAllUserSessions(userId: string, superAdminUser: { id?: 
       module: "security",
       recordId: userId,
       recordName: `Revoked all active sessions for User ID ${userId}`,
-      riskLevel: "HIGH"
+      riskLevel: "HIGH",
     });
   }
-
   return updated;
 }
 
-/** Employee Offboarding Workflow: Disable account, revoke access, terminate sessions, preserve audit trail */
-export function offboardEmployee(userId: string, superAdminUser: { id?: string; email?: string; role?: string }) {
-  const users = readCollection<AdminUser>("admin-users");
-  const idx = users.findIndex((u) => u.id === userId);
-  if (idx < 0) return { success: false, error: "User not found" };
+/** Employee offboarding: disable account, revoke every session, keep the audit trail. */
+export async function offboardEmployee(userId: string, superAdminUser: Actor) {
+  const users = await readCollection<AdminUser>("admin-users");
+  const target = users.find((u) => u.id === userId);
+  if (!target) return { success: false, error: "User not found" };
 
-  const target = users[idx];
   if (target.email === "admin@zafiroindio.com") {
     return { success: false, error: "Primary Super Admin account cannot be offboarded." };
   }
 
-  // 1. Disable account
-  users[idx].isActive = false;
-  writeCollection("admin-users", users);
+  await upsertDoc("admin-users", { ...target, isActive: false });
+  await terminateAllUserSessions(userId, superAdminUser);
 
-  // 2. Terminate all active sessions
-  terminateAllUserSessions(userId, superAdminUser);
-
-  // 3. Create High Risk Alert & Audit Record
-  createSecurityAlert({
+  await createSecurityAlert({
     type: "permission",
     severity: "HIGH",
     title: "Employee Offboarded & Account Disabled",
     description: `${superAdminUser.email || "Super Admin"} offboarded ${target.name} (${target.email}). Account disabled and all active sessions revoked.`,
     userInvolved: target.email,
-    userRole: target.role
+    userRole: target.role,
   });
 
-  createAuditLog({
+  await createAuditLog({
     userId: superAdminUser.id,
     userName: superAdminUser.email,
     userRole: superAdminUser.role,
@@ -168,7 +164,7 @@ export function offboardEmployee(userId: string, superAdminUser: { id?: string; 
     recordName: `${target.name} (${target.email})`,
     previousData: { isActive: true },
     updatedData: { isActive: false, status: "Offboarded & Disabled" },
-    riskLevel: "CRITICAL"
+    riskLevel: "CRITICAL",
   });
 
   return { success: true, message: `Account for ${target.name} disabled and all sessions terminated.` };

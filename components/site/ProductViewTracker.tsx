@@ -17,7 +17,7 @@ interface Props {
 }
 
 export default function ProductViewTracker({ slug }: Props) {
-  const startRef = useRef<number>(Date.now());
+  const startRef = useRef<number>(0);
   const activeRef = useRef<number>(0); // accumulated active seconds
   const isActiveRef = useRef<boolean>(true);
 

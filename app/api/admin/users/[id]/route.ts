@@ -4,17 +4,18 @@ import { readCollection, writeCollection } from "@/lib/db/store";
 import type { AdminUser } from "@/lib/db/types";
 import { requireSuperAdmin, getAuthSession, isSuperAdmin, forbiddenResponse } from "@/lib/auth/rbac";
 import { createAuditLog } from "@/lib/db/audit";
+import { guarded } from "@/lib/auth/guard";
 
-export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
+async function handleGET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const users = readCollection<AdminUser>("admin-users");
+  const users = await readCollection<AdminUser>("admin-users");
   const user = users.find((u) => u.id === id);
   if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
   const { passwordHash: _omit, ...safe } = user;
   return NextResponse.json({ user: safe });
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function handlePATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getAuthSession(request);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized session." }, { status: 401 });
@@ -22,7 +23,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
   const { id } = await params;
   const body = await request.json();
-  const users = readCollection<AdminUser>("admin-users");
+  const users = await readCollection<AdminUser>("admin-users");
   const idx = users.findIndex((u) => u.id === id);
   if (idx < 0) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
@@ -56,10 +57,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   };
 
   users[idx] = updatedUser;
-  writeCollection("admin-users", users);
+  await writeCollection("admin-users", users);
 
   // AUDIT LOG
-  createAuditLog({
+  await createAuditLog({
     userId: session.userId,
     userName: session.email,
     userRole: session.role,
@@ -74,13 +75,13 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   return NextResponse.json({ success: true, user: safe });
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function handleDELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   // STRICT SUPER ADMIN DELETE CHECK
   const auth = await requireSuperAdmin(request);
   if (auth.error) return auth.error;
 
   const { id } = await params;
-  let users = readCollection<AdminUser>("admin-users");
+  let users = await readCollection<AdminUser>("admin-users");
   const target = users.find((u) => u.id === id);
   if (!target) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
@@ -89,10 +90,10 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   }
 
   users = users.filter((u) => u.id !== id);
-  writeCollection("admin-users", users);
+  await writeCollection("admin-users", users);
 
   // AUDIT LOG
-  createAuditLog({
+  await createAuditLog({
     userId: auth.session?.userId,
     userName: auth.session?.email,
     userRole: auth.session?.role,
@@ -104,3 +105,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 
   return NextResponse.json({ success: true });
 }
+
+export const GET = guarded(handleGET);
+export const PATCH = guarded(handlePATCH);
+export const DELETE = guarded(handleDELETE);

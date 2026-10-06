@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { readCollection, writeCollection } from "@/lib/db/store";
 import type { Product } from "@/lib/db/types";
+import { guarded } from "@/lib/auth/guard";
 
-export async function GET() {
-  const products = readCollection<Product>("products");
+async function handleGET() {
+  const products = await readCollection<Product>("products");
   
   const inStock = products.filter((p) => p.stockStatus === "in_stock").length;
   const lowStock = products.filter((p) => p.stockStatus === "low_stock").length;
@@ -28,10 +29,10 @@ export async function GET() {
   });
 }
 
-export async function PATCH(request: Request) {
+async function handlePATCH(request: Request) {
   try {
     const { productId, stock, lowStockThreshold } = await request.json();
-    const products = readCollection<Product>("products");
+    const products = await readCollection<Product>("products");
     const idx = products.findIndex((p) => p.id === productId);
     if (idx === -1) {
       return NextResponse.json({ error: "Product not found." }, { status: 404 });
@@ -50,9 +51,12 @@ export async function PATCH(request: Request) {
       updatedAt: new Date().toISOString(),
     };
 
-    writeCollection("products", products);
+    await writeCollection("products", products);
     return NextResponse.json({ product: products[idx] });
   } catch {
     return NextResponse.json({ error: "Failed to update inventory." }, { status: 500 });
   }
 }
+
+export const GET = guarded(handleGET);
+export const PATCH = guarded(handlePATCH);

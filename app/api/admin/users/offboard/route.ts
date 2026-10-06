@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireSuperAdmin } from "@/lib/auth/rbac";
 import { offboardEmployee } from "@/lib/auth/session-manager";
+import { guarded } from "@/lib/auth/guard";
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   const auth = await requireSuperAdmin(request);
   if (auth.error) return auth.error;
 
@@ -12,7 +13,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "userId is required for offboarding." }, { status: 400 });
     }
 
-    const result = offboardEmployee(body.userId, {
+    const result = await offboardEmployee(body.userId, {
       id: auth.session?.userId,
       email: auth.session?.email,
       role: auth.session?.role
@@ -27,3 +28,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Failed to offboard employee." }, { status: 500 });
   }
 }
+
+export const POST = guarded(handlePOST);

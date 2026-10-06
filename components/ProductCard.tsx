@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Heart, Sparkles, Check } from "lucide-react";
 import { Product } from "@/lib/data";
 import { useStore } from "./StoreProvider";
+import Tilt from "@/components/site/Tilt";
 
 export default function ProductCard({ p }: { p: Product }) {
   const { add, wishlist, toggleWish } = useStore();
@@ -12,7 +13,7 @@ export default function ProductCard({ p }: { p: Product }) {
   const [isHovered, setIsHovered] = useState(false);
 
   const wished = wishlist.includes(p.slug);
-  const isOutOfStock = p.badge === "OUT OF STOCK";
+  const isOutOfStock = p.badge === "SOLD OUT" || p.badge === "OUT OF STOCK";
   const hasSecondImage = p.images && p.images.length > 1;
 
   const badgeCls =
@@ -22,7 +23,7 @@ export default function ProductCard({ p }: { p: Product }) {
       ? "bg-emerald-700/90 text-white"
       : "bg-[#12192c] text-[#c5a028]";
 
-  const stars = Math.round(p.rating || 5);
+  const stars = Math.round(p.rating || 0);
 
   function handleQuickAdd(e: React.MouseEvent) {
     e.preventDefault();
@@ -35,6 +36,7 @@ export default function ProductCard({ p }: { p: Product }) {
   }
 
   return (
+    <Tilt max={6}>
     <article 
       className="group relative bg-[#fcfbfa] border border-[#e8e2d8] hover:border-[#c5a028]/60 transition-all duration-300 hover:shadow-xl hover:shadow-[#12192c]/5 rounded-sm overflow-hidden flex flex-col"
       onMouseEnter={() => setIsHovered(true)}
@@ -175,8 +177,14 @@ export default function ProductCard({ p }: { p: Product }) {
 
           <div className="flex items-center justify-between text-xs text-slate-500 pt-1 border-t border-[#e8e2d8]/60">
             <div className="flex items-center gap-1 text-[#c5a028]">
-              {"★".repeat(stars)}
-              <span className="text-[11px] text-slate-500 font-mono ml-1">({p.reviews})</span>
+              {p.reviews > 0 ? (
+                <>
+                  {"★".repeat(stars)}
+                  <span className="text-[11px] text-slate-500 font-mono ml-1">({p.reviews})</span>
+                </>
+              ) : (
+                <span className="text-[11px] text-slate-400 uppercase tracking-wider">New</span>
+              )}
             </div>
             <span className="text-[10px] font-mono text-slate-400 uppercase">
               Jaipur Craft
@@ -185,6 +193,7 @@ export default function ProductCard({ p }: { p: Product }) {
         </div>
       </div>
     </article>
+    </Tilt>
   );
 }
 

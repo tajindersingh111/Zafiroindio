@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { readSettings, writeSettings } from "@/lib/db/store";
+import { guarded } from "@/lib/auth/guard";
 
 interface MetaConfig {
   isConnected: boolean;
@@ -33,8 +34,8 @@ const DEFAULT_CONFIG: MetaConfig = {
   conversionsApiToken: "",
 };
 
-export async function GET() {
-  const config = readSettings<MetaConfig>("meta-config") || DEFAULT_CONFIG;
+async function handleGET() {
+  const config = await readSettings<MetaConfig>("meta-config") || DEFAULT_CONFIG;
   // Mask sensitive tokens
   const safe = {
     ...config,
@@ -44,10 +45,10 @@ export async function GET() {
   return NextResponse.json(safe);
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     const body = await request.json() as Partial<MetaConfig>;
-    const current = readSettings<MetaConfig>("meta-config") || DEFAULT_CONFIG;
+    const current = await readSettings<MetaConfig>("meta-config") || DEFAULT_CONFIG;
     
     // Merge updates
     const updated: MetaConfig = {
@@ -58,7 +59,7 @@ export async function POST(request: Request) {
       conversionsApiToken: body.conversionsApiToken === "••••••••••••••••" ? current.conversionsApiToken : (body.conversionsApiToken ?? current.conversionsApiToken),
     };
 
-    writeSettings("meta-config", updated);
+    await writeSettings("meta-config", updated);
 
     const safe = {
       ...updated,
@@ -72,7 +73,11 @@ export async function POST(request: Request) {
   }
 }
 
-export async function DELETE() {
-  writeSettings("meta-config", DEFAULT_CONFIG);
+async function handleDELETE() {
+  await writeSettings("meta-config", DEFAULT_CONFIG);
   return NextResponse.json({ success: true, ...DEFAULT_CONFIG });
 }
+
+export const GET = guarded(handleGET);
+export const POST = guarded(handlePOST);
+export const DELETE = guarded(handleDELETE);

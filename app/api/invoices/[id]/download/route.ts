@@ -1,27 +1,51 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getInvoiceByOrderId, getAllInvoices } from "@/lib/db/invoices";
 import { readCollection } from "@/lib/db/store";
+import { getAuthSession } from "@/lib/auth/rbac";
+import { getCheckoutSession } from "@/lib/orders/checkout-session";
+import { orderMatchesContact } from "@/lib/orders/contact";
+import { rateLimit } from "@/lib/security/rate-limit";
 import type { Order } from "@/lib/db/types";
 
+export const dynamic = "force-dynamic";
+
+const esc = (v: unknown): string =>
+  String(v ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch] as string));
+const inr = (n: unknown) => Number(n || 0).toLocaleString("en-IN");
+
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
-  
-  let invoice = getAllInvoices().find(i => i.id === id || i.invoiceNumber === id || i.orderId === id || i.orderNumber === id);
+  const limited = await rateLimit(request, "invoice-download", { windowMs: 60_000, maxRequests: 30 });
+  if (limited) return limited;
 
-  if (!invoice) {
-    const orders = readCollection<Order>("orders");
-    const foundOrder = orders.find(o => o.id === id || o.orderNumber === id);
-    if (foundOrder) {
-      invoice = getInvoiceByOrderId(id, foundOrder) || undefined;
+  const { id } = await params;
+  const orders = await readCollection<Order>("orders");
+  const order = orders.find((o) => o.id === id || o.orderNumber === id);
+  const notFound = () => new NextResponse("Invoice Not Found", { status: 404 });
+  if (!order) return notFound();
+
+  // Authorization: staff session, OR checkout ref capability for this order, OR order number + contact.
+  let allowed = false;
+  const staff = await getAuthSession(request);
+  if (staff) allowed = true;
+  if (!allowed) {
+    const ref = request.nextUrl.searchParams.get("ref");
+    if (ref) {
+      const cs = await getCheckoutSession(ref);
+      if (cs && cs.orderId === order.id) allowed = true;
     }
   }
-
-  if (!invoice) {
-    return new NextResponse("Invoice Not Found", { status: 404 });
+  if (!allowed) {
+    const contact = request.nextUrl.searchParams.get("contact");
+    if (contact && orderMatchesContact(order, contact)) allowed = true;
   }
+  if (!allowed) return notFound(); // do not reveal existence
+
+  let invoice = (await getAllInvoices()).find((i) => i.orderId === order.id);
+  if (!invoice) invoice = (await getInvoiceByOrderId(order.id, order)) || undefined;
+  if (!invoice) return notFound();
 
   const b = invoice.businessSnapshot;
   const c = invoice.customerSnapshot;
@@ -30,7 +54,7 @@ export async function GET(
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Invoice ${invoice.invoiceNumber} — Zafiro Indio</title>
+  <title>Invoice ${esc(invoice.invoiceNumber)} — Zafiro Indio</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; margin: 0; padding: 40px; background: #fff; }
     .invoice-card { max-width: 800px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; padding: 40px; }
@@ -58,34 +82,34 @@ export async function GET(
     <div class="header">
       <div>
         <div class="brand">ZAFIRO</div>
-        <div style="font-size: 12px; color: #64748b; margin-top: 4px;">${b.storeName} — Handcrafted Bedding</div>
-        <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">GSTIN: ${b.gstin || "N/A"}</div>
+        <div style="font-size: 12px; color: #64748b; margin-top: 4px;">${esc(b.storeName)} — Handcrafted Bedding</div>
+        <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">GSTIN: ${esc(b.gstin || "N/A")}</div>
       </div>
       <div>
         <div class="inv-title">TAX INVOICE</div>
-        <div class="inv-meta">Invoice #: <strong>${invoice.invoiceNumber}</strong></div>
-        <div class="inv-meta">Order #: <strong>${invoice.orderNumber}</strong></div>
+        <div class="inv-meta">Invoice #: <strong>${esc(invoice.invoiceNumber)}</strong></div>
+        <div class="inv-meta">Order #: <strong>${esc(invoice.orderNumber)}</strong></div>
         <div class="inv-meta">Date: ${new Date(invoice.invoiceDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</div>
-        <div class="inv-meta" style="margin-top: 6px;">Status: <span class="badge">${invoice.paymentStatus.toUpperCase()}</span></div>
+        <div class="inv-meta" style="margin-top: 6px;">Status: <span class="badge">${esc(String(invoice.paymentStatus).toUpperCase())}</span></div>
       </div>
     </div>
 
     <div class="address-grid">
       <div>
         <div class="section-title">Billed & Shipped To</div>
-        <strong>${c.customerName}</strong><br>
-        ${c.shipping.address1}${c.shipping.address2 ? `, ${c.shipping.address2}` : ""}<br>
-        ${c.shipping.city}, ${c.shipping.state} — ${c.shipping.postalCode}<br>
-        Email: ${c.customerEmail}<br>
-        Phone: ${c.customerPhone || "N/A"}
+        <strong>${esc(c.customerName)}</strong><br>
+        ${esc(c.shipping.address1)}${c.shipping.address2 ? `, ${esc(c.shipping.address2)}` : ""}<br>
+        ${esc(c.shipping.city)}, ${esc(c.shipping.state)} — ${esc(c.shipping.postalCode)}<br>
+        Email: ${esc(c.customerEmail)}<br>
+        Phone: ${esc(c.customerPhone || "N/A")}
       </div>
       <div>
         <div class="section-title">Seller Details</div>
-        <strong>${b.storeName}</strong><br>
-        ${b.storeAddress.address1}<br>
-        ${b.storeAddress.city}, ${b.storeAddress.state} — ${b.storeAddress.postalCode}<br>
-        Email: ${b.storeEmail}<br>
-        Payment Method: <strong>${invoice.paymentMethod.toUpperCase()}</strong>
+        <strong>${esc(b.storeName)}</strong><br>
+        ${esc(b.storeAddress.address1)}<br>
+        ${esc(b.storeAddress.city)}, ${esc(b.storeAddress.state)} — ${esc(b.storeAddress.postalCode)}<br>
+        Email: ${esc(b.storeEmail)}<br>
+        Payment Method: <strong>${esc(String(invoice.paymentMethod).toUpperCase())}</strong>
       </div>
     </div>
 
@@ -101,17 +125,17 @@ export async function GET(
         </tr>
       </thead>
       <tbody>
-        ${invoice.itemsSnapshot.map((item, idx) => `
+        ${invoice.itemsSnapshot.map((item: any, idx: number) => `
           <tr>
             <td>${idx + 1}</td>
             <td>
-              <strong>${item.name}</strong>
-              ${item.attributes?.length ? `<div style="font-size:11px; color:#64748b;">${item.attributes.map(a => `${a.name}: ${a.value}`).join(" | ")}</div>` : ""}
+              <strong>${esc(item.name)}</strong>
+              ${item.attributes?.length ? `<div style="font-size:11px; color:#64748b;">${item.attributes.map((a: any) => `${esc(a.name)}: ${esc(a.value)}`).join(" | ")}</div>` : ""}
             </td>
-            <td><code>${item.sku}</code></td>
-            <td style="text-align: right;">${item.quantity}</td>
-            <td style="text-align: right;">₹${item.price.toLocaleString("en-IN")}</td>
-            <td style="text-align: right;"><strong>₹${item.total.toLocaleString("en-IN")}</strong></td>
+            <td><code>${esc(item.sku)}</code></td>
+            <td style="text-align: right;">${esc(item.quantity)}</td>
+            <td style="text-align: right;">₹${inr(item.price)}</td>
+            <td style="text-align: right;"><strong>₹${inr(item.total)}</strong></td>
           </tr>
         `).join("")}
       </tbody>
@@ -120,20 +144,20 @@ export async function GET(
     <table class="total-table">
       <tr>
         <td style="color:#64748b;">Subtotal:</td>
-        <td style="text-align: right;">₹${invoice.subtotal.toLocaleString("en-IN")}</td>
+        <td style="text-align: right;">₹${inr(invoice.subtotal)}</td>
       </tr>
       ${invoice.discount > 0 ? `
       <tr>
         <td style="color:#166534;">Discount:</td>
-        <td style="text-align: right; color:#166534;">-₹${invoice.discount.toLocaleString("en-IN")}</td>
+        <td style="text-align: right; color:#166534;">-₹${inr(invoice.discount)}</td>
       </tr>` : ""}
       <tr>
         <td style="color:#64748b;">Shipping:</td>
-        <td style="text-align: right;">${invoice.shipping === 0 ? "FREE" : `₹${invoice.shipping}`}</td>
+        <td style="text-align: right;">${invoice.shipping === 0 ? "FREE" : `₹${inr(invoice.shipping)}`}</td>
       </tr>
       <tr class="total-row">
         <td>Grand Total:</td>
-        <td style="text-align: right; color:#8c5e0f;">₹${invoice.grandTotal.toLocaleString("en-IN")}</td>
+        <td style="text-align: right; color:#8c5e0f;">₹${inr(invoice.grandTotal)}</td>
       </tr>
     </table>
 
@@ -145,6 +169,11 @@ export async function GET(
 </html>`;
 
   return new NextResponse(html, {
-    headers: { "Content-Type": "text/html; charset=utf-8" }
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": "private, no-store",
+      "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'",
+      "X-Robots-Tag": "noindex",
+    }
   });
 }

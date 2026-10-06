@@ -12,10 +12,11 @@ export default function robots(): MetadataRoute.Robots {
           "/cart",
           "/checkout",
           "/order-success",
-          "/account/",
+          "/account",
+          "/track",
         ],
       },
     ],
-    sitemap: "https://zafiroindio.com/sitemap.xml",
+    sitemap: `${process.env.NEXT_PUBLIC_SITE_URL || "https://zafiroindio.com"}/sitemap.xml`,
   };
 }

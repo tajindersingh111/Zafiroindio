@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { readCollection, writeCollection } from "@/lib/db/store";
 import type { Customer } from "@/lib/db/types";
 import { v4 as uuidv4 } from "uuid";
+import { guarded } from "@/lib/auth/guard";
 
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   const { searchParams } = new URL(request.url);
   const search = searchParams.get("search")?.toLowerCase() ?? "";
   const type = searchParams.get("type") ?? "";
@@ -13,7 +14,7 @@ export async function GET(request: Request) {
   const sortBy = searchParams.get("sortBy") ?? "registeredAt";
   const sortDir = searchParams.get("sortDir") ?? "desc";
 
-  let customers = readCollection<Customer>("customers");
+  let customers = await readCollection<Customer>("customers");
 
   if (search) {
     customers = customers.filter(
@@ -43,10 +44,10 @@ export async function GET(request: Request) {
   return NextResponse.json({ customers: paginated, total, page, pageSize, totalPages: Math.ceil(total / pageSize) });
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     const body = await request.json() as Partial<Customer>;
-    const customers = readCollection<Customer>("customers");
+    const customers = await readCollection<Customer>("customers");
 
     if (customers.some((c) => c.email === body.email)) {
       return NextResponse.json({ error: "Email already exists." }, { status: 400 });
@@ -71,10 +72,13 @@ export async function POST(request: Request) {
     };
 
     customers.push(newCustomer);
-    writeCollection("customers", customers);
+    await writeCollection("customers", customers);
     return NextResponse.json({ customer: newCustomer }, { status: 201 });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Failed to create customer." }, { status: 500 });
   }
 }
+
+export const GET = guarded(handleGET);
+export const POST = guarded(handlePOST);

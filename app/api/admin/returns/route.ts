@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { readCollection, writeCollection } from "@/lib/db/store";
+import { guarded } from "@/lib/auth/guard";
 
 interface ReturnRequest {
   id: string;
@@ -16,15 +17,15 @@ interface ReturnRequest {
   createdAt: string;
 }
 
-export async function GET() {
-  const returns = readCollection<ReturnRequest>("returns");
+async function handleGET() {
+  const returns = await readCollection<ReturnRequest>("returns");
   return NextResponse.json(returns);
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     const body = await request.json() as Partial<ReturnRequest>;
-    const returns = readCollection<ReturnRequest>("returns");
+    const returns = await readCollection<ReturnRequest>("returns");
     const newRequest: ReturnRequest = {
       id: "ret-" + Math.random().toString(36).substring(2, 9),
       orderId: body.orderId ?? "",
@@ -40,9 +41,12 @@ export async function POST(request: Request) {
       createdAt: new Date().toISOString()
     };
     returns.push(newRequest);
-    writeCollection("returns", returns);
+    await writeCollection("returns", returns);
     return NextResponse.json(newRequest);
   } catch (error) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 }
+
+export const GET = guarded(handleGET);
+export const POST = guarded(handlePOST);

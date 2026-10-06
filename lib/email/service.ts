@@ -1,4 +1,5 @@
 import type { Order } from "@/lib/db/types";
+import { upsertDoc } from "@/lib/db/store";
 
 export type EmailEventType =
   | "ORDER_CREATED"
@@ -24,8 +25,6 @@ export interface EmailLogEntry {
   status: "SENT" | "LOGGED_ONLY" | "FAILED";
   error?: string;
 }
-
-const emailLogsBuffer: EmailLogEntry[] = [];
 
 export async function sendTransactionalEmail(
   eventType: EmailEventType,
@@ -92,17 +91,47 @@ export async function sendTransactionalEmail(
       break;
   }
 
+  const esc = (v: string) => v.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string));
+  const site = process.env.NEXT_PUBLIC_SITE_URL || "";
+  const trackLink = extraDetails?.trackingUrl ? `<p><a href="${esc(extraDetails.trackingUrl)}">Track your shipment</a></p>` : "";
+  const html = `<!doctype html><html><body style="margin:0;background:#f7f1e6;font-family:Georgia,serif;color:#1b1f3b">
+<div style="max-width:560px;margin:0 auto;padding:32px 24px;background:#fffdf8;border-top:4px solid #b08d3c">
+<p style="letter-spacing:4px;font-size:12px;color:#b08d3c;margin:0">ZAFIRO INDIO</p>
+<h1 style="font-weight:normal;font-size:26px;margin:12px 0">${esc(headline)}</h1>
+<p>Namaste ${esc((order.customerName || "").split(" ")[0] || "")},</p>
+<p>${esc(bodyMessage)}</p>${trackLink}
+${site ? `<p><a href="${esc(site)}/track">Track order</a></p>` : ""}
+<p style="font-size:12px;color:#777;margin-top:32px">Handblock bedding, Jaipur.</p></div></body></html>`;
+
   let sentStatus: "SENT" | "LOGGED_ONLY" | "FAILED" = "LOGGED_ONLY";
   let errorMsg: string | undefined = undefined;
 
-  try {
-    const apiKey = process.env.RESEND_API_KEY || process.env.SENDGRID_API_KEY;
-    if (apiKey) {
+  const host = process.env.SMTP_HOST;
+  if (host && order.customerEmail) {
+    try {
+      const nodemailer = (await import("nodemailer")).default;
+      const port = Number(process.env.SMTP_PORT || 587);
+      const transporter = nodemailer.createTransport({
+        host,
+        port,
+        secure: port === 465,
+        auth: process.env.SMTP_USER ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } : undefined,
+      });
+      await transporter.sendMail({
+        from: process.env.EMAIL_FROM || process.env.SMTP_USER,
+        to: order.customerEmail,
+        subject,
+        html,
+        text: `${headline}\n\n${bodyMessage}`,
+      });
       sentStatus = "SENT";
+    } catch (err: any) {
+      sentStatus = "FAILED";
+      errorMsg = err?.message || "Email dispatch failed";
+      console.error("[email] send failed:", errorMsg);
     }
-  } catch (err: any) {
-    sentStatus = "FAILED";
-    errorMsg = err.message || "Email dispatch failed";
+  } else {
+    errorMsg = "SMTP not configured; email was not sent.";
   }
 
   const newLog: EmailLogEntry = {
@@ -117,9 +146,7 @@ export async function sendTransactionalEmail(
     status: sentStatus,
     error: errorMsg,
   };
-
-  emailLogsBuffer.unshift(newLog);
-  if (emailLogsBuffer.length > 500) emailLogsBuffer.pop();
+  await upsertDoc<EmailLogEntry>("email-logs", newLog).catch((e) => console.error("[email] log persist failed", e));
 
   return { success: sentStatus !== "FAILED", logId };
 }

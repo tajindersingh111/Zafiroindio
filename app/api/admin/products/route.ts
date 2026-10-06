@@ -5,8 +5,9 @@ import type { Product } from "@/lib/db/types";
 import { v4 as uuidv4 } from "uuid";
 import { requireSuperAdmin } from "@/lib/auth/rbac";
 import { createAuditLog } from "@/lib/db/audit";
+import { guarded } from "@/lib/auth/guard";
 
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   const { searchParams } = new URL(request.url);
   const search = searchParams.get("search")?.toLowerCase() ?? "";
   const category = searchParams.get("category") ?? "";
@@ -15,7 +16,7 @@ export async function GET(request: Request) {
   const page = parseInt(searchParams.get("page") ?? "1");
   const pageSize = parseInt(searchParams.get("pageSize") ?? "20");
 
-  let products = readCollection<Product>("products") || [];
+  let products = await readCollection<Product>("products") || [];
 
   if (search) {
     products = products.filter(
@@ -36,10 +37,10 @@ export async function GET(request: Request) {
   return NextResponse.json({ products: paginated, total, page, pageSize, totalPages: Math.max(1, Math.ceil(total / pageSize)) });
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     const body = await request.json() as Partial<Product>;
-    const products = readCollection<Product>("products");
+    const products = await readCollection<Product>("products");
 
     if (body.sku && products.some((p) => p.sku === body.sku)) {
       return NextResponse.json({ error: "SKU already exists." }, { status: 400 });
@@ -84,7 +85,7 @@ export async function POST(request: Request) {
     };
 
     products.push(newProduct);
-    writeCollection("products", products);
+    await writeCollection("products", products);
 
     try {
       revalidatePath("/shop");
@@ -98,7 +99,7 @@ export async function POST(request: Request) {
   }
 }
 
-export async function DELETE(request: NextRequest) {
+async function handleDELETE(request: NextRequest) {
   // STRICT SUPER ADMIN CHECK
   const auth = await requireSuperAdmin(request);
   if (auth.error) return auth.error;
@@ -107,13 +108,13 @@ export async function DELETE(request: NextRequest) {
   const ids = searchParams.get("ids")?.split(",") ?? [];
   if (!ids.length) return NextResponse.json({ error: "No IDs provided." }, { status: 400 });
 
-  let products = readCollection<Product>("products");
+  let products = await readCollection<Product>("products");
   const previous = products.filter((p) => ids.includes(p.id));
   products = products.filter((p) => !ids.includes(p.id));
-  writeCollection("products", products);
+  await writeCollection("products", products);
 
   // AUDIT LOG
-  createAuditLog({
+  await createAuditLog({
     userId: auth.session?.userId,
     userName: auth.session?.email,
     userRole: auth.session?.role,
@@ -130,3 +131,7 @@ export async function DELETE(request: NextRequest) {
 
   return NextResponse.json({ success: true, deleted: ids.length });
 }
+
+export const GET = guarded(handleGET);
+export const POST = guarded(handlePOST);
+export const DELETE = guarded(handleDELETE);

@@ -3,8 +3,9 @@ import { readCollection, writeCollection } from "@/lib/db/store";
 import { requireSuperAdmin } from "@/lib/auth/rbac";
 import type { SecurityAlert } from "@/lib/db/anomalies";
 import { createAuditLog } from "@/lib/db/audit";
+import { guarded } from "@/lib/auth/guard";
 
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   const auth = await requireSuperAdmin(request);
   if (auth.error) return auth.error;
 
@@ -13,7 +14,7 @@ export async function GET(request: NextRequest) {
   const type = searchParams.get("type");
   const status = searchParams.get("status");
 
-  let alerts = readCollection<SecurityAlert>("security-alerts");
+  let alerts = await readCollection<SecurityAlert>("security-alerts");
 
   if (severity) alerts = alerts.filter((a) => a.severity.toLowerCase() === severity.toLowerCase());
   if (type) alerts = alerts.filter((a) => a.type.toLowerCase() === type.toLowerCase());
@@ -28,7 +29,7 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({ alerts, newCount, criticalCount });
 }
 
-export async function PATCH(request: NextRequest) {
+async function handlePATCH(request: NextRequest) {
   const auth = await requireSuperAdmin(request);
   if (auth.error) return auth.error;
 
@@ -38,7 +39,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "alertId and status are required." }, { status: 400 });
     }
 
-    const alerts = readCollection<SecurityAlert>("security-alerts");
+    const alerts = await readCollection<SecurityAlert>("security-alerts");
     const idx = alerts.findIndex((a) => a.id === body.alertId);
     if (idx < 0) return NextResponse.json({ error: "Alert not found." }, { status: 404 });
 
@@ -49,9 +50,9 @@ export async function PATCH(request: NextRequest) {
       alerts[idx].resolvedAt = new Date().toISOString();
     }
 
-    writeCollection("security-alerts", alerts);
+    await writeCollection("security-alerts", alerts);
 
-    createAuditLog({
+    await createAuditLog({
       userId: auth.session?.userId,
       userName: auth.session?.email,
       userRole: auth.session?.role,
@@ -69,3 +70,6 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 }
+
+export const GET = guarded(handleGET);
+export const PATCH = guarded(handlePATCH);

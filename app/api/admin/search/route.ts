@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { readCollection } from "@/lib/db/store";
 import type { Product, Order, Customer, Coupon } from "@/lib/db/types";
+import { guarded } from "@/lib/auth/guard";
 
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   const { searchParams } = new URL(request.url);
   const q = (searchParams.get("q") ?? "").trim().toLowerCase();
 
@@ -10,10 +11,10 @@ export async function GET(request: Request) {
     return NextResponse.json({ products: [], orders: [], customers: [], coupons: [] });
   }
 
-  const products = readCollection<Product>("products");
-  const orders = readCollection<Order>("orders");
-  const customers = readCollection<Customer>("customers");
-  const coupons = readCollection<Coupon>("coupons");
+  const products = await readCollection<Product>("products");
+  const orders = await readCollection<Order>("orders");
+  const customers = await readCollection<Customer>("customers");
+  const coupons = await readCollection<Coupon>("coupons");
 
   const matchingProducts = products.filter(
     (p) => p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q)
@@ -45,3 +46,5 @@ export async function GET(request: Request) {
     coupons: matchingCoupons.map((c) => ({ id: c.id, code: c.code, amount: c.amount, type: c.type })),
   });
 }
+
+export const GET = guarded(handleGET);

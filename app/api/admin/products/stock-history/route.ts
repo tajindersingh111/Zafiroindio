@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { readCollection } from "@/lib/db/store";
+import { guarded } from "@/lib/auth/guard";
 
 interface Activity {
   id: string;
@@ -11,11 +12,13 @@ interface Activity {
   createdAt: string;
 }
 
-export async function GET() {
-  const activities = readCollection<Activity>("activity-log");
+async function handleGET() {
+  const activities = await readCollection<Activity>("activity-log");
   const stockHistory = activities.filter(
     (a) => a.objectType === "Product" && a.action === "Update Stock"
   ).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   return NextResponse.json(stockHistory);
 }
+
+export const GET = guarded(handleGET);

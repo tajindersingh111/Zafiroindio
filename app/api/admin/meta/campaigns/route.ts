@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { readCollection, writeCollection, readSettings, writeSettings } from "@/lib/db/store";
+import { guarded } from "@/lib/auth/guard";
 
 interface MetaConfig {
   isConnected: boolean;
@@ -26,8 +27,8 @@ interface Campaign {
   endDate: string;
 }
 
-export async function GET(request: Request) {
-  const config = readSettings<MetaConfig>("meta-config");
+async function handleGET(request: Request) {
+  const config = await readSettings<MetaConfig>("meta-config");
   if (!config || !config.isConnected) {
     return NextResponse.json({ error: "Meta account not connected" }, { status: 401 });
   }
@@ -37,7 +38,7 @@ export async function GET(request: Request) {
   const status = searchParams.get("status") ?? "";
   const sort = searchParams.get("sort") ?? "";
 
-  const sandbox = readSettings<{ campaigns: Campaign[] }>("meta-sandbox");
+  const sandbox = await readSettings<{ campaigns: Campaign[] }>("meta-sandbox");
   let campaigns = sandbox?.campaigns ?? [];
 
   if (search) {
@@ -61,15 +62,15 @@ export async function GET(request: Request) {
   return NextResponse.json(campaigns);
 }
 
-export async function POST(request: Request) {
-  const config = readSettings<MetaConfig>("meta-config");
+async function handlePOST(request: Request) {
+  const config = await readSettings<MetaConfig>("meta-config");
   if (!config || !config.isConnected) {
     return NextResponse.json({ error: "Meta account not connected" }, { status: 401 });
   }
 
   try {
     const body = await request.json() as Partial<Campaign>;
-    const sandbox = readSettings<{ campaigns: Campaign[]; adsets: any[]; ads: any[]; audiences: any[]; events: any[] }>("meta-sandbox");
+    const sandbox = await readSettings<{ campaigns: Campaign[]; adsets: any[]; ads: any[]; audiences: any[]; events: any[] }>("meta-sandbox");
     if (!sandbox) return NextResponse.json({ error: "Internal sandbox error" }, { status: 500 });
 
     const newCampaign: Campaign = {
@@ -94,9 +95,12 @@ export async function POST(request: Request) {
     };
 
     sandbox.campaigns.push(newCampaign);
-    writeSettings("meta-sandbox", sandbox);
+    await writeSettings("meta-sandbox", sandbox);
     return NextResponse.json(newCampaign);
   } catch (error) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 }
+
+export const GET = guarded(handleGET);
+export const POST = guarded(handlePOST);

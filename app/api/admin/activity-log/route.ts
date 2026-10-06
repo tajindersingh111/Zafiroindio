@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { readCollection } from "@/lib/db/store";
 import { requireSuperAdmin } from "@/lib/auth/rbac";
 import type { AuditLogEntry } from "@/lib/db/audit";
+import { guarded } from "@/lib/auth/guard";
 
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   // STRICT SUPER ADMIN ACCESS RESTRICTION
   const auth = await requireSuperAdmin(request);
   if (auth.error) return auth.error;
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
   const page = parseInt(searchParams.get("page") || "1");
   const pageSize = parseInt(searchParams.get("pageSize") || "25");
 
-  let logs = readCollection<any>("activity-log");
+  let logs = await readCollection<any>("activity-log");
 
   // Map legacy logs if any
   let mappedLogs: AuditLogEntry[] = logs.map((l: any, idx: number) => ({
@@ -79,16 +80,20 @@ export async function GET(request: NextRequest) {
 }
 
 // IMMUTABLE AUDIT LOG PROTECTION: DISALLOW MANUAL DELETION OR MODIFICATION
-export async function DELETE() {
+async function handleDELETE() {
   return NextResponse.json(
     { error: "Forbidden. Audit logs are immutable system records and cannot be deleted." },
     { status: 403 }
   );
 }
 
-export async function PUT() {
+async function handlePUT() {
   return NextResponse.json(
     { error: "Forbidden. Audit logs are immutable system records and cannot be edited." },
     { status: 403 }
   );
 }
+
+export const GET = guarded(handleGET);
+export const DELETE = guarded(handleDELETE);
+export const PUT = guarded(handlePUT);

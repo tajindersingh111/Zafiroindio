@@ -1,99 +1,106 @@
-import { prisma } from "./db/prisma";
+import { readCollection } from "@/lib/db/store";
+import { getOrCreateVariantId } from "@/lib/shiprocket/variants";
+import type { Product } from "@/lib/db/types";
 
 export interface PricingInputItem {
-  productId: string;
+  productId: string; // product id or slug
   qty: number;
   size?: string;
   color?: string;
 }
 
-export interface PricingCalculationResult {
-  items: Array<{
-    productId: string;
-    name: string;
-    sku: string;
-    quantity: number;
-    price: number;
-    total: number;
-    size?: string;
-    color?: string;
-  }>;
-  subtotal: number;
-  discount: number;
-  couponCode?: string;
-  shippingFee: number;
-  tax: number;
+export interface PricedLine {
+  productId: string;
+  variationId?: string;
+  variantId: string; // numeric Shiprocket variant id
+  slug: string;
+  name: string;
+  sku: string;
+  image?: string;
+  quantity: number;
+  price: number; // unit price actually charged
+  mrp: number;
   total: number;
+  size?: string;
+  color?: string;
 }
 
-export async function calculateTrustedCartPricing(
-  inputItems: PricingInputItem[],
-  couponCode?: string
-): Promise<PricingCalculationResult> {
-  if (!Array.isArray(inputItems) || inputItems.length === 0) {
-    throw new Error("Cart items are required for price calculation.");
+export interface PricingResult {
+  items: PricedLine[];
+  subtotal: number;
+  savings: number;
+}
+
+export class CartError extends Error {
+  constructor(message: string, public status = 400) {
+    super(message);
+  }
+}
+
+const MAX_QTY = 20;
+
+/** Prices a cart from the DATABASE only. Client-supplied prices are never read. */
+export async function priceCart(inputItems: PricingInputItem[]): Promise<PricingResult> {
+  if (!Array.isArray(inputItems) || inputItems.length === 0) throw new CartError("Your cart is empty.");
+
+  const products = await readCollection<Product>("products");
+  const byKey = new Map<string, Product>();
+  for (const p of products) {
+    if (p.status && p.status !== "active") continue;
+    byKey.set(p.id, p);
+    byKey.set(p.slug, p);
   }
 
-  const slugs = inputItems.map((i) => i.productId);
-  const dbProducts = await prisma.product.findMany({
-    where: { OR: [{ slug: { in: slugs } }, { id: { in: slugs } }] },
-    select: { id: true, slug: true, name: true, price: true, stock: true, sku: true }
-  });
+  const lines: PricedLine[] = [];
+  for (const input of inputItems) {
+    const product = byKey.get(input.productId);
+    if (!product) throw new CartError(`"${input.productId}" is no longer available.`, 404);
 
-  const processedItems = inputItems.map((input) => {
-    const product = dbProducts.find((p) => p.slug === input.productId || p.id === input.productId);
-    if (!product) {
-      throw new Error(`Product not found for ID or slug: ${input.productId}`);
+    const quantity = Math.floor(Number(input.qty));
+    if (!Number.isFinite(quantity) || quantity < 1 || quantity > MAX_QTY) throw new CartError(`Quantity for ${product.name} must be between 1 and ${MAX_QTY}.`);
+
+    // Variable products: match the selected options to a variation.
+    let variationId: string | undefined;
+    let unitPrice = product.salePrice ?? product.price;
+    let mrp = product.mrp ?? product.price;
+    let sku = product.sku;
+    let available = product.stock;
+    let image = product.images?.[0];
+
+    if (product.variations?.length) {
+      const wanted = [input.size, input.color].filter(Boolean).map((v) => String(v).toLowerCase());
+      const variation = product.variations.find((v) => wanted.every((w) => v.attributes.some((a) => a.value.toLowerCase() === w))) ?? (wanted.length ? undefined : product.variations[0]);
+      if (!variation) throw new CartError(`Please choose a valid size/colour for ${product.name}.`);
+      variationId = variation.id;
+      unitPrice = variation.salePrice ?? variation.price;
+      mrp = variation.price;
+      sku = variation.sku || sku;
+      available = variation.stock;
+      image = variation.image ?? image;
     }
-    const quantity = Math.max(1, Math.floor(Number(input.qty || 1)));
-    const price = Number(product.price || 0);
-    const total = price * quantity;
-    const sku = product.sku || `ZI-${(product.slug || product.id).toUpperCase().slice(0, 8)}`;
 
-    return {
+    if (product.manageStock !== false && available < quantity) {
+      throw new CartError(available > 0 ? `Only ${available} of ${product.name} left in stock.` : `${product.name} is out of stock.`, 409);
+    }
+
+    lines.push({
       productId: product.id,
+      variationId,
+      variantId: await getOrCreateVariantId(product.id, variationId),
+      slug: product.slug,
       name: product.name,
       sku,
+      image,
       quantity,
-      price,
-      total,
+      price: unitPrice,
+      mrp: Math.max(mrp, unitPrice),
+      total: unitPrice * quantity,
       size: input.size,
-      color: input.color
-    };
-  });
-
-  const subtotal = Math.round(processedItems.reduce((acc, item) => acc + item.total, 0));
-
-  // Evaluate Coupon Discount
-  let discount = 0;
-  let validCoupon: string | undefined = undefined;
-
-  if (couponCode && couponCode.trim()) {
-    const cleanCoupon = couponCode.trim().toUpperCase();
-    if (cleanCoupon === "WELCOME10") {
-      discount = Math.round((subtotal * 10) / 100);
-      validCoupon = "WELCOME10";
-    } else if (cleanCoupon === "FESTIVE20") {
-      discount = Math.round((subtotal * 20) / 100);
-      validCoupon = "FESTIVE20";
-    } else if (cleanCoupon === "ZAFIRO15") {
-      discount = Math.round((subtotal * 15) / 100);
-      validCoupon = "ZAFIRO15";
-    }
+      color: input.color,
+    });
   }
 
-  // Evaluate Free Shipping Above ₹999
-  const shippingFee = subtotal >= 999 || subtotal === 0 ? 0 : 99;
-  const tax = 0; // Tax inclusive in price
-  const total = Math.max(0, subtotal - discount + shippingFee + tax);
-
-  return {
-    items: processedItems,
-    subtotal,
-    discount,
-    couponCode: validCoupon,
-    shippingFee,
-    tax,
-    total
-  };
+  const subtotal = lines.reduce((s, l) => s + l.total, 0);
+  const savings = lines.reduce((s, l) => s + (l.mrp - l.price) * l.quantity, 0);
+  return { items: lines, subtotal, savings };
 }

@@ -1,10 +1,13 @@
 import { createAuditLog } from "@/lib/db/audit";
 import { isSuperAdmin } from "@/lib/auth/rbac";
+import { upsertDoc, getDoc, deleteDoc } from "@/lib/db/store";
+
+export type RecycleModule = "products" | "banners" | "categories" | "coupons" | "users" | "content";
 
 export interface RecycleItem {
   id: string;
   originalId: string;
-  module: "products" | "banners" | "categories" | "coupons" | "users" | "content";
+  module: RecycleModule;
   recordName: string;
   deletedBy: string;
   deletedByRole: string;
@@ -13,19 +16,27 @@ export interface RecycleItem {
   reason?: string;
 }
 
-const recycleBinBuffer: RecycleItem[] = [];
+/** Collection each recycle module is restored into. */
+const MODULE_COLLECTION: Record<RecycleModule, string> = {
+  products: "products",
+  banners: "banners",
+  categories: "categories",
+  coupons: "coupons",
+  users: "admin-users",
+  content: "content"
+};
 
-export function moveToRecycleBin(params: {
-  module: "products" | "banners" | "categories" | "coupons" | "users" | "content";
+export async function moveToRecycleBin(params: {
+  module: RecycleModule;
   originalId: string;
   recordName: string;
   data: any;
   deletedBy: string;
   deletedByRole: string;
   reason?: string;
-}): RecycleItem {
+}): Promise<RecycleItem> {
   const newTrashItem: RecycleItem = {
-    id: `trash-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`,
+    id: `trash-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
     originalId: params.originalId,
     module: params.module,
     recordName: params.recordName || params.originalId,
@@ -36,10 +47,9 @@ export function moveToRecycleBin(params: {
     reason: params.reason || "Soft deleted by user"
   };
 
-  recycleBinBuffer.unshift(newTrashItem);
-  if (recycleBinBuffer.length > 500) recycleBinBuffer.pop();
+  await upsertDoc("recycle-bin", newTrashItem);
 
-  createAuditLog({
+  await createAuditLog({
     userId: params.deletedBy,
     userName: params.deletedBy,
     userRole: params.deletedByRole,
@@ -55,18 +65,24 @@ export function moveToRecycleBin(params: {
   return newTrashItem;
 }
 
-export function restoreFromRecycleBin(trashId: string, superAdminUser: { id?: string; email?: string; role?: string }) {
+type Actor = { id?: string; email?: string; role?: string };
+
+export async function restoreFromRecycleBin(trashId: string, superAdminUser: Actor) {
   if (!isSuperAdmin(superAdminUser.role || "")) {
-    return { success: false, error: "Only Super Admin can restore deleted items." };
+    return { success: false as const, error: "Only Super Admin can restore deleted items." };
   }
 
-  const targetIdx = recycleBinBuffer.findIndex((t) => t.id === trashId);
-  if (targetIdx < 0) return { success: false, error: "Recycle bin item not found." };
+  const item = await getDoc<RecycleItem>("recycle-bin", trashId);
+  if (!item) return { success: false as const, error: "Recycle bin item not found." };
 
-  const item = recycleBinBuffer[targetIdx];
-  recycleBinBuffer.splice(targetIdx, 1);
+  // Actually put the record back (the old implementation only deleted the bin entry).
+  const target = MODULE_COLLECTION[item.module];
+  if (item.data && typeof item.data === "object" && (item.data as { id?: string }).id) {
+    await upsertDoc(target, item.data as { id: string });
+  }
+  await deleteDoc("recycle-bin", trashId);
 
-  createAuditLog({
+  await createAuditLog({
     userId: superAdminUser.id,
     userName: superAdminUser.email,
     userRole: superAdminUser.role,
@@ -79,21 +95,19 @@ export function restoreFromRecycleBin(trashId: string, superAdminUser: { id?: st
     riskLevel: "HIGH"
   });
 
-  return { success: true, message: `${item.recordName} restored successfully.` };
+  return { success: true as const, message: `${item.recordName} restored successfully.` };
 }
 
-export function permanentlyDeleteFromRecycleBin(trashId: string, superAdminUser: { id?: string; email?: string; role?: string }) {
+export async function permanentlyDeleteFromRecycleBin(trashId: string, superAdminUser: Actor) {
   if (!isSuperAdmin(superAdminUser.role || "")) {
-    return { success: false, error: "Only Super Admin can permanently delete items." };
+    return { success: false as const, error: "Only Super Admin can permanently delete items." };
   }
 
-  const idx = recycleBinBuffer.findIndex((t) => t.id === trashId);
-  if (idx < 0) return { success: false, error: "Recycle bin item not found." };
+  const target = await getDoc<RecycleItem>("recycle-bin", trashId);
+  if (!target) return { success: false as const, error: "Recycle bin item not found." };
+  await deleteDoc("recycle-bin", trashId);
 
-  const target = recycleBinBuffer[idx];
-  recycleBinBuffer.splice(idx, 1);
-
-  createAuditLog({
+  await createAuditLog({
     userId: superAdminUser.id,
     userName: superAdminUser.email,
     userRole: superAdminUser.role,
@@ -106,5 +120,5 @@ export function permanentlyDeleteFromRecycleBin(trashId: string, superAdminUser:
     riskLevel: "CRITICAL"
   });
 
-  return { success: true, message: `${target.recordName} permanently deleted.` };
+  return { success: true as const, message: `${target.recordName} permanently deleted.` };
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { readCollection } from "@/lib/db/store";
 import type { Order, Product, Customer, Coupon } from "@/lib/db/types";
+import { guarded } from "@/lib/auth/guard";
 
 interface ReturnRequest {
   id: string;
@@ -26,13 +27,13 @@ interface AbandonedCart {
 
 function parseDate(d: string) { return new Date(d); }
 
-export async function GET() {
-  const allOrders = readCollection<Order>("orders");
-  const products = readCollection<Product>("products");
-  const customers = readCollection<Customer>("customers");
-  const coupons = readCollection<Coupon>("coupons");
-  const returns = readCollection<ReturnRequest>("returns");
-  const abandonedCarts = readCollection<AbandonedCart>("abandoned-carts");
+async function handleGET() {
+  const allOrders = await readCollection<Order>("orders");
+  const products = await readCollection<Product>("products");
+  const customers = await readCollection<Customer>("customers");
+  const coupons = await readCollection<Coupon>("coupons");
+  const returns = await readCollection<ReturnRequest>("returns");
+  const abandonedCarts = await readCollection<AbandonedCart>("abandoned-carts");
 
   const paidOrders = allOrders.filter((o) => o.paymentStatus === "paid" || o.paymentStatus === "partially_paid");
 
@@ -261,3 +262,5 @@ export async function GET() {
     }
   });
 }
+
+export const GET = guarded(handleGET);

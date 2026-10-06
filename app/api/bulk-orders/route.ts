@@ -1,5 +1,10 @@
-import { NextResponse } from "next/server";
-import { readCollection, writeCollection } from "@/lib/db/store";
+import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth/guard";
+import { deleteDoc, readCollection, updateDoc, upsertDoc } from "@/lib/db/store";
+import { rateLimit } from "@/lib/security/rate-limit";
+import { createAuditLog } from "@/lib/db/audit";
+
+export const dynamic = "force-dynamic";
 
 export type BulkOrderInquiry = {
   id: string;
@@ -15,144 +20,75 @@ export type BulkOrderInquiry = {
   adminNotes?: string;
 };
 
-const COLLECTION_NAME = "bulk_orders";
+const COLLECTION = "bulk_orders";
+const STATUSES: BulkOrderInquiry["status"][] = ["PENDING", "CONTACTED", "QUOTED", "COMPLETED", "REJECTED"];
+const EMAIL_RE = /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{2,}$/;
+const clean = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 
-// Initial seed if empty
-const seedInquiries: BulkOrderInquiry[] = [
-  {
-    id: "bulk-1727800001",
-    name: "Rajesh Oberoi",
-    email: "rajesh@oberoihotels.com",
-    phone: "+91 98110 43210",
-    category: "Bedsheets & Sheet Sets",
-    quantity: "100 - 500 Pcs",
-    businessName: "Oberoi Heritage Resort",
-    notes: "Requires 300 Thread Count White Percale Cotton Single & Double Sets with custom block border print.",
-    status: "CONTACTED",
-    createdAt: new Date(Date.now() - 3600000 * 24 * 2).toISOString(),
-    adminNotes: "Sent initial catalog & price list PDF via WhatsApp."
-  },
-  {
-    id: "bulk-1727800002",
-    name: "Pooja Malhotra",
-    email: "pooja@malhotragifts.in",
-    phone: "+91 98712 34567",
-    category: "Pillow & Cushion Covers",
-    quantity: "500+ Pcs",
-    businessName: "Malhotra Corporate Gifts",
-    notes: "Festive corporate Diwali gifting boxes with custom luxury ribbon packaging.",
-    status: "QUOTED",
-    createdAt: new Date(Date.now() - 3600000 * 12).toISOString(),
-    adminNotes: "Quoted ₹450 per unit for 650 sets."
-  }
-];
-
-function getInquiries(): BulkOrderInquiry[] {
-  let list = readCollection<BulkOrderInquiry>(COLLECTION_NAME);
-  if (!list || list.length === 0) {
-    writeCollection(COLLECTION_NAME, seedInquiries);
-    return seedInquiries;
-  }
-  return list;
+// Staff only: inquiries contain names, phone numbers and e-mails.
+export async function GET(request: NextRequest) {
+  const auth = await requireAdmin(request, "b2b");
+  if (auth.error) return auth.error;
+  const list = await readCollection<BulkOrderInquiry>(COLLECTION);
+  return NextResponse.json({ success: true, inquiries: [...list].sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)) });
 }
 
-// GET /api/bulk-orders
-export async function GET() {
+// Public inquiry form.
+export async function POST(req: NextRequest) {
+  const limited = await rateLimit(req, "bulk-inquiry", { windowMs: 60 * 60_000, maxRequests: 5 });
+  if (limited) return limited;
+
   try {
-    const list = getInquiries();
-    // Sort latest first
-    const sorted = [...list].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    return NextResponse.json({ success: true, inquiries: sorted });
-  } catch (error) {
-    return NextResponse.json({ error: "Failed to fetch bulk order inquiries" }, { status: 500 });
-  }
-}
+    const body = (await req.json()) as Record<string, unknown>;
+    const name = clean(body.name, 100);
+    const phone = clean(body.phone, 20);
+    const email = clean(body.email, 254).toLowerCase();
+    if (!name || phone.replace(/\D/g, "").length < 10) return NextResponse.json({ error: "Name and a valid phone number are required." }, { status: 400 });
+    if (email && !EMAIL_RE.test(email)) return NextResponse.json({ error: "Please enter a valid e-mail address." }, { status: 400 });
 
-// POST /api/bulk-orders (Public submission from modal/page)
-export async function POST(req: Request) {
-  try {
-    const body = await req.json();
-    const { name, email, phone, category, quantity, businessName, notes } = body;
-
-    if (!name || !phone) {
-      return NextResponse.json({ error: "Name and Phone number are required." }, { status: 400 });
-    }
-
-    const newInquiry: BulkOrderInquiry = {
-      id: `bulk-${Date.now()}`,
-      name: name.trim(),
-      email: (email || "").trim(),
-      phone: phone.trim(),
-      category: category || "General Wholesale",
-      quantity: quantity || "25-50 Pcs",
-      businessName: (businessName || "").trim(),
-      notes: (notes || "").trim(),
+    const inquiry: BulkOrderInquiry = {
+      id: `bulk-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      name,
+      email,
+      phone,
+      category: clean(body.category, 80) || "General Wholesale",
+      quantity: clean(body.quantity, 40) || "25-50 Pcs",
+      businessName: clean(body.businessName, 120),
+      notes: clean(body.notes, 1500),
       status: "PENDING",
       createdAt: new Date().toISOString(),
     };
-
-    const currentList = getInquiries();
-    const updatedList = [newInquiry, ...currentList];
-    writeCollection(COLLECTION_NAME, updatedList);
-
-    return NextResponse.json({
-      success: true,
-      message: "Bulk order inquiry submitted successfully.",
-      inquiry: newInquiry
-    });
-  } catch (error) {
+    await upsertDoc(COLLECTION, inquiry);
+    return NextResponse.json({ success: true, message: "Bulk order inquiry submitted successfully." });
+  } catch {
     return NextResponse.json({ error: "Internal server error while saving inquiry." }, { status: 500 });
   }
 }
 
-// PATCH /api/bulk-orders (Admin update status or notes)
-export async function PATCH(req: Request) {
-  try {
-    const body = await req.json();
-    const { id, status, adminNotes } = body;
+export async function PATCH(req: NextRequest) {
+  const auth = await requireAdmin(req, "b2b");
+  if (auth.error) return auth.error;
 
-    if (!id) {
-      return NextResponse.json({ error: "Inquiry ID is required" }, { status: 400 });
-    }
+  const body = (await req.json().catch(() => ({}))) as { id?: string; status?: string; adminNotes?: string };
+  if (!body.id) return NextResponse.json({ error: "Inquiry ID is required" }, { status: 400 });
+  if (body.status && !STATUSES.includes(body.status as BulkOrderInquiry["status"])) return NextResponse.json({ error: "Invalid status." }, { status: 400 });
 
-    const currentList = getInquiries();
-    const index = currentList.findIndex((item) => item.id === id);
-
-    if (index === -1) {
-      return NextResponse.json({ error: "Inquiry not found" }, { status: 404 });
-    }
-
-    if (status) currentList[index].status = status;
-    if (adminNotes !== undefined) currentList[index].adminNotes = adminNotes;
-
-    writeCollection(COLLECTION_NAME, currentList);
-
-    return NextResponse.json({
-      success: true,
-      message: "Inquiry updated successfully.",
-      inquiry: currentList[index]
-    });
-  } catch (error) {
-    return NextResponse.json({ error: "Failed to update inquiry." }, { status: 500 });
-  }
+  const { found, result } = await updateDoc<BulkOrderInquiry, BulkOrderInquiry>(COLLECTION, body.id, (item) => {
+    const updated = { ...item };
+    if (body.status) updated.status = body.status as BulkOrderInquiry["status"];
+    if (body.adminNotes !== undefined) updated.adminNotes = clean(body.adminNotes, 2000);
+    return { doc: updated, result: updated };
+  });
+  if (!found) return NextResponse.json({ error: "Inquiry not found" }, { status: 404 });
+  return NextResponse.json({ success: true, message: "Inquiry updated successfully.", inquiry: result });
 }
 
-// DELETE /api/bulk-orders (Admin delete inquiry)
-export async function DELETE(req: Request) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get("id");
-
-    if (!id) {
-      return NextResponse.json({ error: "Inquiry ID is required" }, { status: 400 });
-    }
-
-    const currentList = getInquiries();
-    const updatedList = currentList.filter((item) => item.id !== id);
-    writeCollection(COLLECTION_NAME, updatedList);
-
-    return NextResponse.json({ success: true, message: "Inquiry deleted successfully." });
-  } catch (error) {
-    return NextResponse.json({ error: "Failed to delete inquiry." }, { status: 500 });
-  }
+export async function DELETE(req: NextRequest) {
+  const auth = await requireAdmin(req, "b2b");
+  if (auth.error) return auth.error;
+  const id = new URL(req.url).searchParams.get("id");
+  if (!id) return NextResponse.json({ error: "Inquiry ID is required" }, { status: 400 });
+  const removed = await deleteDoc(COLLECTION, id);
+  if (removed) await createAuditLog({ userId: auth.session.userId, userName: auth.session.email, userRole: auth.session.role, action: "DELETE_BULK_INQUIRY", module: "customers", recordId: id, riskLevel: "MEDIUM" });
+  return NextResponse.json({ success: removed, message: removed ? "Inquiry deleted successfully." : "Inquiry not found." }, { status: removed ? 200 : 404 });
 }

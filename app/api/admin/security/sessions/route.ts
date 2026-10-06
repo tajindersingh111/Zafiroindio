@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { readCollection } from "@/lib/db/store";
 import { requireSuperAdmin } from "@/lib/auth/rbac";
 import { terminateSession, terminateAllUserSessions, ActiveSession } from "@/lib/auth/session-manager";
+import { guarded } from "@/lib/auth/guard";
 
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   const auth = await requireSuperAdmin(request);
   if (auth.error) return auth.error;
 
-  const sessions = readCollection<ActiveSession>("active-sessions");
+  const sessions = await readCollection<ActiveSession>("active-sessions");
   const activeOnly = sessions.filter((s) => s.status === "active");
 
   return NextResponse.json({
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest) {
   });
 }
 
-export async function DELETE(request: NextRequest) {
+async function handleDELETE(request: NextRequest) {
   const auth = await requireSuperAdmin(request);
   if (auth.error) return auth.error;
 
@@ -26,7 +27,7 @@ export async function DELETE(request: NextRequest) {
   const userId = searchParams.get("userId");
 
   if (sessionId) {
-    const success = terminateSession(sessionId, {
+    const success = await terminateSession(sessionId, {
       id: auth.session?.userId,
       email: auth.session?.email,
       role: auth.session?.role
@@ -36,7 +37,7 @@ export async function DELETE(request: NextRequest) {
   }
 
   if (userId) {
-    const success = terminateAllUserSessions(userId, {
+    const success = await terminateAllUserSessions(userId, {
       id: auth.session?.userId,
       email: auth.session?.email,
       role: auth.session?.role
@@ -46,3 +47,6 @@ export async function DELETE(request: NextRequest) {
 
   return NextResponse.json({ error: "sessionId or userId required." }, { status: 400 });
 }
+
+export const GET = guarded(handleGET);
+export const DELETE = guarded(handleDELETE);

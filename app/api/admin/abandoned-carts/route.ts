@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { readCollection, writeCollection } from "@/lib/db/store";
+import { guarded } from "@/lib/auth/guard";
 
 interface AbandonedCart {
   id: string;
@@ -12,8 +13,8 @@ interface AbandonedCart {
   createdAt: string;
 }
 
-export async function GET() {
-  const carts = readCollection<AbandonedCart>("abandoned-carts");
+async function handleGET() {
+  const carts = await readCollection<AbandonedCart>("abandoned-carts");
   const totalCarts = carts.length;
   const abandonedVal = carts.reduce((s, c) => s + c.cartValue, 0);
   const recovered = carts.filter((c) => c.status === "recovered");
@@ -33,10 +34,10 @@ export async function GET() {
   });
 }
 
-export async function PATCH(request: Request) {
+async function handlePATCH(request: Request) {
   try {
     const { id, status, reminderSent } = await request.json() as Partial<AbandonedCart>;
-    const carts = readCollection<AbandonedCart>("abandoned-carts");
+    const carts = await readCollection<AbandonedCart>("abandoned-carts");
     const idx = carts.findIndex((c) => c.id === id);
     if (idx < 0) return NextResponse.json({ error: "Cart not found" }, { status: 404 });
 
@@ -45,9 +46,12 @@ export async function PATCH(request: Request) {
       ...(status !== undefined && { status }),
       ...(reminderSent !== undefined && { reminderSent })
     };
-    writeCollection("abandoned-carts", carts);
+    await writeCollection("abandoned-carts", carts);
     return NextResponse.json(carts[idx]);
   } catch (error) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 }
+
+export const GET = guarded(handleGET);
+export const PATCH = guarded(handlePATCH);

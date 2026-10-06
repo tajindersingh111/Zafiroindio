@@ -2,13 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Leaf, Sparkles, RotateCcw, ShieldCheck, HeartHandshake } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
-import { getStorefrontProducts, getStorefrontBanners, getStorefrontCollections } from "@/lib/data";
+import { getCatalogProducts, getCatalogBanners, getCatalogCollections } from "@/lib/storefront/catalog";
+import HeroDepth from "@/components/site/HeroDepth";
+import Carousel3D from "@/components/site/Carousel3D";
 import SmartRecommendations from "@/components/site/SmartRecommendations";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const BASE_URL = "https://zafiroindio.com";
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://zafiroindio.com";
 
 export const metadata: Metadata = {
   title: "Zafiro Indio | Handblock Cotton Bedsheets from Jaipur",
@@ -86,10 +88,8 @@ const websiteJsonLd = {
   },
 };
 
-export default function Home() {
-  const products = getStorefrontProducts();
-  const banners = getStorefrontBanners();
-  const collectionsList = getStorefrontCollections();
+export default async function Home() {
+  const [products, banners, collectionsList] = await Promise.all([getCatalogProducts(), getCatalogBanners(), getCatalogCollections()]);
   const heroBanner = banners[0] || {
     title: "Make Your Bedroom Feel Like Sanctuary.",
     subtitle: "Handcrafted 100% pure cotton bedsheets designed for everyday comfort and timeless Indian heritage.",
@@ -112,7 +112,7 @@ export default function Home() {
       />
     <main>
       {/* ── 1. HERO SECTION ──────────────────────────────────── */}
-      <section className="hero">
+      <HeroDepth>
         <img
           src={heroBanner.image}
           alt={heroBanner.title}
@@ -135,7 +135,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </section>
+      </HeroDepth>
 
       {/* ── 2. VALUE PROPOSITION BAR ─────────────────────────── */}
       <div className="valuebar">
@@ -168,6 +168,16 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {products.length >= 3 && (
+        <section className="section c3d-section">
+          <div className="container" style={{ textAlign: "center" }}>
+            <p className="eyebrow">Drag to explore</p>
+            <h2 className="serif" style={{ fontSize: "clamp(30px,4.5vw,48px)", margin: "10px 0 0" }}>The Zafiro Atelier</h2>
+          </div>
+          <Carousel3D products={products} />
+        </section>
+      )}
 
       {/* ── 3. SHOP BY COLLECTION ────────────────────────────── */}
       <section className="section" style={{ background: "var(--paper)" }}>

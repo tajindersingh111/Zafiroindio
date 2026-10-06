@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { readCollection, writeCollection } from "@/lib/db/store";
 import { collections as defaultCollections } from "@/lib/data";
+import { guarded } from "@/lib/auth/guard";
 
 export type CollectionItem = {
   id?: string;
@@ -13,8 +14,8 @@ export type CollectionItem = {
 
 const COLLECTION_NAME = "collections";
 
-function getCollections(): CollectionItem[] {
-  let list = readCollection<CollectionItem>(COLLECTION_NAME);
+async function getCollections(): Promise<CollectionItem[]> {
+  let list = await readCollection<CollectionItem>(COLLECTION_NAME);
   if (!list || list.length === 0) {
     list = defaultCollections.map((c, idx) => ({
       id: `col-${idx + 1}`,
@@ -23,15 +24,15 @@ function getCollections(): CollectionItem[] {
       desc: c.desc,
       image: c.image,
     }));
-    writeCollection(COLLECTION_NAME, list);
+    await writeCollection(COLLECTION_NAME, list);
   }
   return list;
 }
 
 // GET /api/admin/collections
-export async function GET() {
+async function handleGET() {
   try {
-    const list = getCollections();
+    const list = await getCollections();
     return NextResponse.json({ success: true, collections: list });
   } catch (error) {
     return NextResponse.json({ error: "Failed to fetch collections" }, { status: 500 });
@@ -39,7 +40,7 @@ export async function GET() {
 }
 
 // POST /api/admin/collections (Create collection)
-export async function POST(req: Request) {
+async function handlePOST(req: Request) {
   try {
     const body = await req.json();
     const { name, desc, image, bannerImage } = body;
@@ -59,14 +60,14 @@ export async function POST(req: Request) {
       bannerImage: bannerImage || ""
     };
 
-    const currentList = getCollections();
+    const currentList = await getCollections();
     const exists = currentList.find((c) => c.slug === slug);
     if (exists) {
       return NextResponse.json({ error: "Collection with this slug already exists." }, { status: 400 });
     }
 
     const updated = [newCol, ...currentList];
-    writeCollection(COLLECTION_NAME, updated);
+    await writeCollection(COLLECTION_NAME, updated);
 
     return NextResponse.json({ success: true, message: "Collection created successfully.", collection: newCol });
   } catch (error) {
@@ -75,7 +76,7 @@ export async function POST(req: Request) {
 }
 
 // PUT /api/admin/collections (Update collection)
-export async function PUT(req: Request) {
+async function handlePUT(req: Request) {
   try {
     const body = await req.json();
     const { id, name, slug, desc, image, bannerImage } = body;
@@ -84,7 +85,7 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "Collection ID is required." }, { status: 400 });
     }
 
-    const currentList = getCollections();
+    const currentList = await getCollections();
     const idx = currentList.findIndex((c) => c.id === id || c.slug === id);
     if (idx === -1) {
       return NextResponse.json({ error: "Collection not found." }, { status: 404 });
@@ -96,7 +97,7 @@ export async function PUT(req: Request) {
     if (image !== undefined) currentList[idx].image = image;
     if (bannerImage !== undefined) currentList[idx].bannerImage = bannerImage;
 
-    writeCollection(COLLECTION_NAME, currentList);
+    await writeCollection(COLLECTION_NAME, currentList);
 
     return NextResponse.json({ success: true, message: "Collection updated.", collection: currentList[idx] });
   } catch (error) {
@@ -105,7 +106,7 @@ export async function PUT(req: Request) {
 }
 
 // DELETE /api/admin/collections (Delete collection)
-export async function DELETE(req: Request) {
+async function handleDELETE(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id") || searchParams.get("slug");
@@ -114,12 +115,17 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: "Collection ID or slug is required." }, { status: 400 });
     }
 
-    const currentList = getCollections();
+    const currentList = await getCollections();
     const updated = currentList.filter((c) => c.id !== id && c.slug !== id);
-    writeCollection(COLLECTION_NAME, updated);
+    await writeCollection(COLLECTION_NAME, updated);
 
     return NextResponse.json({ success: true, message: "Collection deleted." });
   } catch (error) {
     return NextResponse.json({ error: "Failed to delete collection." }, { status: 500 });
   }
 }
+
+export const GET = guarded(handleGET);
+export const POST = guarded(handlePOST);
+export const PUT = guarded(handlePUT);
+export const DELETE = guarded(handleDELETE);

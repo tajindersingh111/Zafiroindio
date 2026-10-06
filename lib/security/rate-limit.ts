@@ -1,86 +1,67 @@
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/db/prisma";
+import { getClientIp } from "@/lib/security/client-ip";
 
-interface RateLimitConfig {
+export interface RateLimitConfig {
   windowMs: number;
   maxRequests: number;
 }
 
-interface MemoryStoreEntry {
-  count: number;
-  resetTime: number;
+export interface RateLimitResult {
+  success: boolean;
+  limit: number;
+  remaining: number;
+  /** Unix seconds when the window resets. */
+  reset: number;
 }
 
-const memoryStore = new Map<string, MemoryStoreEntry>();
-
-if (typeof setInterval !== "undefined") {
-  const timer = setInterval(() => {
-    const now = Date.now();
-    for (const [key, entry] of memoryStore.entries()) {
-      if (now > entry.resetTime) {
-        memoryStore.delete(key);
-      }
-    }
-  }, 60000);
-  if (timer.unref) timer.unref();
-}
-
+/**
+ * Fixed-window rate limiter backed by Postgres, so the limit is shared by every server instance
+ * (the old in-memory Map was per-process and useless on serverless / multi-instance hosting).
+ */
 export async function checkRateLimit(
   identifier: string,
-  config: RateLimitConfig = { windowMs: 60000, maxRequests: 10 }
-): Promise<{ success: boolean; limit: number; remaining: number; reset: number }> {
-  const redisUrl = process.env.REDIS_URL;
-
-  if (redisUrl) {
-    try {
-      // In production environments with REDIS_URL configured,
-      // Redis sliding window rate limiting is evaluated here.
-    } catch {
-      // Graceful fallback to memory store
-    }
-  }
-
-  const now = Date.now();
-  const entry = memoryStore.get(identifier);
-
-  if (!entry || now > entry.resetTime) {
-    const resetTime = now + config.windowMs;
-    memoryStore.set(identifier, { count: 1, resetTime });
+  config: RateLimitConfig = { windowMs: 60_000, maxRequests: 10 }
+): Promise<RateLimitResult> {
+  const windowSeconds = Math.max(1, Math.ceil(config.windowMs / 1000));
+  try {
+    const rows = await prisma.$queryRaw<{ count: number; reset: Date }[]>`
+      INSERT INTO rate_limits ("key", "count", "resetAt")
+      VALUES (${identifier}, 1, now() + (${windowSeconds}::int * interval '1 second'))
+      ON CONFLICT ("key") DO UPDATE SET
+        "count"   = CASE WHEN rate_limits."resetAt" <= now() THEN 1 ELSE rate_limits."count" + 1 END,
+        "resetAt" = CASE WHEN rate_limits."resetAt" <= now()
+                         THEN now() + (${windowSeconds}::int * interval '1 second')
+                         ELSE rate_limits."resetAt" END
+      RETURNING "count", "resetAt" AS reset`;
+    const { count, reset } = rows[0];
     return {
-      success: true,
+      success: count <= config.maxRequests,
       limit: config.maxRequests,
-      remaining: config.maxRequests - 1,
-      reset: Math.ceil(resetTime / 1000)
+      remaining: Math.max(0, config.maxRequests - count),
+      reset: Math.ceil(new Date(reset).getTime() / 1000),
     };
+  } catch (error) {
+    // Never take the shop down because the limiter table is unavailable.
+    console.error("Rate limiter unavailable, allowing request:", error);
+    return { success: true, limit: config.maxRequests, remaining: config.maxRequests, reset: Math.ceil((Date.now() + config.windowMs) / 1000) };
   }
-
-  if (entry.count >= config.maxRequests) {
-    return {
-      success: false,
-      limit: config.maxRequests,
-      remaining: 0,
-      reset: Math.ceil(entry.resetTime / 1000)
-    };
-  }
-
-  entry.count += 1;
-  memoryStore.set(identifier, entry);
-
-  return {
-    success: true,
-    limit: config.maxRequests,
-    remaining: config.maxRequests - entry.count,
-    reset: Math.ceil(entry.resetTime / 1000)
-  };
 }
 
 export function rateLimitResponse(reset: number): NextResponse {
   return NextResponse.json(
     { error: "Too many requests. Please try again later." },
-    {
-      status: 429,
-      headers: {
-        "Retry-After": String(Math.max(1, reset - Math.floor(Date.now() / 1000)))
-      }
-    }
+    { status: 429, headers: { "Retry-After": String(Math.max(1, reset - Math.floor(Date.now() / 1000))) } }
   );
+}
+
+/** Convenience: returns a 429 response when the caller is over the limit, otherwise null. */
+export async function rateLimit(
+  request: Request,
+  bucket: string,
+  config: RateLimitConfig,
+  extraKey = ""
+): Promise<NextResponse | null> {
+  const result = await checkRateLimit(`${bucket}:${getClientIp(request)}${extraKey ? ":" + extraKey : ""}`, config);
+  return result.success ? null : rateLimitResponse(result.reset);
 }
