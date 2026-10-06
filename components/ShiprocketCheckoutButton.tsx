@@ -26,6 +26,7 @@ function loadSdk(): Promise<void> {
     s.async = true;
     s.onload = () => ((window as any).HeadlessCheckout ? resolve() : reject(new Error("Checkout SDK loaded but HeadlessCheckout is missing.")));
     s.onerror = () => {
+      console.error("[checkout] failed to load SDK from", SDK_URL, "- check the URL in your Shiprocket dashboard and the browser Network/Console tab.");
       sdkPromise = null;
       reject(new Error("Could not load the secure checkout. Please check your connection and try again."));
     };
