@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { readCollection } from "@/lib/db/store";
 import type { Customer, Order } from "@/lib/db/types";
+import { guarded } from "@/lib/auth/guard";
 
 interface AbandonedCart {
   id: string;
@@ -14,10 +15,10 @@ function parseDate(d?: string | null): Date {
   return isNaN(parsed.getTime()) ? new Date(0) : parsed;
 }
 
-export async function GET() {
-  const customers = readCollection<Customer>("customers");
-  const orders = readCollection<Order>("orders");
-  const carts = readCollection<AbandonedCart>("abandoned-carts");
+async function handleGET() {
+  const customers = await readCollection<Customer>("customers");
+  const orders = await readCollection<Order>("orders");
+  const carts = await readCollection<AbandonedCart>("abandoned-carts");
 
   const now = new Date();
   const thirtyDaysAgo = new Date();
@@ -66,3 +67,5 @@ export async function GET() {
     abandoners: formatSegment("Cart Abandoners", abandoners)
   });
 }
+
+export const GET = guarded(handleGET);

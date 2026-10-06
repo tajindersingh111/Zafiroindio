@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession, unauthorizedResponse, forbiddenResponse, isSuperAdmin } from "@/lib/auth/rbac";
 import { createAuditLog } from "@/lib/db/audit";
 import { readCollection, writeCollection } from "@/lib/db/store";
+import { guarded } from "@/lib/auth/guard";
+import { canAccessSection, type Section } from "@/lib/auth/access";
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   const session = await getAuthSession(request);
   if (!session) return unauthorizedResponse();
 
@@ -16,12 +18,17 @@ export async function POST(request: NextRequest) {
       return forbiddenResponse("Audit Log export is exclusively restricted to Super Admin.");
     }
 
-    if (exportType === "customers" && session.role === "staff") {
-      return forbiddenResponse("Staff role does not have permission to export customer databases.");
+    const needed: Record<string, Section> = { customers: "customers", orders: "orders", products: "inventory", inventory: "inventory" };
+    const section = needed[exportType];
+    if (!section && exportType !== "audit_logs") {
+      return NextResponse.json({ error: "Unknown export type." }, { status: 400 });
+    }
+    if (section && !canAccessSection(session.role, session.allowedSections, section)) {
+      return forbiddenResponse("Your role does not have permission to export this data.");
     }
 
     // Log Export Audit Trail
-    createAuditLog({
+    await createAuditLog({
       userId: session.userId,
       userName: session.email,
       userRole: session.role,
@@ -33,7 +40,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Record export log
-    const exportLogs = readCollection<any>("export-logs");
+    const exportLogs = await readCollection<any>("export-logs");
     exportLogs.unshift({
       id: `exp-${Date.now()}`,
       userId: session.userId,
@@ -42,10 +49,12 @@ export async function POST(request: NextRequest) {
       exportType,
       timestamp: new Date().toISOString()
     });
-    writeCollection("export-logs", exportLogs.slice(0, 300));
+    await writeCollection("export-logs", exportLogs.slice(0, 300));
 
     return NextResponse.json({ success: true, message: `Export authorized for ${exportType}.` });
   } catch (err) {
     return NextResponse.json({ error: "Export authorization failed." }, { status: 500 });
   }
 }
+
+export const POST = guarded(handlePOST);

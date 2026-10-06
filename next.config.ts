@@ -16,17 +16,25 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.shiprocket.in https://*.fastrr.app https://checkout.shiprocket.in https://*.pickrr.com https://cdn.pickrr.com https://*.fastrr.com",
+              `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "production" ? "" : " 'unsafe-eval'"} https://*.shiprocket.in https://*.fastrr.app https://checkout.shiprocket.in https://*.pickrr.com https://cdn.pickrr.com https://*.fastrr.com`,
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.shiprocket.in https://*.fastrr.app https://*.pickrr.com",
-              "font-src 'self' https://fonts.gstatic.com",
+              "font-src 'self' data: https://fonts.gstatic.com",
               "img-src 'self' data: blob: https://images.unsplash.com https://*.shiprocket.in https://*.fastrr.app https://*.pickrr.com",
               "connect-src 'self' https://*.shiprocket.in https://fastrr-api.shiprocket.in https://*.fastrr.app https://*.pickrr.com https://*.fastrr.com",
-              "frame-src 'self' https://*.shiprocket.in https://*.fastrr.app https://*.pickrr.com https://*.fastrr.com"
+              "frame-src 'self' https://*.shiprocket.in https://*.fastrr.app https://*.pickrr.com https://*.fastrr.com",
+              "frame-ancestors 'none'",
+              "object-src 'none'",
+              "base-uri 'self'",
+              "form-action 'self'"
             ].join("; ")
           },
           {
             key: "X-Frame-Options",
-            value: "ALLOWALL"
+            value: "DENY"
+          },
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains"
           },
           {
             key: "X-Content-Type-Options",

@@ -1,3 +1,5 @@
+import { upsertDoc, listDocs } from "@/lib/db/store";
+
 export type RiskLevel = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
 export interface AuditLogEntry {
@@ -18,7 +20,6 @@ export interface AuditLogEntry {
   isSuspicious?: boolean;
 }
 
-const auditLogBuffer: AuditLogEntry[] = [];
 
 export function determineRiskLevel(action: string, status?: string): RiskLevel {
   if (status === "unauthorized_blocked" || action.includes("DELETE") || action.includes("ROLE") || action.includes("OFFBOARD")) {
@@ -33,7 +34,7 @@ export function determineRiskLevel(action: string, status?: string): RiskLevel {
   return "LOW";
 }
 
-export function createAuditLog(params: {
+export async function createAuditLog(params: {
   userId?: string;
   userName?: string;
   userRole?: string;
@@ -47,13 +48,13 @@ export function createAuditLog(params: {
   riskLevel?: RiskLevel;
   ipAddress?: string;
   isSuspicious?: boolean;
-}) {
+}): Promise<AuditLogEntry | null> {
   try {
     const statusVal = params.status || "success";
     const calculatedRisk = params.riskLevel || determineRiskLevel(params.action, statusVal);
 
     const newEntry: AuditLogEntry = {
-      id: `AUD-${Date.now()}`,
+      id: `AUD-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
       userId: params.userId || "usr-anon",
       userName: params.userName || "System User",
       userRole: params.userRole || "staff",
@@ -70,8 +71,7 @@ export function createAuditLog(params: {
       isSuspicious: params.isSuspicious || statusVal === "unauthorized_blocked" || statusVal === "failed" || calculatedRisk === "CRITICAL"
     };
 
-    auditLogBuffer.unshift(newEntry);
-    if (auditLogBuffer.length > 500) auditLogBuffer.pop();
+    await upsertDoc("activity-log", newEntry);
     return newEntry;
   } catch (error) {
     console.error("Failed to write audit log:", error);
@@ -79,6 +79,6 @@ export function createAuditLog(params: {
   }
 }
 
-export function getAuditLogs(): AuditLogEntry[] {
-  return auditLogBuffer;
+export async function getAuditLogs(limit = 500): Promise<AuditLogEntry[]> {
+  return listDocs<AuditLogEntry>("activity-log", limit);
 }

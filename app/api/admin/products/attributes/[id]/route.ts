@@ -1,25 +1,26 @@
 import { NextResponse } from "next/server";
 import { readCollection, writeCollection } from "@/lib/db/store";
 import type { Attribute } from "@/lib/db/types";
+import { guarded } from "@/lib/auth/guard";
 
-export async function DELETE(
+async function handleDELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const attributes = readCollection<Attribute>("attributes");
+  const attributes = await readCollection<Attribute>("attributes");
   const filtered = attributes.filter((a) => a.id !== id);
-  writeCollection("attributes", filtered);
+  await writeCollection("attributes", filtered);
   return NextResponse.json({ success: true });
 }
 
-export async function PUT(
+async function handlePUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
   const body = await request.json() as Partial<Attribute>;
-  const attributes = readCollection<Attribute>("attributes");
+  const attributes = await readCollection<Attribute>("attributes");
   const index = attributes.findIndex((a) => a.id === id);
 
   if (index === -1) {
@@ -32,6 +33,9 @@ export async function PUT(
     values: body.values ?? attributes[index].values,
   };
 
-  writeCollection("attributes", attributes);
+  await writeCollection("attributes", attributes);
   return NextResponse.json({ attribute: attributes[index] });
 }
+
+export const DELETE = guarded(handleDELETE);
+export const PUT = guarded(handlePUT);

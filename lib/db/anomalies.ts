@@ -1,4 +1,5 @@
 import { createAuditLog } from "@/lib/db/audit";
+import { upsertDoc, listDocs } from "@/lib/db/store";
 
 export type RiskLevel = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
@@ -16,16 +17,15 @@ export interface SecurityAlert {
   resolvedAt?: string;
 }
 
-const securityAlertsBuffer: SecurityAlert[] = [];
 
-export function createSecurityAlert(params: {
+export async function createSecurityAlert(params: {
   type: "auth" | "permission" | "business" | "system";
   severity: RiskLevel;
   title: string;
   description: string;
   userInvolved: string;
   userRole?: string;
-}) {
+}): Promise<SecurityAlert | null> {
   try {
     const newAlert: SecurityAlert = {
       id: `ALT-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`,
@@ -39,8 +39,7 @@ export function createSecurityAlert(params: {
       status: "new"
     };
 
-    securityAlertsBuffer.unshift(newAlert);
-    if (securityAlertsBuffer.length > 500) securityAlertsBuffer.pop();
+    await upsertDoc("security-alerts", newAlert);
     return newAlert;
   } catch (err) {
     console.error("Failed to create security alert:", err);
@@ -48,13 +47,13 @@ export function createSecurityAlert(params: {
   }
 }
 
-export function evaluatePriceChange(
+export async function evaluatePriceChange(
   productId: string,
   productName: string,
   oldPrice: number,
   newPrice: number,
   user?: { id?: string; email?: string; role?: string }
-): { riskLevel: RiskLevel; percentChange: number; warningMessage?: string } {
+): Promise<{ riskLevel: RiskLevel; percentChange: number; warningMessage?: string }> {
   if (!oldPrice || oldPrice <= 0 || oldPrice === newPrice) {
     return { riskLevel: "LOW", percentChange: 0 };
   }
@@ -76,7 +75,7 @@ export function evaluatePriceChange(
   }
 
   if (riskLevel === "HIGH" || riskLevel === "CRITICAL") {
-    createSecurityAlert({
+    await createSecurityAlert({
       type: "business",
       severity: riskLevel,
       title: `Price Anomaly Detected (${percentChange}% Change)`,
@@ -86,7 +85,7 @@ export function evaluatePriceChange(
     });
   }
 
-  createAuditLog({
+  await createAuditLog({
     userId: user?.id,
     userName: user?.email,
     userRole: user?.role,
@@ -102,21 +101,21 @@ export function evaluatePriceChange(
   return { riskLevel, percentChange, warningMessage };
 }
 
-export function evaluateInventoryChange(
+export async function evaluateInventoryChange(
   productId: string,
   productName: string,
   oldStock: number,
   newStock: number,
   reason?: string,
   user?: { id?: string; email?: string; role?: string }
-): { riskLevel: RiskLevel; stockDiff: number } {
+): Promise<{ riskLevel: RiskLevel; stockDiff: number }> {
   const stockDiff = newStock - oldStock;
   const absDiff = Math.abs(stockDiff);
   let riskLevel: RiskLevel = "LOW";
 
   if (newStock < 0) {
     riskLevel = "CRITICAL";
-    createSecurityAlert({
+    await createSecurityAlert({
       type: "business",
       severity: "CRITICAL",
       title: "Negative Stock Attempt Blocked",
@@ -126,7 +125,7 @@ export function evaluateInventoryChange(
     });
   } else if (absDiff >= 50 || (oldStock > 0 && absDiff / oldStock >= 0.75)) {
     riskLevel = "HIGH";
-    createSecurityAlert({
+    await createSecurityAlert({
       type: "business",
       severity: "HIGH",
       title: "Large Inventory Adjustment Detected",
@@ -138,7 +137,7 @@ export function evaluateInventoryChange(
     riskLevel = "MEDIUM";
   }
 
-  createAuditLog({
+  await createAuditLog({
     userId: user?.id,
     userName: user?.email,
     userRole: user?.role,
@@ -154,6 +153,6 @@ export function evaluateInventoryChange(
   return { riskLevel, stockDiff };
 }
 
-export function getSecurityAlerts(): SecurityAlert[] {
-  return securityAlertsBuffer;
+export async function getSecurityAlerts(limit = 500): Promise<SecurityAlert[]> {
+  return listDocs<SecurityAlert>("security-alerts", limit);
 }

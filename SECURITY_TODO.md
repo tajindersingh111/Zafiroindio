@@ -33,3 +33,18 @@ The following API keys and database credentials were exposed in plain text in so
 
 ## Optional: Git History Scrubbing
 If this repository is hosted publicly or shared with third parties, consider scrubbing historical commits using `git-filter-repo` or BFG Repo Cleaner to purge exposed commit blobs.
+
+
+---
+
+## After this update (required one-time steps)
+
+1. `npx prisma db push` — creates the new `documents` and `rate_limits` tables.
+2. `npx tsx scripts/migrate-json-to-documents.ts` — imports `data/*.json` (admin users, banners, collections, coupons, settings...) into Postgres and seeds starter products if the catalogue is empty.
+3. Set `SESSION_SECRET` (min 32 chars) — the app refuses to run production auth without it. Existing admin sessions are invalidated; everyone must log in again.
+4. Set the Shiprocket variables from `.env.example` and register these URLs in the Shiprocket dashboard:
+   - Order webhook: `https://<your-domain>/api/webhooks/shiprocket-checkout`
+   - Tracking webhook: `https://<your-domain>/api/webhooks/shipping`
+   - Catalog (products / collections) base: `https://<your-domain>/api/shiprocket/catalog/`
+5. Create the coupon codes you advertise (e.g. `WELCOME10`) in the Shiprocket Checkout dashboard — coupons are applied there, not in the cart.
+6. Rotate every credential listed above and remove `data/` and any `.env*` from git history.

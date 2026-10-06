@@ -1,87 +1,100 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readCollection, writeCollection } from "@/lib/db/store";
+import { getDoc, updateDoc, deleteDoc } from "@/lib/db/store";
 import type { Order, OrderNote } from "@/lib/db/types";
-import { v4 as uuidv4 } from "uuid";
 import { requireSuperAdmin, getAuthSession } from "@/lib/auth/rbac";
 import { createAuditLog } from "@/lib/db/audit";
+import { generateInvoiceForOrder } from "@/lib/db/invoices";
+import { cancelOrder } from "@/lib/orders/service";
+import { guarded } from "@/lib/auth/guard";
 
-export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
+type Ctx = { params: Promise<{ id: string }> };
+
+const STATUSES = new Set([
+  "payment_pending", "paid", "processing", "shipped", "out_for_delivery", "delivered", "payment_failed", "cancelled",
+  "refund_pending", "refunded", "return_requested", "return_approved", "returned", "on_hold", "completed", "failed",
+]);
+const PAYMENT_STATUSES = new Set(["pending", "paid", "failed", "partially_paid", "refunded", "refund_pending"]);
+// Only these fields may be changed through the admin PATCH (no price/total/items/customer overwrite).
+const EDITABLE_STRINGS = ["trackingNumber", "courierName", "trackingUrl", "shippingDate", "estimatedDelivery", "deliveredDate"] as const;
+
+async function handleGET(_: Request, { params }: Ctx) {
   const { id } = await params;
-  const orders = readCollection<Order>("orders");
-  const order = orders.find((o) => o.id === id);
+  const order = await getDoc<Order>("orders", id);
   if (!order) return NextResponse.json({ error: "Not found" }, { status: 404 });
   return NextResponse.json({ order });
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function handlePATCH(request: NextRequest, { params }: Ctx) {
   const session = await getAuthSession(request);
   const { id } = await params;
-  const body = await request.json() as Partial<Order> & { addNote?: string; isCustomerNote?: boolean };
-  const orders = readCollection<Order>("orders");
-  const idx = orders.findIndex((o) => o.id === id);
-  if (idx < 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  let body: Record<string, any>;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
+  }
+  if (body.status !== undefined && !STATUSES.has(body.status)) return NextResponse.json({ error: "Invalid status." }, { status: 400 });
+  if (body.paymentStatus !== undefined && !PAYMENT_STATUSES.has(body.paymentStatus)) return NextResponse.json({ error: "Invalid payment status." }, { status: 400 });
 
-  const prev = orders[idx];
-  const updatedOrder = { ...orders[idx], ...body, id, updatedAt: new Date().toISOString() };
+  const actor = session?.email || "admin";
+  const existing = await getDoc<Order>("orders", id);
+  if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  if (body.addNote) {
-    const note: OrderNote = {
-      id: uuidv4(),
-      note: body.addNote,
-      isCustomerNote: body.isCustomerNote ?? false,
-      createdAt: new Date().toISOString(),
-    };
-    updatedOrder.notes = [...(orders[idx].notes ?? []), note];
+  // Cancelling must restock + queue the refund exactly once.
+  if (body.status === "cancelled" && existing.status !== "cancelled") {
+    const res = await cancelOrder(id, String(body.cancelReason || "Cancelled by staff"), actor);
+    if (!res.ok) return NextResponse.json({ error: res.message }, { status: 409 });
+    await createAuditLog({
+      userId: session?.userId, userName: session?.name, userRole: session?.role,
+      action: "CANCEL_ORDER", module: "orders", recordId: id,
+      previousData: { status: existing.status }, updatedData: { status: "cancelled" },
+    });
+    return NextResponse.json({ order: res.order });
   }
 
-  delete (updatedOrder as Record<string, unknown>).addNote;
-  delete (updatedOrder as Record<string, unknown>).isCustomerNote;
-
-  orders[idx] = updatedOrder;
-  writeCollection("orders", orders);
-
-  // Sync Invoice Status
-  const { generateInvoiceForOrder } = require("@/lib/db/invoices");
-  generateInvoiceForOrder(updatedOrder);
-
-  // AUDIT LOG
-  createAuditLog({
-    userId: session?.userId,
-    userName: session?.email,
-    userRole: session?.role,
-    action: body.status ? "UPDATE_ORDER_STATUS" : "UPDATE_ORDER",
-    module: "orders",
-    recordId: id,
-    previousData: { status: prev.status },
-    updatedData: { status: updatedOrder.status }
+  const { result: updated } = await updateDoc<Order, Order | null>("orders", id, (o) => {
+    const next: Order = { ...o, updatedAt: new Date().toISOString() };
+    if (body.status !== undefined) next.status = body.status;
+    if (body.paymentStatus !== undefined) next.paymentStatus = body.paymentStatus;
+    for (const k of EDITABLE_STRINGS) {
+      if (typeof body[k] === "string") (next as any)[k] = body[k].slice(0, 500);
+    }
+    if (typeof body.addNote === "string" && body.addNote.trim()) {
+      const note: OrderNote = {
+        id: crypto.randomUUID(),
+        note: body.addNote.trim().slice(0, 2000),
+        isCustomerNote: !!body.isCustomerNote,
+        createdAt: new Date().toISOString(),
+      };
+      next.notes = [...(o.notes ?? []), note];
+    }
+    return { doc: next, result: next };
   });
+  if (!updated) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  return NextResponse.json({ order: orders[idx] });
+  await generateInvoiceForOrder(updated).catch((e) => console.error("invoice sync failed", e));
+  await createAuditLog({
+    userId: session?.userId, userName: session?.name, userRole: session?.role,
+    action: body.status ? "UPDATE_ORDER_STATUS" : "UPDATE_ORDER", module: "orders", recordId: id,
+    previousData: { status: existing.status }, updatedData: { status: updated.status },
+  });
+  return NextResponse.json({ order: updated });
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  // STRICT SUPER ADMIN DELETE REQUIREMENT
+async function handleDELETE(request: NextRequest, { params }: Ctx) {
   const auth = await requireSuperAdmin(request);
   if (auth.error) return auth.error;
-
   const { id } = await params;
-  let orders = readCollection<Order>("orders");
-  const order = orders.find((o) => o.id === id);
+  const order = await getDoc<Order>("orders", id);
   if (!order) return NextResponse.json({ error: "Not found" }, { status: 404 });
-
-  orders = orders.filter((o) => o.id !== id);
-  writeCollection("orders", orders);
-
-  // AUDIT LOG
-  createAuditLog({
-    userId: auth.session?.userId,
-    userName: auth.session?.email,
-    userRole: auth.session?.role,
-    action: "PERMANENT_DELETE_ORDER",
-    module: "orders",
-    recordId: id,
-    previousData: order
+  await deleteDoc("orders", id);
+  await createAuditLog({
+    userId: auth.session?.userId, userName: auth.session?.email, userRole: auth.session?.role,
+    action: "PERMANENT_DELETE_ORDER", module: "orders", recordId: id, previousData: order,
   });
-
   return NextResponse.json({ success: true, message: "Order permanently deleted by Super Admin." });
 }
+
+export const GET = guarded(handleGET);
+export const PATCH = guarded(handlePATCH);
+export const DELETE = guarded(handleDELETE);

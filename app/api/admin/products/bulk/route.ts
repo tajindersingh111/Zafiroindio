@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { readCollection, writeCollection } from "@/lib/db/store";
 import type { Product } from "@/lib/db/types";
 import { v4 as uuidv4 } from "uuid";
+import { guarded } from "@/lib/auth/guard";
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     const body = await request.json();
     const rawItems: any[] = Array.isArray(body) ? body : body.products || [];
@@ -12,7 +13,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No product data provided." }, { status: 400 });
     }
 
-    const existingProducts = readCollection<Product>("products");
+    const existingProducts = await readCollection<Product>("products");
     const now = new Date().toISOString();
 
     const createdProducts: Product[] = [];
@@ -86,7 +87,7 @@ export async function POST(request: Request) {
 
     if (createdProducts.length > 0) {
       const updatedList = [...createdProducts, ...existingProducts];
-      writeCollection("products", updatedList);
+      await writeCollection("products", updatedList);
     }
 
     return NextResponse.json({
@@ -100,3 +101,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Failed to perform bulk product import." }, { status: 500 });
   }
 }
+
+export const POST = guarded(handlePOST);

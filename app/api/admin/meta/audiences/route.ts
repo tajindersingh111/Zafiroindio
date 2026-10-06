@@ -1,25 +1,26 @@
 import { NextResponse } from "next/server";
 import { readSettings, writeSettings } from "@/lib/db/store";
+import { guarded } from "@/lib/auth/guard";
 
-export async function GET() {
-  const config = readSettings<{ isConnected: boolean }>("meta-config");
+async function handleGET() {
+  const config = await readSettings<{ isConnected: boolean }>("meta-config");
   if (!config || !config.isConnected) {
     return NextResponse.json({ error: "Meta account not connected" }, { status: 401 });
   }
 
-  const sandbox = readSettings<{ audiences: any[] }>("meta-sandbox");
+  const sandbox = await readSettings<{ audiences: any[] }>("meta-sandbox");
   return NextResponse.json(sandbox?.audiences ?? []);
 }
 
-export async function POST(request: Request) {
-  const config = readSettings<{ isConnected: boolean }>("meta-config");
+async function handlePOST(request: Request) {
+  const config = await readSettings<{ isConnected: boolean }>("meta-config");
   if (!config || !config.isConnected) {
     return NextResponse.json({ error: "Meta account not connected" }, { status: 401 });
   }
 
   try {
     const { name, type } = await request.json() as { name: string; type: string };
-    const sandbox = readSettings<{ campaigns: any[]; adsets: any[]; ads: any[]; audiences: any[] }>("meta-sandbox");
+    const sandbox = await readSettings<{ campaigns: any[]; adsets: any[]; ads: any[]; audiences: any[] }>("meta-sandbox");
     if (!sandbox) return NextResponse.json({ error: "Internal sandbox error" }, { status: 500 });
 
     const newAudience = {
@@ -32,9 +33,12 @@ export async function POST(request: Request) {
     };
 
     sandbox.audiences.push(newAudience);
-    writeSettings("meta-sandbox", sandbox);
+    await writeSettings("meta-sandbox", sandbox);
     return NextResponse.json(newAudience);
   } catch (error) {
     return NextResponse.json({ error: "Invalid request payload" }, { status: 400 });
   }
 }
+
+export const GET = guarded(handleGET);
+export const POST = guarded(handlePOST);

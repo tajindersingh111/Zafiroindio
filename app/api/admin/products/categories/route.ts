@@ -2,15 +2,16 @@ import { NextResponse } from "next/server";
 import { readCollection, writeCollection } from "@/lib/db/store";
 import type { Category } from "@/lib/db/types";
 import { v4 as uuidv4 } from "uuid";
+import { guarded } from "@/lib/auth/guard";
 
-export async function GET() {
-  const categories = readCollection<Category>("categories");
+async function handleGET() {
+  const categories = await readCollection<Category>("categories");
   return NextResponse.json({ categories });
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   const body = await request.json() as Partial<Category>;
-  const categories = readCollection<Category>("categories");
+  const categories = await readCollection<Category>("categories");
   const now = new Date().toISOString();
   const newCat: Category = {
     id: uuidv4(),
@@ -22,11 +23,11 @@ export async function POST(request: Request) {
     createdAt: now,
   };
   categories.push(newCat);
-  writeCollection("categories", categories);
+  await writeCollection("categories", categories);
   return NextResponse.json({ category: newCat }, { status: 201 });
 }
 
-export async function DELETE(request: Request) {
+async function handleDELETE(request: Request) {
   const { requireSuperAdmin } = require("@/lib/auth/rbac");
   const { createAuditLog } = require("@/lib/db/audit");
 
@@ -37,14 +38,14 @@ export async function DELETE(request: Request) {
   const id = searchParams.get("id");
   if (!id) return NextResponse.json({ error: "Category ID required" }, { status: 400 });
 
-  let categories = readCollection<Category>("categories");
+  let categories = await readCollection<Category>("categories");
   const target = categories.find((c) => c.id === id);
   if (!target) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   categories = categories.filter((c) => c.id !== id);
-  writeCollection("categories", categories);
+  await writeCollection("categories", categories);
 
-  createAuditLog({
+  await createAuditLog({
     userId: auth.session?.userId,
     userName: auth.session?.email,
     userRole: auth.session?.role,
@@ -57,3 +58,6 @@ export async function DELETE(request: Request) {
   return NextResponse.json({ success: true });
 }
 
+export const GET = guarded(handleGET);
+export const POST = guarded(handlePOST);
+export const DELETE = guarded(handleDELETE);

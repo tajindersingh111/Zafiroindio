@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   Truck, Search, CheckCircle2, Clock, MapPin, Package, ShieldCheck,
@@ -10,22 +10,22 @@ import {
 
 function TrackContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
 
   const initialQuery = searchParams.get("q") || searchParams.get("awb") || searchParams.get("orderNumber") || "";
 
   const [inputVal, setInputVal] = useState(initialQuery);
+  const [contact, setContact] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [trackingData, setTrackingData] = useState<any>(null);
 
-  const fetchTracking = async (queryStr: string) => {
-    if (!queryStr.trim()) return;
+  const fetchTracking = async (queryStr: string, contactStr: string = contact) => {
+    if (!queryStr.trim() || !contactStr.trim()) return;
     setLoading(true);
     setErrorMsg(null);
 
     try {
-      const res = await fetch(`/api/shipments/track?q=${encodeURIComponent(queryStr.trim())}`);
+      const res = await fetch("/api/shipments/track", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ q: queryStr.trim(), contact: contactStr.trim() }) });
       const data = await res.json();
 
       if (res.ok && data.found) {
@@ -41,17 +41,10 @@ function TrackContent() {
     }
   };
 
-  useEffect(() => {
-    if (initialQuery) {
-      fetchTracking(initialQuery);
-    }
-  }, [initialQuery]);
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (inputVal.trim()) {
-      router.push(`/track?q=${encodeURIComponent(inputVal.trim())}`);
-      fetchTracking(inputVal.trim());
+    if (inputVal.trim() && contact.trim()) {
+      fetchTracking(inputVal.trim(), contact.trim());
     }
   };
 
@@ -83,19 +76,19 @@ function TrackContent() {
             Track Your Package
           </h1>
           <p style={{ fontSize: 14, color: "#66625d", margin: 0, maxWidth: 500, marginInline: "auto" }}>
-            Enter your Order ID (e.g. ZI-10025), AWB Tracking Number, or 10-digit registered mobile number.
+            Enter your Order ID (e.g. ZI-10025) and the phone number or email you ordered with.
           </p>
         </div>
 
         {/* Search Bar Box */}
         <div style={{ background: "#ffffff", border: "1px solid #e7e1d6", borderRadius: 12, padding: "24px", marginBottom: 32, boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}>
-          <form onSubmit={handleSearch} style={{ display: "flex", gap: 10 }}>
+          <form onSubmit={handleSearch} style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <div style={{ flex: 1, position: "relative" }}>
               <Search size={18} style={{ position: "absolute", left: 14, top: 13, color: "#999" }} />
               <input
                 type="text"
                 required
-                placeholder="Enter Order ID (ZI-10025), AWB Number or Phone Number..."
+                placeholder="Order ID (e.g. ZI-10025)"
                 value={inputVal}
                 onChange={(e) => setInputVal(e.target.value)}
                 style={{
@@ -107,6 +100,17 @@ function TrackContent() {
                   outline: "none",
                   boxSizing: "border-box"
                 }}
+              />
+            </div>
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <input
+                type="text"
+                required
+                aria-label="Phone number or email used for the order"
+                placeholder="Phone or email used for the order"
+                value={contact}
+                onChange={(e) => setContact(e.target.value)}
+                style={{ width: "100%", padding: "12px 14px", borderRadius: 6, border: "1px solid #d4cdbf", fontSize: 13.5, outline: "none", boxSizing: "border-box" }}
               />
             </div>
             <button
@@ -156,7 +160,7 @@ function TrackContent() {
                   COURIER PARTNER
                 </span>
                 <div style={{ fontSize: 18, fontWeight: 800, color: "#1c1917", marginTop: 2 }}>
-                  {trackingData.shipment?.courierName || "Delhivery Express"}
+                  {trackingData.shipment?.courierName || "Being assigned"}
                 </div>
               </div>
 
@@ -165,7 +169,7 @@ function TrackContent() {
                   AWB TRACKING NUMBER
                 </span>
                 <div style={{ fontSize: 15, fontWeight: 700, color: "#1c1917", fontFamily: "monospace", marginTop: 2 }}>
-                  {trackingData.shipment?.trackingNumber}
+                  {trackingData.shipment?.trackingNumber || "Will be shared once shipped"}
                 </div>
               </div>
 

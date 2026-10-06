@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { readCollection } from "@/lib/db/store";
 import type { Product, Customer } from "@/lib/db/types";
+import { guarded } from "@/lib/auth/guard";
 
-export async function GET() {
-  const products = readCollection<Product>("products");
-  const customers = readCollection<Customer>("customers");
+async function handleGET() {
+  const products = await readCollection<Product>("products");
+  const customers = await readCollection<Customer>("customers");
 
   const lowStock = products.filter((p) => p.stockStatus === "low_stock");
   const inactiveCustomers = customers.filter((c) => {
@@ -46,3 +47,5 @@ export async function GET() {
 
   return NextResponse.json(list);
 }
+
+export const GET = guarded(handleGET);

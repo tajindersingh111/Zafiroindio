@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { readCollection } from "@/lib/db/store";
 import type { Order, Product, Customer } from "@/lib/db/types";
+import { guarded } from "@/lib/auth/guard";
 
-export async function GET() {
+async function handleGET() {
   try {
-    const orders = readCollection<Order>("orders");
-    const products = readCollection<Product>("products");
-    const customers = readCollection<Customer>("customers");
+    const orders = await readCollection<Order>("orders");
+    const products = await readCollection<Product>("products");
+    const customers = await readCollection<Customer>("customers");
 
     // 1. Sales Insights
     const totalOrders = orders.length;
@@ -65,3 +66,5 @@ export async function GET() {
     });
   }
 }
+
+export const GET = guarded(handleGET);

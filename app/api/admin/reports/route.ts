@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { readCollection, readSettings } from "@/lib/db/store";
 import type { Order, Product, Customer, Coupon } from "@/lib/db/types";
+import { guarded } from "@/lib/auth/guard";
 
 interface GoalData {
   monthly: number;
@@ -57,18 +58,18 @@ function filterByDateRange(orders: Order[], range: string, from?: string, to?: s
   });
 }
 
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   const { searchParams } = new URL(request.url);
   const range = searchParams.get("range") ?? "30d";
   const from = searchParams.get("from") ?? undefined;
   const to = searchParams.get("to") ?? undefined;
 
-  const allOrders = readCollection<Order>("orders");
-  const products = readCollection<Product>("products");
-  const customers = readCollection<Customer>("customers");
-  const returns = readCollection<ReturnRequest>("returns");
-  const reviews = readCollection<ReviewItem>("reviews");
-  const abandonedCarts = readCollection<AbandonedCart>("abandoned-carts");
+  const allOrders = await readCollection<Order>("orders");
+  const products = await readCollection<Product>("products");
+  const customers = await readCollection<Customer>("customers");
+  const returns = await readCollection<ReturnRequest>("returns");
+  const reviews = await readCollection<ReviewItem>("reviews");
+  const abandonedCarts = await readCollection<AbandonedCart>("abandoned-carts");
 
   const filteredOrders = filterByDateRange(allOrders, range, from, to);
   const paidOrders = filteredOrders.filter((o) => o.paymentStatus === "paid" || o.paymentStatus === "partially_paid");
@@ -202,7 +203,7 @@ export async function GET(request: Request) {
   const lastMonthAOV = lastMonthPaid.length ? lastMonthRevenue / lastMonthPaid.length : 0;
 
   // ── Goals data ────────────────────────────────────────────
-  const goals = readSettings<GoalData>("goals") || { monthly: 500000, yearly: 6000000 };
+  const goals = await readSettings<GoalData>("goals") || { monthly: 500000, yearly: 6000000 };
 
   // ── Pending Action Summary counts ─────────────────────────
   const pendingActions = {
@@ -264,3 +265,5 @@ export async function GET(request: Request) {
     range,
   });
 }
+
+export const GET = guarded(handleGET);

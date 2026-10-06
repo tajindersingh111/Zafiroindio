@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
 import { readSettings, readCollection } from "@/lib/db/store";
 import type { Product } from "@/lib/db/types";
+import { guarded } from "@/lib/auth/guard";
 
-export async function GET() {
-  const config = readSettings<{ isConnected: boolean }>("meta-config");
+async function handleGET() {
+  const config = await readSettings<{ isConnected: boolean }>("meta-config");
   if (!config || !config.isConnected) {
     return NextResponse.json({ error: "Meta account not connected" }, { status: 401 });
   }
 
-  const products = readCollection<Product>("products");
+  const products = await readCollection<Product>("products");
   const list = products.map((p) => ({
     id: p.id,
     name: p.name,
@@ -23,8 +24,8 @@ export async function GET() {
   return NextResponse.json(list);
 }
 
-export async function POST() {
-  const config = readSettings<{ isConnected: boolean }>("meta-config");
+async function handlePOST() {
+  const config = await readSettings<{ isConnected: boolean }>("meta-config");
   if (!config || !config.isConnected) {
     return NextResponse.json({ error: "Meta account not connected" }, { status: 401 });
   }
@@ -36,3 +37,6 @@ export async function POST() {
     timestamp: new Date().toISOString()
   });
 }
+
+export const GET = guarded(handleGET);
+export const POST = guarded(handlePOST);

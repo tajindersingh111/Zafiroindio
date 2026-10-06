@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getStorefrontCollections } from "@/lib/data";
+import { getCatalogCollections } from "@/lib/storefront/catalog";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -11,8 +11,8 @@ export const metadata = {
   alternates: { canonical: "https://zafiroindio.com/collections" },
 };
 
-export default function Collections() {
-  const collectionsList = getStorefrontCollections();
+export default async function Collections() {
+  const collectionsList = await getCatalogCollections();
 
   return (
     <main style={{ background: "#faf8f5", minHeight: "100vh" }}>

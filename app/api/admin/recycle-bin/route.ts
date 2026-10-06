@@ -2,16 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { readCollection } from "@/lib/db/store";
 import { requireSuperAdmin } from "@/lib/auth/rbac";
 import { restoreFromRecycleBin, permanentlyDeleteFromRecycleBin, RecycleItem } from "@/lib/db/recycle-bin";
+import { guarded } from "@/lib/auth/guard";
 
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   const auth = await requireSuperAdmin(request);
   if (auth.error) return auth.error;
 
-  const items = readCollection<RecycleItem>("recycle-bin");
+  const items = await readCollection<RecycleItem>("recycle-bin");
   return NextResponse.json({ items, total: items.length });
 }
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   const auth = await requireSuperAdmin(request);
   if (auth.error) return auth.error;
 
@@ -22,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (body.action === "restore") {
-      const result = restoreFromRecycleBin(body.recycleId, {
+      const result = await restoreFromRecycleBin(body.recycleId, {
         id: auth.session?.userId,
         email: auth.session?.email,
         role: auth.session?.role
@@ -32,7 +33,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (body.action === "permanent_delete") {
-      const result = permanentlyDeleteFromRecycleBin(body.recycleId, {
+      const result = await permanentlyDeleteFromRecycleBin(body.recycleId, {
         id: auth.session?.userId,
         email: auth.session?.email,
         role: auth.session?.role
@@ -46,3 +47,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Failed to process recycle bin operation." }, { status: 500 });
   }
 }
+
+export const GET = guarded(handleGET);
+export const POST = guarded(handlePOST);

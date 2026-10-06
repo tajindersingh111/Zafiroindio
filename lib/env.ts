@@ -3,7 +3,7 @@ import { z } from "zod";
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   DATABASE_URL: z.string().optional(),
-  SESSION_SECRET: z.string().default("zafiro-default-session-secret-key-2026"),
+  SESSION_SECRET: z.string().min(32).optional(),
   
   // Shiprocket Logistics Credentials
   SHIPROCKET_EMAIL: z.string().optional(),
@@ -19,9 +19,19 @@ const envSchema = z.object({
   SHIPROCKET_CHECKOUT_WEBHOOK_SECRET: z.string().optional(),
   SHIPROCKET_CHECKOUT_BASE_URL: z.string().default("https://fastrr-api.shiprocket.in"),
 
-  // SMS & Rate Limiting
-  FAST2SMS_API_KEY: z.string().optional(),
-  REDIS_URL: z.string().optional()
+  SHIPROCKET_CHECKOUT_TOKEN_PATH: z.string().optional(),
+  SHIPROCKET_TRACKING_WEBHOOK_SECRET: z.string().optional(),
+  NEXT_PUBLIC_SITE_URL: z.string().optional(),
+  CRON_SECRET: z.string().optional(),
+
+  // Email (SMTP)
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.string().optional(),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  EMAIL_FROM: z.string().optional(),
+
+  FAST2SMS_API_KEY: z.string().optional()
 });
 
 export type Env = z.infer<typeof envSchema>;

@@ -1,100 +1,48 @@
 import crypto from "crypto";
 import { ShiprocketCheckoutClient } from "../lib/shiprocket-checkout/client";
+import { buildSessionCookie, parseSessionString } from "../lib/auth/token";
+import { canAccessSection, sectionForPath } from "../lib/auth/access";
+import { orderMatchesContact } from "../lib/orders/contact";
 
 /**
- * Zafiro Indio E-Commerce Test Suite
- * Tests: Pricing calculation, Webhook signature verification, Idempotency logic, Stock decrement protection.
+ * Pure (no database) checks for the security-critical pieces.
+ * Run: npx tsx scripts/test-suite.ts
  */
-async function runTests() {
-  console.log("==================================================");
-  console.log("🧪 RUNNING SECURITY & PRICING VERIFICATION TESTS");
-  console.log("==================================================\n");
-
-  let passed = 0;
-  let failed = 0;
-
-  function assert(condition: boolean, testName: string) {
-    if (condition) {
-      console.log(`✅ PASS: ${testName}`);
-      passed++;
-    } else {
-      console.error(`❌ FAIL: ${testName}`);
-      failed++;
-    }
-  }
-
-  // TEST 1: Webhook Signature Verification (Valid Signature)
-  try {
-    const client = new ShiprocketCheckoutClient();
-    process.env.SHIPROCKET_CHECKOUT_WEBHOOK_SECRET = "test_secret_key_123";
-    const rawPayload = JSON.stringify({ eventId: "evt_101", eventType: "order.created", order: { orderNumber: "ZI-101" } });
-    const validSig = crypto.createHmac("sha256", "test_secret_key_123").update(rawPayload).digest("hex");
-
-    const isValid = client.verifyWebhookSignature(rawPayload, validSig);
-    assert(isValid === true, "Webhook Signature Verification - Valid Signature Accepted");
-  } catch (err) {
-    assert(false, `Webhook Signature Verification Error: ${err}`);
-  }
-
-  // TEST 2: Webhook Signature Verification (Tampered Signature Rejection)
-  try {
-    const client = new ShiprocketCheckoutClient();
-    process.env.SHIPROCKET_CHECKOUT_WEBHOOK_SECRET = "test_secret_key_123";
-    const rawPayload = JSON.stringify({ eventId: "evt_101", eventType: "order.created", order: { orderNumber: "ZI-101" } });
-    const invalidSig = "tampered_signature_99999";
-
-    const isValid = client.verifyWebhookSignature(rawPayload, invalidSig);
-    assert(isValid === false, "Webhook Signature Verification - Invalid Signature Rejected");
-  } catch (err) {
-    assert(false, `Webhook Signature Tamper Error: ${err}`);
-  }
-
-  // TEST 3: Webhook Signature Verification (Missing Secret Behavior)
-  try {
-    delete process.env.SHIPROCKET_CHECKOUT_WEBHOOK_SECRET;
-    const client = new ShiprocketCheckoutClient();
-    const isValid = client.verifyWebhookSignature("{}", "some_sig");
-    assert(isValid === false, "Webhook Signature Verification - Missing Secret Failsafe");
-  } catch (err) {
-    assert(false, `Missing Secret Error: ${err}`);
-  }
-
-  // TEST 4: Fallback Token Cryptographic Signature
-  try {
-    const client = new ShiprocketCheckoutClient();
-    const res = await client.generateCheckoutToken({
-      items: [{ productId: "p1", name: "Bedsheet", sku: "SKU1", quantity: 1, price: 1299, total: 1299 }],
-      subtotal: 1299,
-      discount: 0,
-      shippingFee: 0,
-      tax: 0,
-      total: 1299
-    });
-
-    assert(res.success === true && typeof res.token === "string" && res.token.startsWith("sr_chk_"), "Checkout Token Generation - Cryptographically Signed Token Returned");
-  } catch (err) {
-    assert(false, `Token Generation Error: ${err}`);
-  }
-
-  // TEST 5: Rate Limiter Memory Fallback Test
-  try {
-    const { checkRateLimit } = require("../lib/rate-limiter");
-    const r1 = await checkRateLimit("test-user-ip", { limit: 2, windowMs: 10000 });
-    const r2 = await checkRateLimit("test-user-ip", { limit: 2, windowMs: 10000 });
-    const r3 = await checkRateLimit("test-user-ip", { limit: 2, windowMs: 10000 });
-
-    assert(r1.success && r2.success && !r3.success, "Rate Limiter - 429 Throttle Enforced on 3rd Request");
-  } catch (err) {
-    assert(false, `Rate Limiter Error: ${err}`);
-  }
-
-  console.log("\n==================================================");
-  console.log(`📊 TEST RESULTS: ${passed} Passed, ${failed} Failed`);
-  console.log("==================================================");
-
-  if (failed > 0) {
-    process.exit(1);
-  }
+let passed = 0;
+let failed = 0;
+function assert(cond: boolean, name: string) {
+  if (cond) { console.log(`PASS  ${name}`); passed++; } else { console.error(`FAIL  ${name}`); failed++; }
 }
+const hdr = (sig?: string) => new Headers(sig ? { "x-api-hmac-sha256": sig } : {});
 
-runTests();
+process.env.SHIPROCKET_CHECKOUT_WEBHOOK_SECRET = "test_secret_key_123";
+const client = new ShiprocketCheckoutClient();
+const body = JSON.stringify({ order_id: "SR-1", cart_data: { items: [] } });
+const good = crypto.createHmac("sha256", "test_secret_key_123").update(body).digest("base64");
+assert(client.verifySignature(body, hdr(good)), "webhook: valid signature accepted");
+assert(!client.verifySignature(body, hdr("tampered")), "webhook: tampered signature rejected");
+assert(!client.verifySignature(body, hdr()), "webhook: missing signature rejected");
+assert(!client.verifySignature(body + " ", hdr(good)), "webhook: modified body rejected");
+delete process.env.SHIPROCKET_CHECKOUT_WEBHOOK_SECRET;
+delete process.env.SHIPROCKET_CHECKOUT_API_SECRET;
+assert(!client.verifySignature(body, hdr(good)), "webhook: fails closed when no secret configured");
+
+process.env.SESSION_SECRET = "x".repeat(40);
+const user = { id: "u1", name: "A", email: "a@b.c", role: "admin", allowedSections: ["orders"] } as any;
+const cookie = buildSessionCookie(user, "sid-1");
+assert(parseSessionString(cookie)?.sid === "sid-1", "session: round-trip");
+assert(parseSessionString(cookie.slice(0, -2) + "xx") === null, "session: tampered cookie rejected");
+
+assert(sectionForPath("/api/admin/users") === "users", "access: users path maps to users section");
+assert(sectionForPath("/api/admin/does-not-exist") === null, "access: unknown admin path is unmapped (super admin only)");
+assert(!canAccessSection("staff", undefined, "users"), "access: staff cannot reach users");
+assert(!canAccessSection("order_manager", undefined, null), "access: unknown section denied to non-super-admin");
+
+const order: any = { customerEmail: "Foo@Bar.com", customerPhone: "+91 98765 43210", shipping: {}, billing: {} };
+assert(orderMatchesContact(order, "foo@bar.com"), "contact: email match (case-insensitive)");
+assert(orderMatchesContact(order, "9876543210"), "contact: phone match");
+assert(!orderMatchesContact(order, "9876543211"), "contact: wrong phone rejected");
+assert(!orderMatchesContact(order, ""), "contact: empty rejected");
+
+console.log(`\n${passed} passed, ${failed} failed`);
+process.exit(failed ? 1 : 0);

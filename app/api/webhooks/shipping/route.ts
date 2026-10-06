@@ -1,72 +1,62 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import crypto from "node:crypto";
 import { prisma } from "@/lib/db/prisma";
+import { Prisma } from "@prisma/client";
+import { applyShipmentEvent } from "@/lib/orders/service";
+import { shiprocketCheckoutClient } from "@/lib/shiprocket-checkout/client";
 import { verifyShiprocketTrackingWebhook } from "@/lib/shipping/shiprocket";
+import { rateLimit } from "@/lib/security/rate-limit";
 
-export async function POST(request: Request) {
+export const dynamic = "force-dynamic";
+
+/** Courier tracking updates from Shiprocket. Always authenticated, idempotent and forward-only. */
+export async function POST(request: NextRequest) {
+  const limited = await rateLimit(request, "sr-tracking-webhook", { windowMs: 60_000, maxRequests: 600 });
+  if (limited) return limited;
+
+  const rawBody = await request.text();
+  const signature = request.headers.get("x-shiprocket-signature") || request.headers.get("x-fastrr-signature") || request.headers.get("x-api-hmac-sha256");
+
+  // Fail closed: previously this check was skipped entirely when the secret env var was unset.
+  const valid = verifyShiprocketTrackingWebhook(rawBody, signature) || shiprocketCheckoutClient.verifySignature(rawBody, request.headers);
+  if (!valid) return NextResponse.json({ error: "Invalid tracking webhook signature." }, { status: 401 });
+
+  let payload: Record<string, any>;
   try {
-    const rawBody = await request.text();
-    const signature = request.headers.get("x-shiprocket-signature") || request.headers.get("x-fastrr-signature");
+    payload = JSON.parse(rawBody);
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON payload." }, { status: 400 });
+  }
 
-    if (process.env.SHIPROCKET_TRACKING_WEBHOOK_SECRET) {
-      const isValid = verifyShiprocketTrackingWebhook(rawBody, signature);
-      if (!isValid) {
-        return NextResponse.json({ error: "Invalid tracking webhook signature." }, { status: 401 });
-      }
-    }
+  const orderRef = String(payload.order_id || payload.orderNumber || payload.channel_order_id || "").trim();
+  const awb = payload.awb || payload.awb_code ? String(payload.awb || payload.awb_code) : undefined;
+  const statusText = String(payload.current_status || payload.status || payload.shipment_status || "");
+  if (!orderRef && !awb) return NextResponse.json({ error: "Missing order_id or awb." }, { status: 400 });
 
-    const payload = JSON.parse(rawBody);
-    const orderNumber = payload.order_id || payload.orderNumber || payload.awb;
-    const currentStatus = (payload.current_status || payload.status || "").toUpperCase();
-    const eventId = payload.event_id || payload.scans?.[0]?.scan_id || `trkwb_${orderNumber}_${currentStatus}_${Date.now()}`;
+  // Deterministic event id (the old one embedded Date.now(), so retries were never deduplicated).
+  const eventId = String(payload.event_id || payload.scans?.[0]?.scan_id || `trk_${orderRef || awb}_${statusText}_${crypto.createHash("sha256").update(rawBody).digest("hex").slice(0, 12)}`);
 
-    if (!orderNumber) {
-      return NextResponse.json({ error: "Missing order_id or tracking identifier." }, { status: 400 });
-    }
-
-    const existingEvent = await prisma.webhookEvent.findUnique({
-      where: { eventId }
-    });
-
-    if (existingEvent) {
+  try {
+    await prisma.webhookEvent.create({ data: { eventId, provider: "shiprocket_tracking", eventType: statusText || "unknown", payload: payload as Prisma.InputJsonValue } });
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
       return NextResponse.json({ success: true, message: "Duplicate webhook event ignored." });
     }
+    throw e;
+  }
 
-    let mappedStatus: "shipped" | "out_for_delivery" | "delivered" | "cancelled" | "processing" = "processing";
-    if (currentStatus.includes("DELIVERED")) {
-      mappedStatus = "delivered";
-    } else if (currentStatus.includes("OUT FOR DELIVERY") || currentStatus.includes("OUT_FOR_DELIVERY")) {
-      mappedStatus = "out_for_delivery";
-    } else if (currentStatus.includes("IN TRANSIT") || currentStatus.includes("SHIPPED") || currentStatus.includes("DISPATCHED")) {
-      mappedStatus = "shipped";
-    } else if (currentStatus.includes("RTO") || currentStatus.includes("RETURN") || currentStatus.includes("CANCELED") || currentStatus.includes("CANCELLED")) {
-      mappedStatus = "cancelled";
-    }
-
-    const order = await prisma.order.findFirst({
-      where: {
-        OR: [{ orderNumber: String(orderNumber) }, { id: String(orderNumber) }]
-      }
+  try {
+    const result = await applyShipmentEvent(orderRef || String(awb), {
+      statusText,
+      awb,
+      courier: payload.courier_name || payload.courier,
+      trackingUrl: payload.tracking_url || payload.track_url,
     });
-
-    if (order) {
-      await prisma.order.update({
-        where: { id: order.id },
-        data: { status: mappedStatus }
-      });
-    }
-
-    await prisma.webhookEvent.create({
-      data: {
-        provider: "shiprocket_tracking",
-        eventId,
-        eventType: currentStatus,
-        payload
-      }
-    });
-
-    return NextResponse.json({ success: true, mappedStatus });
-  } catch (error: any) {
+    return NextResponse.json({ success: true, found: result.found, applied: result.applied, status: result.status });
+  } catch (error) {
     console.error("Shiprocket tracking webhook error:", error);
-    return NextResponse.json({ error: error?.message || "Webhook processing error" }, { status: 500 });
+    // allow the provider to retry: forget the idempotency marker
+    await prisma.webhookEvent.delete({ where: { eventId } }).catch(() => {});
+    return NextResponse.json({ error: "Webhook processing error" }, { status: 500 });
   }
 }

@@ -1,20 +1,19 @@
 import type { CostHistoryEntry } from "@/lib/db/types";
+import { upsertDoc, readCollection } from "@/lib/db/store";
 
-const costHistoryBuffer: CostHistoryEntry[] = [];
-
-export function recordCostHistory(params: {
+export async function recordCostHistory(params: {
   productId: string;
   productName: string;
   previousCost: number;
   newCost: number;
   changedBy: string;
   reason?: string;
-}): CostHistoryEntry | null {
+}): Promise<CostHistoryEntry | null> {
   if (params.previousCost === params.newCost) return null;
 
   try {
     const entry: CostHistoryEntry = {
-      id: `ch-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`,
+      id: `ch-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
       productId: params.productId,
       productName: params.productName,
       previousCost: params.previousCost || 0,
@@ -23,9 +22,7 @@ export function recordCostHistory(params: {
       reason: params.reason || "Manual cost update",
       createdAt: new Date().toISOString()
     };
-
-    costHistoryBuffer.unshift(entry);
-    if (costHistoryBuffer.length > 500) costHistoryBuffer.pop();
+    await upsertDoc("cost-history", entry);
     return entry;
   } catch (err) {
     console.error("Failed to record cost history:", err);
@@ -33,6 +30,7 @@ export function recordCostHistory(params: {
   }
 }
 
-export function getProductCostHistory(productId: string): CostHistoryEntry[] {
-  return costHistoryBuffer.filter((h) => h.productId === productId);
+export async function getProductCostHistory(productId: string): Promise<CostHistoryEntry[]> {
+  const all = await readCollection<CostHistoryEntry>("cost-history");
+  return all.filter((h) => h.productId === productId);
 }

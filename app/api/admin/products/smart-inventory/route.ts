@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { readCollection } from "@/lib/db/store";
 import type { Product, Order } from "@/lib/db/types";
+import { guarded } from "@/lib/auth/guard";
 
-export async function GET() {
-  const products = readCollection<Product>("products");
-  const orders = readCollection<Order>("orders");
+async function handleGET() {
+  const products = await readCollection<Product>("products");
+  const orders = await readCollection<Order>("orders");
 
   const paidOrders = orders.filter((o) => o.paymentStatus === "paid" || o.paymentStatus === "partially_paid");
 
@@ -70,3 +71,5 @@ export async function GET() {
     totalValuation
   });
 }
+
+export const GET = guarded(handleGET);

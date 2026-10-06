@@ -4,23 +4,12 @@ import { Suspense, useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
-import { getStorefrontProducts } from "@/lib/data";
+import { useCatalog } from "@/lib/storefront/useCatalog";
 import { ChevronDown, ChevronUp, LayoutGrid, Grid, Check, Heart } from "lucide-react";
 
 function ShopContent() {
   const searchParams = useSearchParams();
-  const [allProducts, setAllProducts] = useState(() => getStorefrontProducts());
-
-  useEffect(() => {
-    fetch("/api/products")
-      .then((res) => res.ok ? res.json() : null)
-      .then((data) => {
-        if (data && Array.isArray(data.products) && data.products.length > 0) {
-          setAllProducts(data.products);
-        }
-      })
-      .catch(() => {});
-  }, []);
+  const { products: allProducts, loading: catalogLoading } = useCatalog();
 
   // Filter states
   const [selectedCategory, setSelectedCategory] = useState<string>("All Bedsheets");
@@ -59,6 +48,8 @@ function ShopContent() {
       };
       if (catMap[collection]) {
         setSelectedCategory(catMap[collection]);
+      } else {
+        setSelectedCategory("All Bedsheets");
       }
     }
     if (badge === "bestseller") setSort("bestseller");

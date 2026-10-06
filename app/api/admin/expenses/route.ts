@@ -2,15 +2,16 @@ import { NextResponse } from "next/server";
 import { getAllExpenses, saveExpense, deleteExpense } from "@/lib/db/expenses";
 import { createAuditLog } from "@/lib/db/audit";
 import type { Expense } from "@/lib/db/types";
+import { guarded } from "@/lib/auth/guard";
 
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");
     const classification = searchParams.get("classification");
     const search = searchParams.get("search")?.toLowerCase();
 
-    let expenses = getAllExpenses();
+    let expenses = await getAllExpenses();
 
     if (category) {
       expenses = expenses.filter((e) => e.category === category);
@@ -31,7 +32,7 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     const body = await request.json();
     
@@ -49,9 +50,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Expense classification is required." }, { status: 400 });
     }
 
-    const saved = saveExpense(body);
+    const saved = await saveExpense(body);
 
-    createAuditLog({
+    await createAuditLog({
       userId: body.createdBy || "usr-admin",
       userName: body.createdBy || "Admin User",
       userRole: body.createdByRole || "admin",
@@ -70,3 +71,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Failed to create expense." }, { status: 500 });
   }
 }
+
+export const GET = guarded(handleGET);
+export const POST = guarded(handlePOST);

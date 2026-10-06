@@ -4,29 +4,30 @@ import { getInvoiceByOrderId, generateInvoiceForOrder } from "@/lib/db/invoices"
 import { createAuditLog } from "@/lib/db/audit";
 import { getAuthSession } from "@/lib/auth/rbac";
 import type { Order } from "@/lib/db/types";
+import { guarded } from "@/lib/auth/guard";
 
-export async function GET(
+async function handleGET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getAuthSession(request);
     const { id } = await params;
-    const orders = readCollection<Order>("orders");
+    const orders = await readCollection<Order>("orders");
     const order = orders.find((o) => o.id === id || o.orderNumber === id);
 
     if (!order) {
       return NextResponse.json({ error: "Order not found." }, { status: 404 });
     }
 
-    let invoice = getInvoiceByOrderId(order.id, order);
+    let invoice = await getInvoiceByOrderId(order.id, order);
 
     if (!invoice) {
-      invoice = generateInvoiceForOrder(order);
+      invoice = await generateInvoiceForOrder(order);
     }
 
     // AUDIT LOG
-    createAuditLog({
+    await createAuditLog({
       userId: session?.userId || "usr-admin",
       userName: session?.email || "Admin User",
       userRole: session?.role || "admin",
@@ -44,3 +45,5 @@ export async function GET(
     return NextResponse.json({ error: "Failed to load invoice." }, { status: 500 });
   }
 }
+
+export const GET = guarded(handleGET);

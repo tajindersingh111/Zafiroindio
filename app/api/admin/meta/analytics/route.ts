@@ -1,6 +1,8 @@
+import { readCollection } from "@/lib/db/store";
 import { NextResponse } from "next/server";
 import { readSettings } from "@/lib/db/store";
 import type { Order, Product } from "@/lib/db/types";
+import { guarded } from "@/lib/auth/guard";
 
 interface Campaign {
   spend: number;
@@ -11,15 +13,15 @@ interface Campaign {
   revenue: number;
 }
 
-export async function GET() {
-  const config = readSettings<{ isConnected: boolean }>("meta-config");
+async function handleGET() {
+  const config = await readSettings<{ isConnected: boolean }>("meta-config");
   if (!config || !config.isConnected) {
     return NextResponse.json({ error: "Meta account not connected" }, { status: 401 });
   }
 
-  const sandbox = readSettings<{ campaigns: Campaign[] }>("meta-sandbox");
+  const sandbox = await readSettings<{ campaigns: Campaign[] }>("meta-sandbox");
   const campaigns = sandbox?.campaigns ?? [];
-  const products = readCollection<Product>("products");
+  const products = await readCollection<Product>("products");
 
   // Sum campaign stats
   const totalSpend = campaigns.reduce((s, c) => s + c.spend, 0);
@@ -93,14 +95,4 @@ export async function GET() {
   });
 }
 
-function readCollection<T>(collection: string): T[] {
-  // Safe mock or helper
-  try {
-    const fs = require("fs");
-    const path = require("path");
-    const fp = path.join(process.cwd(), "data", `${collection}.json`);
-    return JSON.parse(fs.readFileSync(fp, "utf-8")) as T[];
-  } catch {
-    return [];
-  }
-}
+export const GET = guarded(handleGET);

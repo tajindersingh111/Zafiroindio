@@ -7,7 +7,8 @@ import {
   Truck, RotateCcw, ShieldCheck, Search, Check, ShoppingCart, Gift, ChevronLeft, ChevronRight
 } from "lucide-react";
 import ProductCard from "./ProductCard";
-import { Product, products } from "@/lib/data";
+import type { Product } from "@/lib/data";
+import { useCatalog } from "@/lib/storefront/useCatalog";
 import { useStore } from "./StoreProvider";
 
 export default function ProductClient({ p }: { p: Product }) {
@@ -22,7 +23,7 @@ export default function ProductClient({ p }: { p: Product }) {
   const { add, toggleWish, wishlist } = useStore();
   const wished = wishlist.includes(p.slug);
 
-  const starCount = Math.round(p.rating);
+  const starCount = Math.round(p.rating || 0);
 
   const scrollToImage = (index: number) => {
     setImg(index);
@@ -43,7 +44,8 @@ export default function ProductClient({ p }: { p: Product }) {
     { title: "FAQS", content: "Q: Will the colour fade? A: No, our colours are tested for 50+ washes. Q: Is it pre-shrunk? A: Yes, all fabrics are pre-shrunk before finishing." },
   ];
 
-  const youMayLike = products.filter(x => x.slug !== p.slug).slice(0, 5);
+  const { products: catalogProducts } = useCatalog();
+  const youMayLike = catalogProducts.filter(x => x.slug !== p.slug).slice(0, 5);
 
   const [checkingPincode, setCheckingPincode] = useState(false);
 
@@ -521,6 +523,7 @@ export default function ProductClient({ p }: { p: Product }) {
             <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
               <button
                 type="button"
+                disabled={p.badge === "SOLD OUT"}
                 onClick={() => { for (let i = 0; i < qty; i++) add(p, size, color); }}
                 style={{
                   width: "100%",
@@ -543,7 +546,7 @@ export default function ProductClient({ p }: { p: Product }) {
                 onMouseEnter={(e) => (e.currentTarget.style.background = "#8e682c")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "#a67c37")}
               >
-                <ShoppingCart size={16} /> ADD TO CART
+                <ShoppingCart size={16} /> {p.badge === "SOLD OUT" ? "SOLD OUT" : "ADD TO CART"}
               </button>
 
               <Link

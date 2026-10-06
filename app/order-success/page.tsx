@@ -1,108 +1,131 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Check, ShoppingBag, ArrowRight, Package, FileText, User } from "lucide-react";
+import { Check, ShoppingBag, ArrowRight, Package, FileText, Truck } from "lucide-react";
+import { useStore } from "@/components/StoreProvider";
+
+type PublicOrder = {
+  orderNumber: string;
+  customerFirstName: string;
+  city: string;
+  total: number;
+  paymentMethod: string;
+  estimatedDelivery?: string;
+  items: { name: string; quantity: number; price: number; image?: string }[];
+};
 
 function OrderSuccessContent() {
-  const searchParams = useSearchParams();
-  const rawOrderNumber = searchParams.get("orderNumber");
-  const orderId = searchParams.get("orderId");
-  const orderNumber = rawOrderNumber ? (rawOrderNumber.startsWith("#") ? rawOrderNumber : `#${rawOrderNumber}`) : "#ZI-10025";
+  const ref = useSearchParams().get("ref") || "";
+  const { clearCart } = useStore();
+  const [state, setState] = useState<"loading" | "ready" | "missing">(ref ? "loading" : "missing");
+  const [order, setOrder] = useState<PublicOrder | null>(null);
+  const [invoiceUrl, setInvoiceUrl] = useState("");
+  const tries = useRef(0);
 
-  const invoiceUrl = `/api/invoices/${orderId || rawOrderNumber || "latest"}/download`;
+  useEffect(() => {
+    if (!ref) return;
+    let stop = false;
+    let timer: ReturnType<typeof setTimeout>;
+
+    // Shiprocket confirms the order to our server a moment after payment, so poll briefly.
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/orders/by-ref?ref=${encodeURIComponent(ref)}`, { cache: "no-store" });
+        if (res.status === 404) return !stop && setState("missing");
+        const data = await res.json();
+        if (data.status === "ready") {
+          if (stop) return;
+          setOrder(data.order);
+          setInvoiceUrl(data.invoiceUrl);
+          setState("ready");
+          clearCart();
+          return;
+        }
+      } catch {}
+      if (!stop && ++tries.current < 40) timer = setTimeout(poll, 2500);
+    };
+    poll();
+    return () => {
+      stop = true;
+      clearTimeout(timer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ref]);
 
   return (
-    <main style={{ padding: "64px 20px", background: "var(--cream)", minHeight: "75vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div style={{ maxWidth: 580, width: "100%", background: "var(--paper)", border: "1px solid var(--line)", borderRadius: 16, padding: "40px 32px", textAlign: "center", boxShadow: "0 10px 30px rgba(0,0,0,0.04)" }}>
-        <div style={{ width: 64, height: 64, background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px", color: "#16a34a" }}>
-          <Check size={32} />
-        </div>
+    <main className="blockprint-bg" style={{ padding: "64px 20px", minHeight: "75vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div className="lux-card" style={{ maxWidth: 620, width: "100%", padding: "44px 32px", textAlign: "center", boxShadow: "0 18px 50px rgba(23,26,69,.08)" }}>
+        {state === "loading" && (
+          <>
+            <p className="eyebrow">Confirming payment</p>
+            <h1 className="serif" style={{ fontSize: 32, margin: "10px 0" }}>Just a moment…</h1>
+            <p style={{ color: "var(--muted)" }}>We're confirming your order with the payment partner. Please don't close this page.</p>
+          </>
+        )}
 
-        <div style={{ marginBottom: 24 }}>
-          <p className="eyebrow" style={{ color: "var(--gold-dark)", marginBottom: 6 }}>Order Confirmed</p>
-          <h1 className="serif" style={{ fontSize: 32, margin: "0 0 8px", color: "var(--ink)" }}>Thank You For Your Order!</h1>
-          <p style={{ color: "var(--muted)", fontSize: 14, margin: 0 }}>
-            Your order has been placed successfully and recorded in our system.
-          </p>
-          <div style={{ display: "inline-block", background: "var(--cream)", border: "1px solid var(--line)", padding: "6px 16px", borderRadius: 20, marginTop: 16, fontSize: 13, fontWeight: 700, color: "var(--gold-dark)", letterSpacing: 0.5 }}>
-            Order ID: {orderNumber}
-          </div>
-        </div>
+        {state === "missing" && (
+          <>
+            <h1 className="serif" style={{ fontSize: 32, margin: "0 0 10px" }}>We couldn't find that order</h1>
+            <p style={{ color: "var(--muted)", marginBottom: 22 }}>
+              If you just paid, your confirmation e-mail will arrive shortly. You can also track your order with your order number.
+            </p>
+            <Link href="/track" className="btn gold">Track an order</Link>
+          </>
+        )}
 
-        <div style={{ background: "var(--cream)", border: "1px solid var(--line)", borderRadius: 12, padding: 20, textAlign: "left", marginBottom: 28 }}>
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 14, marginBottom: 16 }}>
-            <span style={{ width: 28, height: 28, borderRadius: "50%", background: "#f0fdf4", color: "#16a34a", border: "1px solid #bbf7d0", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 2 }}>
-              <Check size={14} />
-            </span>
-            <div>
-              <strong style={{ display: "block", fontSize: 13, color: "var(--ink)", marginBottom: 2 }}>Payment & GST Invoice Generated</strong>
-              <span style={{ fontSize: 12, color: "var(--muted)", lineHeight: 1.5, display: "block" }}>We have generated your official tax invoice with UPI QR code and order details.</span>
+        {state === "ready" && order && (
+          <>
+            <div style={{ width: 64, height: 64, borderRadius: "50%", border: "1px solid var(--gold)", color: "var(--gold-dark)", display: "grid", placeItems: "center", margin: "0 auto 20px" }}>
+              <Check size={30} />
             </div>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
-            <span style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--paper)", color: "var(--gold-dark)", border: "1px solid var(--line)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 2 }}>
-              <Package size={14} />
-            </span>
-            <div>
-              <strong style={{ display: "block", fontSize: 13, color: "var(--ink)", marginBottom: 2 }}>Handcrafted Packaging & Delivery</strong>
-              <span style={{ fontSize: 12, color: "var(--muted)", lineHeight: 1.5, display: "block" }}>Your items are being carefully inspected, packed in eco-friendly linen bags, and dispatched (3-5 business days).</span>
+            <p className="eyebrow">Order confirmed</p>
+            <h1 className="serif" style={{ fontSize: "clamp(30px,5vw,40px)", margin: "10px 0 6px" }}>
+              Thank you{order.customerFirstName ? `, ${order.customerFirstName}` : ""}
+            </h1>
+            <p style={{ color: "var(--muted)", margin: 0 }}>Your order is with our Jaipur artisans' team{order.city ? ` and will travel to ${order.city}` : ""}.</p>
+            <div style={{ display: "inline-block", border: "1px solid var(--line-gold)", padding: "6px 18px", marginTop: 16, fontSize: 13, fontWeight: 700, color: "var(--gold-dark)", letterSpacing: 1 }}>
+              {order.orderNumber}
             </div>
-          </div>
-        </div>
 
-        {/* Action Buttons */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <div style={{ display: "flex", gap: 12 }}>
-            <Link
-              href={invoiceUrl}
-              target="_blank"
-              style={{
-                flex: 1,
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 8,
-                background: "#faf6f0",
-                border: "1px solid var(--line)",
-                color: "var(--ink)",
-                padding: "12px 18px",
-                fontSize: 12,
-                fontWeight: 700,
-                borderRadius: 6,
-                textDecoration: "none"
-              }}
-            >
-              <FileText size={15} style={{ color: "var(--gold-dark)" }} /> Download Invoice
-            </Link>
+            <div style={{ textAlign: "left", margin: "28px 0", borderTop: "1px solid var(--line)" }}>
+              {order.items.map((i, idx) => (
+                <div key={idx} style={{ display: "flex", gap: 14, alignItems: "center", padding: "12px 0", borderBottom: "1px solid var(--line)" }}>
+                  {i.image && <img src={i.image} alt="" width={52} height={52} style={{ objectFit: "cover", borderRadius: 2 }} />}
+                  <div style={{ flex: 1, fontSize: 14 }}>
+                    {i.name}
+                    <div style={{ fontSize: 12, color: "var(--muted)" }}>Qty {i.quantity}</div>
+                  </div>
+                  <strong>₹{(i.price * i.quantity).toLocaleString("en-IN")}</strong>
+                </div>
+              ))}
+              <div style={{ display: "flex", justifyContent: "space-between", padding: "14px 0", fontWeight: 700, fontSize: 16 }}>
+                <span>Total ({order.paymentMethod === "cod" ? "Cash on delivery" : "Paid"})</span>
+                <span>₹{order.total.toLocaleString("en-IN")}</span>
+              </div>
+            </div>
 
-            <Link
-              href="/account"
-              style={{
-                flex: 1,
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 8,
-                background: "#1c1917",
-                color: "#ffffff",
-                padding: "12px 18px",
-                fontSize: 12,
-                fontWeight: 700,
-                borderRadius: 6,
-                textDecoration: "none"
-              }}
-            >
-              <User size={15} /> Track Order
-            </Link>
-          </div>
+            <div style={{ display: "grid", gap: 12, textAlign: "left", marginBottom: 26, fontSize: 13, color: "var(--ink-soft)" }}>
+              <div style={{ display: "flex", gap: 10 }}><Package size={16} style={{ color: "var(--gold-dark)", flexShrink: 0 }} /> Each piece is inspected and packed in a cotton linen bag.</div>
+              <div style={{ display: "flex", gap: 10 }}><Truck size={16} style={{ color: "var(--gold-dark)", flexShrink: 0 }} /> Estimated delivery: {order.estimatedDelivery || "3–7 business days"}. Tracking details will be e-mailed.</div>
+            </div>
 
-          <Link href="/shop" className="btn gold" style={{ width: "100%", justifyContent: "center" }}>
-            <ShoppingBag size={16} /> Continue Shopping <ArrowRight size={14} />
-          </Link>
-        </div>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+              {invoiceUrl && (
+                <a href={invoiceUrl} target="_blank" rel="noopener noreferrer" className="btn outline" style={{ flex: 1 }}>
+                  <FileText size={15} /> Invoice
+                </a>
+              )}
+              <Link href="/track" className="btn outline" style={{ flex: 1 }}>
+                <Truck size={15} /> Track order
+              </Link>
+              <Link href="/shop" className="btn gold" style={{ flex: "1 1 100%" }}>
+                <ShoppingBag size={15} /> Continue shopping <ArrowRight size={14} />
+              </Link>
+            </div>
+          </>
+        )}
       </div>
     </main>
   );
@@ -110,11 +133,7 @@ function OrderSuccessContent() {
 
 export default function OrderSuccessPage() {
   return (
-    <Suspense fallback={
-      <main style={{ padding: "64px 20px", textAlign: "center", color: "var(--muted)" }}>
-        Loading order details...
-      </main>
-    }>
+    <Suspense fallback={<main style={{ padding: "64px 20px", textAlign: "center", color: "var(--muted)" }}>Loading…</main>}>
       <OrderSuccessContent />
     </Suspense>
   );

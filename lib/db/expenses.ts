@@ -1,12 +1,12 @@
 import type { Expense } from "@/lib/db/types";
+import { readCollection, getDoc, upsertDoc, deleteDoc } from "@/lib/db/store";
 
-const expensesBuffer: Expense[] = [];
 
-export function getAllExpenses(): Expense[] {
-  return expensesBuffer;
+export async function getAllExpenses(): Promise<Expense[]> {
+  return readCollection<Expense>("expenses");
 }
 
-export function saveExpense(expenseData: Partial<Expense> & { title: string; amount: number; category: Expense["category"]; classification: Expense["classification"] }): Expense {
+export async function saveExpense(expenseData: Partial<Expense> & { title: string; amount: number; category: Expense["category"]; classification: Expense["classification"] }): Promise<Expense> {
   const now = new Date().toISOString();
 
   const newExpense: Expense = {
@@ -26,19 +26,12 @@ export function saveExpense(expenseData: Partial<Expense> & { title: string; amo
     updatedAt: now
   };
 
-  const existingIndex = expensesBuffer.findIndex((e) => e.id === newExpense.id);
-  if (existingIndex >= 0) {
-    expensesBuffer[existingIndex] = { ...expensesBuffer[existingIndex], ...newExpense, updatedAt: now };
-  } else {
-    expensesBuffer.unshift(newExpense);
-  }
-
-  return newExpense;
+  const existing = await getDoc<Expense>("expenses", newExpense.id);
+  const saved: Expense = existing ? { ...existing, ...newExpense, updatedAt: now } : newExpense;
+  await upsertDoc("expenses", saved);
+  return saved;
 }
 
-export function deleteExpense(id: string): boolean {
-  const idx = expensesBuffer.findIndex((e) => e.id === id);
-  if (idx < 0) return false;
-  expensesBuffer.splice(idx, 1);
-  return true;
+export async function deleteExpense(id: string): Promise<boolean> {
+  return deleteDoc("expenses", id);
 }

@@ -6,6 +6,32 @@ generator client {
   provider = "prisma-client-js"
 }
 
+/// Generic JSON document store. Every record of the admin catalogue (products, orders,
+/// customers, coupons, refunds, returns, reviews, sessions, audit logs ...) lives here as one
+/// row, so writes are per-record and atomic instead of whole-file rewrites.
+model Document {
+  collection String
+  id         String
+  position   Int      @default(0)
+  data       Json
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@id([collection, id])
+  @@index([collection, position])
+  @@map("documents")
+}
+
+/// Fixed-window rate limit counters (shared across all server instances).
+model RateLimit {
+  key     String   @id
+  count   Int
+  resetAt DateTime
+
+  @@index([resetAt])
+  @@map("rate_limits")
+}
+
 enum AdminRole {
   super_admin
   admin

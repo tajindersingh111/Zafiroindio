@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
 import { RevealLine } from "./FabricReveal";
 
 const PANELS = [
@@ -75,16 +75,7 @@ export function HorizontalStory() {
                 className="h-px bg-paper/30 overflow-hidden"
                 style={{ width: 40 }}
               >
-                <motion.div
-                  className="h-full bg-turmeric origin-left"
-                  style={{
-                    scaleX: useTransform(
-                      scrollYProgress,
-                      [start, end],
-                      [0, 1]
-                    ),
-                  }}
-                />
+                <ProgressTick progress={scrollYProgress} start={start} end={end} />
               </motion.div>
             );
           })}
@@ -146,4 +137,10 @@ export function HorizontalStory() {
       </div>
     </section>
   );
+}
+
+
+function ProgressTick({ progress, start, end }: { progress: MotionValue<number>; start: number; end: number }) {
+  const scaleX = useTransform(progress, [start, end], [0, 1]);
+  return <motion.div className="h-full bg-turmeric origin-left" style={{ scaleX }} />;
 }

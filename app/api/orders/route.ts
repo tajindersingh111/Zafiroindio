@@ -1,66 +1,34 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth/guard";
 import { prisma } from "@/lib/db/prisma";
-import { getAdminSession } from "@/lib/auth/session";
+import type { Order } from "@/lib/db/types";
 
-// GET /api/orders - Authenticated retrieval of orders from Prisma DB
-export async function GET(request: Request) {
-  try {
-    const adminSession = await getAdminSession(request);
-    
-    if (!adminSession) {
-      return NextResponse.json(
-        { error: "Unauthorized access. Session required." },
-        { status: 401 }
-      );
-    }
+export const dynamic = "force-dynamic";
 
-    const { searchParams } = new URL(request.url);
-    const status = searchParams.get("status");
-    const limit = Math.min(100, Math.max(1, Number(searchParams.get("limit") || 50)));
-    const page = Math.max(1, Number(searchParams.get("page") || 1));
-    const skip = (page - 1) * limit;
+// GET /api/orders - paginated order list for authorised staff only.
+export async function GET(request: NextRequest) {
+  const auth = await requireAdmin(request, "orders");
+  if (auth.error) return auth.error;
 
-    const where = status ? { status: status as any } : {};
+  const sp = request.nextUrl.searchParams;
+  const status = sp.get("status");
+  const limit = Math.min(100, Math.max(1, Number(sp.get("limit") || 50) || 50));
+  const page = Math.max(1, Number(sp.get("page") || 1) || 1);
 
-    const [orders, total] = await Promise.all([
-      prisma.order.findMany({
-        where,
-        orderBy: { createdAt: "desc" },
-        skip,
-        take: limit,
-        include: {
-          items: true,
-          payments: true
-        }
-      }),
-      prisma.order.count({ where })
-    ]);
+  const where = { collection: "orders", ...(status ? { data: { path: ["status"], equals: status } } : {}) };
+  const [rows, total] = await Promise.all([
+    prisma.document.findMany({ where, orderBy: [{ position: "asc" }, { createdAt: "desc" }], skip: (page - 1) * limit, take: limit, select: { data: true } }),
+    prisma.document.count({ where }),
+  ]);
 
-    return NextResponse.json({
-      success: true,
-      orders,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit)
-      }
-    });
-  } catch (error: any) {
-    console.error("GET /api/orders error:", error);
-    return NextResponse.json(
-      { error: error?.message || "Internal server error fetching orders." },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json({
+    success: true,
+    orders: rows.map((r) => r.data as unknown as Order),
+    pagination: { total, page, limit, totalPages: Math.ceil(total / limit) },
+  });
 }
 
-// Order creation is ONLY permitted via verified Shiprocket Webhook (/api/webhooks/shiprocket-checkout)
+// Orders are created ONLY by the signature-verified Shiprocket Checkout webhook.
 export async function POST() {
-  return NextResponse.json(
-    {
-      error: "Direct order placement via client is disabled. Orders are processed securely via Shiprocket Checkout."
-    },
-    { status: 405 }
-  );
+  return NextResponse.json({ error: "Orders are placed through Shiprocket Checkout." }, { status: 405 });
 }

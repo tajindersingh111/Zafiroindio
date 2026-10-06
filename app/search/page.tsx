@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import ProductCard from "@/components/ProductCard";
-import { products } from "@/lib/data";
+import { useCatalog } from "@/lib/storefront/useCatalog";
 import { Suspense, useState, useEffect } from "react";
 import { Search as SearchIcon, Sparkles } from "lucide-react";
 
@@ -22,6 +22,7 @@ function SearchInner() {
   const rawQ = params.get("q") || "";
   const q = rawQ.toLowerCase().trim();
 
+  const { products } = useCatalog();
   const [inputVal, setInputVal] = useState(rawQ);
 
   useEffect(() => {

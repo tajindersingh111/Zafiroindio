@@ -1,83 +1,70 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { calculateTrustedCartPricing } from "@/lib/pricing";
-import { shiprocketCheckoutClient } from "@/lib/shiprocket-checkout/client";
-import { checkRateLimit } from "@/lib/rate-limiter";
+import { CartError, priceCart } from "@/lib/pricing";
+import { shiprocketCheckoutClient, ShiprocketApiError, ShiprocketConfigError } from "@/lib/shiprocket-checkout/client";
+import { rateLimit } from "@/lib/security/rate-limit";
+import { createCheckoutSession, linkShiprocketOrder, newCheckoutRef } from "@/lib/orders/checkout-session";
 
-const tokenRequestSchema = z.object({
-  items: z.array(
-    z.object({
-      productId: z.string().min(1, "productId is required"),
-      qty: z.number().int().min(1, "qty must be at least 1"),
-      size: z.string().optional(),
-      color: z.string().optional()
-    })
-  ).min(1, "Cart must contain at least 1 item"),
-  couponCode: z.string().optional()
+export const dynamic = "force-dynamic";
+
+const bodySchema = z.object({
+  items: z
+    .array(
+      z.object({
+        productId: z.string().min(1).max(200),
+        qty: z.number().int().min(1).max(20),
+        size: z.string().max(60).optional(),
+        color: z.string().max(60).optional(),
+      })
+    )
+    .min(1)
+    .max(40),
 });
 
+function siteOrigin(request: NextRequest): string {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
+  if (configured) return configured;
+  const host = request.headers.get("x-forwarded-host") || request.headers.get("host");
+  const proto = request.headers.get("x-forwarded-proto") || (process.env.NODE_ENV === "production" ? "https" : "http");
+  return `${proto}://${host}`;
+}
+
+/** Start a Shiprocket Checkout session for the cart. Prices come from our database, never the browser. */
 export async function POST(request: NextRequest) {
+  const limited = await rateLimit(request, "checkout-token", { windowMs: 60_000, maxRequests: 15 });
+  if (limited) return limited;
+
+  const parsed = bodySchema.safeParse(await request.json().catch(() => null));
+  if (!parsed.success) return NextResponse.json({ error: "Invalid cart." }, { status: 400 });
+
   try {
-    const ip = request.headers.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
-    const rateLimit = await checkRateLimit(`checkout-token:${ip}`, { windowMs: 60000, limit: 15 });
-    if (!rateLimit.success) {
-      return NextResponse.json(
-        { error: "Too many requests. Please try again later." },
-        { status: 429, headers: { "Retry-After": "60" } }
-      );
-    }
+    const priced = await priceCart(parsed.data.items);
+    const ref = newCheckoutRef();
+    await createCheckoutSession(ref, priced.items.map((l) => ({ productId: l.productId, variationId: l.variationId, variantId: l.variantId, quantity: l.quantity })));
 
-    const rawBody = await request.json();
-    const parseResult = tokenRequestSchema.safeParse(rawBody);
-
-    if (!parseResult.success) {
-      return NextResponse.json(
-        { error: "Invalid request payload", details: parseResult.error.format() },
-        { status: 400 }
-      );
-    }
-
-    const { items, couponCode } = parseResult.data;
-
-    // 1. Calculate trusted pricing on the server from DB product prices
-    const pricing = await calculateTrustedCartPricing(items, couponCode);
-
-    // 2. Generate Shiprocket Checkout token via adapter
-    const checkoutResponse = await shiprocketCheckoutClient.generateCheckoutToken({
-      items: pricing.items,
-      subtotal: pricing.subtotal,
-      discount: pricing.discount,
-      shippingFee: pricing.shippingFee,
-      tax: pricing.tax,
-      total: pricing.total,
-      couponCode: pricing.couponCode
-    });
-
-    if (!checkoutResponse.success) {
-      return NextResponse.json(
-        { error: checkoutResponse.error || "Failed to initialize Shiprocket Checkout session" },
-        { status: 500 }
-      );
-    }
+    const redirectUrl = `${siteOrigin(request)}/order-success?ref=${ref}`;
+    const result = await shiprocketCheckoutClient.createCheckoutToken(
+      priced.items.map((l) => ({ variantId: l.variantId, quantity: l.quantity })),
+      redirectUrl
+    );
+    if (result.orderId) await linkShiprocketOrder(ref, result.orderId);
 
     return NextResponse.json({
       success: true,
-      token: checkoutResponse.token,
-      appId: checkoutResponse.appId,
-      checkoutUrl: checkoutResponse.checkoutUrl,
-      pricing: {
-        subtotal: pricing.subtotal,
-        discount: pricing.discount,
-        shippingFee: pricing.shippingFee,
-        total: pricing.total,
-        couponCode: pricing.couponCode
-      }
+      token: result.token,
+      expiresAt: result.expiresAt,
+      ref,
+      subtotal: priced.subtotal,
+      fallbackUrl: `${siteOrigin(request)}/cart`,
     });
-  } catch (error: any) {
-    console.error("Shiprocket token generation error:", error);
-    return NextResponse.json(
-      { error: error?.message || "Internal server error generating checkout token." },
-      { status: 500 }
-    );
+  } catch (error) {
+    if (error instanceof CartError) return NextResponse.json({ error: error.message }, { status: error.status });
+    if (error instanceof ShiprocketConfigError) {
+      console.error(error.message);
+      return NextResponse.json({ error: "Checkout is temporarily unavailable. Please try again shortly." }, { status: 503 });
+    }
+    if (error instanceof ShiprocketApiError) return NextResponse.json({ error: "We could not start secure checkout. Please try again." }, { status: 502 });
+    console.error("Checkout token error:", error);
+    return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
   }
 }

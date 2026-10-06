@@ -1,4 +1,5 @@
 import type { Invoice, Order, BusinessSnapshot, Address } from "@/lib/db/types";
+import { readCollection, upsertDoc, nextSequence } from "@/lib/db/store";
 
 const DEFAULT_BUSINESS_SNAPSHOT: BusinessSnapshot = {
   storeName: "Zafiro Indio",
@@ -32,34 +33,18 @@ const DEFAULT_ADDRESS: Address = {
   country: "India"
 };
 
-const invoicesBuffer: Invoice[] = [];
-
-export function getAllInvoices(): Invoice[] {
-  return invoicesBuffer;
+export async function getAllInvoices(): Promise<Invoice[]> {
+  return readCollection<Invoice>("invoices");
 }
 
-export function generateInvoiceNumber(invoices: Invoice[]): string {
+export async function generateInvoiceNumber(): Promise<string> {
   const currentYear = new Date().getFullYear();
-  const yearPrefix = `ZI-${currentYear}-`;
-
-  let maxSeq = 0;
-  invoices.forEach((inv) => {
-    if (inv.invoiceNumber && inv.invoiceNumber.startsWith(yearPrefix)) {
-      const parts = inv.invoiceNumber.split("-");
-      const num = parseInt(parts[parts.length - 1], 10);
-      if (!isNaN(num) && num > maxSeq) {
-        maxSeq = num;
-      }
-    }
-  });
-
-  const nextSeq = maxSeq + 1;
-  const seqPadded = String(nextSeq).padStart(6, "0");
-  return `${yearPrefix}${seqPadded}`;
+  const seq = await nextSequence(`invoice-${currentYear}`, 1);
+  return `ZI-${currentYear}-${String(seq).padStart(6, "0")}`;
 }
 
-export function generateInvoiceForOrder(order: Partial<Order> & { id: string; orderNumber: string; customerName: string; customerEmail: string; total: number; subtotal: number; items: any[]; paymentStatus?: any; status?: any; paymentMethod?: any }): Invoice {
-  const existing = invoicesBuffer.find((inv) => inv.orderId === order.id || inv.orderNumber === order.orderNumber);
+export async function generateInvoiceForOrder(order: Partial<Order> & { id: string; orderNumber: string; customerName: string; customerEmail: string; total: number; subtotal: number; items: any[]; paymentStatus?: any; status?: any; paymentMethod?: any }): Promise<Invoice> {
+  const existing = (await getAllInvoices()).find((inv) => inv.orderId === order.id || inv.orderNumber === order.orderNumber);
 
   if (existing) {
     let amountPaid = existing.amountPaid;
@@ -82,12 +67,11 @@ export function generateInvoiceForOrder(order: Partial<Order> & { id: string; or
       updatedAt: new Date().toISOString()
     };
 
-    const idx = invoicesBuffer.findIndex((i) => i.id === existing.id);
-    if (idx >= 0) invoicesBuffer[idx] = updatedInvoice;
+    await upsertDoc("invoices", updatedInvoice);
     return updatedInvoice;
   }
 
-  const invoiceNumber = generateInvoiceNumber(invoicesBuffer);
+  const invoiceNumber = await generateInvoiceNumber();
   const grandTotal = order.total;
 
   let amountPaid = 0;
@@ -142,17 +126,17 @@ export function generateInvoiceForOrder(order: Partial<Order> & { id: string; or
     updatedAt: now
   };
 
-  invoicesBuffer.unshift(newInvoice);
+  await upsertDoc("invoices", newInvoice);
   return newInvoice;
 }
 
-export function getInvoiceByOrderId(orderId: string, orderFallback?: Order): Invoice | null {
-  const found = invoicesBuffer.find((i) => i.orderId === orderId || i.orderNumber === orderId);
+export async function getInvoiceByOrderId(orderId: string, orderFallback?: Order): Promise<Invoice | null> {
+  const found = (await getAllInvoices()).find((i) => i.orderId === orderId || i.orderNumber === orderId);
 
   if (found) return found;
 
   if (orderFallback) {
-    return generateInvoiceForOrder(orderFallback);
+    return await generateInvoiceForOrder(orderFallback);
   }
 
   return null;

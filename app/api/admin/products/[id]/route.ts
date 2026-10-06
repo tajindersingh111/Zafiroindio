@@ -7,20 +7,21 @@ import { requireSuperAdmin, getAuthSession } from "@/lib/auth/rbac";
 import { createAuditLog } from "@/lib/db/audit";
 import { evaluatePriceChange, evaluateInventoryChange } from "@/lib/db/anomalies";
 import { moveToRecycleBin } from "@/lib/db/recycle-bin";
+import { guarded } from "@/lib/auth/guard";
 
-export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
+async function handleGET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const products = readCollection<Product>("products");
+  const products = await readCollection<Product>("products");
   const product = products.find((p) => p.id === id);
   if (!product) return NextResponse.json({ error: "Not found" }, { status: 404 });
   return NextResponse.json({ product });
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function handlePATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getAuthSession(request);
   const { id } = await params;
   const body = await request.json() as Partial<Product> & { adjustmentReason?: string };
-  const products = readCollection<Product>("products");
+  const products = await readCollection<Product>("products");
   const idx = products.findIndex((p) => p.id === id);
   if (idx < 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
@@ -28,7 +29,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
   // Price Anomaly Check
   if (body.price !== undefined && body.price !== oldProduct.price) {
-    evaluatePriceChange(id, oldProduct.name, oldProduct.price, body.price, {
+    await evaluatePriceChange(id, oldProduct.name, oldProduct.price, body.price, {
       id: session?.userId,
       email: session?.email,
       role: session?.role
@@ -37,7 +38,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
   // Inventory Anomaly Check
   if (body.stock !== undefined && body.stock !== oldProduct.stock) {
-    evaluateInventoryChange(id, oldProduct.name, oldProduct.stock, body.stock, body.adjustmentReason, {
+    await evaluateInventoryChange(id, oldProduct.name, oldProduct.stock, body.stock, body.adjustmentReason, {
       id: session?.userId,
       email: session?.email,
       role: session?.role
@@ -48,7 +49,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const newCostPrice = body.costPrice ?? (body.costBreakdown ? Object.values(body.costBreakdown).reduce((a, b) => a + (Number(b) || 0), 0) : undefined);
   if (newCostPrice !== undefined && newCostPrice !== (oldProduct.costPrice || 0)) {
     const recordCostHistory = require("@/lib/db/cost-history").recordCostHistory;
-    recordCostHistory({
+    await recordCostHistory({
       productId: id,
       productName: oldProduct.name,
       previousCost: oldProduct.costPrice || 0,
@@ -60,7 +61,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   }
 
   products[idx] = { ...products[idx], ...body, id, updatedAt: new Date().toISOString() };
-  writeCollection("products", products);
+  await writeCollection("products", products);
 
   try {
     revalidatePath("/shop");
@@ -71,18 +72,18 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   return NextResponse.json({ product: products[idx] });
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function handleDELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   // STRICT SUPER ADMIN DELETE CHECK
   const auth = await requireSuperAdmin(request);
   if (auth.error) return auth.error;
 
   const { id } = await params;
-  let products = readCollection<Product>("products");
+  let products = await readCollection<Product>("products");
   const target = products.find((p) => p.id === id);
   if (!target) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   // Move to Recycle Bin before removing from active products list
-  moveToRecycleBin({
+  await moveToRecycleBin({
     module: "products",
     originalId: id,
     recordName: target.name,
@@ -93,7 +94,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   });
 
   products = products.filter((p) => p.id !== id);
-  writeCollection("products", products);
+  await writeCollection("products", products);
 
   try {
     revalidatePath("/shop");
@@ -103,9 +104,9 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   return NextResponse.json({ success: true, message: "Product moved to Recycle Bin." });
 }
 
-export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+async function handlePOST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const products = readCollection<Product>("products");
+  const products = await readCollection<Product>("products");
   const original = products.find((p) => p.id === id);
   if (!original) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
@@ -121,7 +122,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     updatedAt: now,
   };
   products.push(duplicate);
-  writeCollection("products", products);
+  await writeCollection("products", products);
 
   try {
     revalidatePath("/shop");
@@ -130,3 +131,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   return NextResponse.json({ product: duplicate }, { status: 201 });
 }
+
+export const GET = guarded(handleGET);
+export const PATCH = guarded(handlePATCH);
+export const DELETE = guarded(handleDELETE);
+export const POST = guarded(handlePOST);

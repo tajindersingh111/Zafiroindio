@@ -19,7 +19,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Clock, Eye, TrendingUp } from "lucide-react";
 import { getRankedRecommendations, getRecentlyViewed, formatDwellTime, type RecommendationResult } from "@/lib/recommendations";
-import { getStorefrontProducts, type Product } from "@/lib/data";
+import { type Product } from "@/lib/data";
+import { useCatalog } from "@/lib/storefront/useCatalog";
 import ProductCard from "@/components/ProductCard";
 
 interface Props {
@@ -43,6 +44,7 @@ export default function SmartRecommendations({
     (Product & { score: number; totalSeconds: number; viewCount: number })[]
   >([]);
   const [loaded, setLoaded] = useState(false);
+  const { products: catalog } = useCatalog();
 
   useEffect(() => {
     const excluded = excludeSlug ? [excludeSlug] : [];
@@ -56,7 +58,7 @@ export default function SmartRecommendations({
       return;
     }
 
-    const allProducts = getStorefrontProducts();
+    const allProducts = catalog;
     const matched = ranked
       .map((r) => {
         const p = allProducts.find((p) => p.slug === r.slug);
@@ -68,7 +70,7 @@ export default function SmartRecommendations({
 
     setRecommendations(matched);
     setLoaded(true);
-  }, [excludeSlug, mode, maxItems]);
+  }, [excludeSlug, mode, maxItems, catalog]);
 
   // Don't render on first visit (no data) or while loading
   if (!loaded || recommendations.length === 0) return null;

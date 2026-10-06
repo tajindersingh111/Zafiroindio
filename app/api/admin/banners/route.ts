@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { readCollection, writeCollection } from "@/lib/db/store";
+import { guarded } from "@/lib/auth/guard";
 
 interface Banner {
   id: string;
@@ -15,15 +16,15 @@ interface Banner {
   isActive: boolean;
 }
 
-export async function GET() {
-  const banners = readCollection<Banner>("banners");
+async function handleGET() {
+  const banners = await readCollection<Banner>("banners");
   return NextResponse.json(banners);
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     const body = await request.json() as Partial<Banner>;
-    const banners = readCollection<Banner>("banners");
+    const banners = await readCollection<Banner>("banners");
     const newBanner: Banner = {
       id: "ban-" + Math.random().toString(36).substring(2, 9),
       type: body.type ?? "banner",
@@ -37,7 +38,7 @@ export async function POST(request: Request) {
       isActive: body.isActive !== undefined ? body.isActive : true
     };
     banners.push(newBanner);
-    writeCollection("banners", banners);
+    await writeCollection("banners", banners);
 
     try { revalidatePath("/"); } catch {}
 
@@ -47,15 +48,15 @@ export async function POST(request: Request) {
   }
 }
 
-export async function PATCH(request: Request) {
+async function handlePATCH(request: Request) {
   try {
     const body = await request.json() as Partial<Banner> & { id: string };
-    const banners = readCollection<Banner>("banners");
+    const banners = await readCollection<Banner>("banners");
     const idx = banners.findIndex((b) => b.id === body.id);
     if (idx < 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
     banners[idx] = { ...banners[idx], ...body };
-    writeCollection("banners", banners);
+    await writeCollection("banners", banners);
 
     try { revalidatePath("/"); } catch {}
 
@@ -65,7 +66,7 @@ export async function PATCH(request: Request) {
   }
 }
 
-export async function DELETE(request: NextRequest) {
+async function handleDELETE(request: NextRequest) {
   const { requireSuperAdmin } = require("@/lib/auth/rbac");
   const { createAuditLog } = require("@/lib/db/audit");
   
@@ -76,14 +77,14 @@ export async function DELETE(request: NextRequest) {
   const id = searchParams.get("id");
   if (!id) return NextResponse.json({ error: "Banner ID required" }, { status: 400 });
 
-  let banners = readCollection<Banner>("banners");
+  let banners = await readCollection<Banner>("banners");
   const target = banners.find((b) => b.id === id);
   if (!target) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   banners = banners.filter((b) => b.id !== id);
-  writeCollection("banners", banners);
+  await writeCollection("banners", banners);
 
-  createAuditLog({
+  await createAuditLog({
     userId: auth.session?.userId,
     userName: auth.session?.email,
     userRole: auth.session?.role,
@@ -98,3 +99,7 @@ export async function DELETE(request: NextRequest) {
   return NextResponse.json({ success: true });
 }
 
+export const GET = guarded(handleGET);
+export const POST = guarded(handlePOST);
+export const PATCH = guarded(handlePATCH);
+export const DELETE = guarded(handleDELETE);

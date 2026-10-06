@@ -1,5 +1,9 @@
-import { NextResponse } from "next/server";
-import { readCollection, writeCollection } from "@/lib/db/store";
+import crypto from "node:crypto";
+import { NextRequest, NextResponse } from "next/server";
+import { findDocs, upsertDoc } from "@/lib/db/store";
+import { rateLimit } from "@/lib/security/rate-limit";
+
+export const dynamic = "force-dynamic";
 
 export interface Review {
   id: string;
@@ -15,55 +19,57 @@ export interface Review {
   createdAt: string;
 }
 
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const productId = searchParams.get("productId");
-
-  const reviews = readCollection<Review>("reviews");
-  // Show approved reviews or newly posted reviews
-  let filtered = reviews.filter((r) => r.status === "approved" || r.status === "pending" || !r.status);
-  
-  if (productId) {
-    filtered = filtered.filter(
-      (r) => r.productId === productId || r.productName.toLowerCase() === productId.toLowerCase()
-    );
-  }
-
-  return NextResponse.json(filtered);
+/** Public view: approved reviews only, and never the reviewer's e-mail address. */
+function publicReview(r: Review) {
+  return { id: r.id, productId: r.productId, productName: r.productName, customerName: r.customerName, rating: r.rating, title: r.title || "", review: r.review, photoUrl: r.photoUrl || "", createdAt: r.createdAt };
 }
 
-export async function POST(req: Request) {
+export async function GET(req: NextRequest) {
+  const productId = req.nextUrl.searchParams.get("productId");
+  if (!productId) return NextResponse.json([]);
+  const rows = await findDocs<Review>("reviews", { path: ["productId"], equals: productId }, 200);
+  return NextResponse.json(rows.filter((r) => r.status === "approved").map(publicReview));
+}
+
+const EMAIL_RE = /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{2,}$/;
+
+export async function POST(req: NextRequest) {
+  const limited = await rateLimit(req, "review-submit", { windowMs: 60 * 60_000, maxRequests: 5 });
+  if (limited) return limited;
+
   try {
-    const body = await req.json();
-    const { productId, productName, customerName, customerEmail, rating, review, title, photoUrl } = body;
+    const body = (await req.json()) as Record<string, unknown>;
+    const str = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
+    const customerName = str(body.customerName, 80);
+    const text = str(body.review, 2000);
+    const rating = Math.round(Number(body.rating));
+    const email = str(body.customerEmail, 254).toLowerCase();
+    const productId = str(body.productId, 200);
 
-    if (!customerName || !rating || !review) {
-      return NextResponse.json({ error: "Name, rating, and review text are required." }, { status: 400 });
-    }
+    if (!customerName || !text || !productId) return NextResponse.json({ error: "Name, rating, and review text are required." }, { status: 400 });
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5) return NextResponse.json({ error: "Rating must be between 1 and 5." }, { status: 400 });
+    if (email && !EMAIL_RE.test(email)) return NextResponse.json({ error: "Please enter a valid e-mail address." }, { status: 400 });
 
-    const reviews = readCollection<Review>("reviews");
-    const newReview: Review = {
-      id: `rev_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-      productId: productId || "unknown",
-      productName: productName || "Jaipur Handblock Product",
-      customerName: customerName.trim(),
-      customerEmail: customerEmail?.trim() || "",
-      rating: Number(rating) || 5,
-      title: title?.trim() || "",
-      review: review.trim(),
-      photoUrl: photoUrl?.trim() || "",
-      status: "approved", // Auto-approve for immediate live display
+    // Only https image links (blocks javascript:/data: URLs).
+    const photoRaw = str(body.photoUrl, 500);
+    const photoUrl = /^https:\/\//i.test(photoRaw) ? photoRaw : "";
+
+    const review: Review = {
+      id: `rev_${Date.now()}_${crypto.randomBytes(3).toString("hex")}`,
+      productId,
+      productName: str(body.productName, 160) || productId,
+      customerName,
+      customerEmail: email,
+      rating,
+      title: str(body.title, 120),
+      review: text,
+      photoUrl,
+      status: "pending", // moderated: nothing goes live (or into the star average) until staff approve it
       createdAt: new Date().toISOString(),
     };
+    await upsertDoc("reviews", review);
 
-    reviews.unshift(newReview);
-    writeCollection("reviews", reviews);
-
-    return NextResponse.json({
-      success: true,
-      message: "Thank you! Your review has been submitted and is now live on screen.",
-      review: newReview,
-    });
+    return NextResponse.json({ success: true, message: "Thank you! Your review has been submitted and will appear once our team approves it." });
   } catch {
     return NextResponse.json({ error: "Failed to submit review." }, { status: 500 });
   }

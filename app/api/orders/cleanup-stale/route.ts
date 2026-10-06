@@ -1,65 +1,35 @@
-import { NextResponse } from "next/server";
+import crypto from "node:crypto";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 
-export async function POST(request: Request) {
-  try {
-    const authHeader = request.headers.get("authorization");
-    const secretKey = process.env.CRON_SECRET || process.env.SHIPROCKET_CHECKOUT_WEBHOOK_SECRET;
+export const dynamic = "force-dynamic";
 
-    if (secretKey && authHeader !== `Bearer ${secretKey}`) {
-      const headerSecret = request.headers.get("x-cron-secret");
-      if (headerSecret !== secretKey) {
-        return NextResponse.json({ error: "Unauthorized cron execution." }, { status: 401 });
-      }
-    }
+function authorized(request: NextRequest): boolean {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return false; // fail closed: previously an unset secret left this endpoint open to everyone
+  const given = (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "") || request.headers.get("x-cron-secret") || "";
+  const a = Buffer.from(given);
+  const b = Buffer.from(secret);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
 
-    const { searchParams } = new URL(request.url);
-    const minutes = Math.max(5, Number(searchParams.get("minutes") || 30));
-    const cutoffTime = new Date(Date.now() - minutes * 60 * 1000);
+/**
+ * Housekeeping cron (schedule it daily). Orders are only created after payment succeeds, so there
+ * are no "pending payment" orders to cancel any more; this prunes the data that does pile up:
+ * abandoned checkout sessions, expired rate-limit counters and old webhook idempotency rows.
+ */
+export async function POST(request: NextRequest) {
+  if (!authorized(request)) return NextResponse.json({ error: "Unauthorized cron execution." }, { status: 401 });
 
-    const staleOrders = await prisma.order.findMany({
-      where: {
-        status: "payment_pending",
-        createdAt: { lt: cutoffTime }
-      },
-      include: { items: true }
-    });
+  const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-    if (staleOrders.length === 0) {
-      return NextResponse.json({ success: true, cancelledCount: 0, message: "No stale pending orders found." });
-    }
+  const [sessions, links, limits, events] = await Promise.all([
+    prisma.document.deleteMany({ where: { collection: "checkout-sessions", createdAt: { lt: dayAgo }, data: { path: ["status"], equals: "pending" } } }),
+    prisma.document.deleteMany({ where: { collection: "checkout-sessions-by-sr", createdAt: { lt: monthAgo } } }),
+    prisma.rateLimit.deleteMany({ where: { resetAt: { lt: new Date() } } }),
+    prisma.webhookEvent.deleteMany({ where: { createdAt: { lt: monthAgo } } }),
+  ]);
 
-    let restoredItemsCount = 0;
-
-    for (const order of staleOrders) {
-      await prisma.$transaction(async (tx) => {
-        await tx.order.update({
-          where: { id: order.id },
-          data: { status: "cancelled", cancelReason: "Stale pending checkout timeout" }
-        });
-
-        for (const item of order.items) {
-          if (item.productId) {
-            await tx.product.update({
-              where: { id: item.productId },
-              data: {
-                stock: { increment: item.quantity }
-              }
-            }).catch(() => {});
-            restoredItemsCount += item.quantity;
-          }
-        }
-      });
-    }
-
-    return NextResponse.json({
-      success: true,
-      cancelledOrdersCount: staleOrders.length,
-      restoredItemsCount,
-      cutoffTime: cutoffTime.toISOString()
-    });
-  } catch (error: any) {
-    console.error("Cleanup stale orders error:", error);
-    return NextResponse.json({ error: error?.message || "Stale cleanup error." }, { status: 500 });
-  }
+  return NextResponse.json({ success: true, prunedCheckoutSessions: sessions.count, prunedSessionLinks: links.count, prunedRateLimits: limits.count, prunedWebhookEvents: events.count });
 }

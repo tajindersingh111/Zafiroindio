@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { readCollection, writeCollection } from "@/lib/db/store";
+import { guarded } from "@/lib/auth/guard";
 
 interface Campaign {
   id: string;
@@ -12,15 +13,15 @@ interface Campaign {
   isActive: boolean;
 }
 
-export async function GET() {
-  const campaigns = readCollection<Campaign>("campaigns");
+async function handleGET() {
+  const campaigns = await readCollection<Campaign>("campaigns");
   return NextResponse.json(campaigns);
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     const body = await request.json() as Partial<Campaign>;
-    const campaigns = readCollection<Campaign>("campaigns");
+    const campaigns = await readCollection<Campaign>("campaigns");
     const newCamp: Campaign = {
       id: "cam-" + Math.random().toString(36).substring(2, 9),
       name: body.name ?? "",
@@ -32,24 +33,28 @@ export async function POST(request: Request) {
       isActive: body.isActive !== undefined ? body.isActive : true
     };
     campaigns.push(newCamp);
-    writeCollection("campaigns", campaigns);
+    await writeCollection("campaigns", campaigns);
     return NextResponse.json(newCamp);
   } catch (error) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 }
 
-export async function PATCH(request: Request) {
+async function handlePATCH(request: Request) {
   try {
     const body = await request.json() as Partial<Campaign> & { id: string };
-    const campaigns = readCollection<Campaign>("campaigns");
+    const campaigns = await readCollection<Campaign>("campaigns");
     const idx = campaigns.findIndex((c) => c.id === body.id);
     if (idx < 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
     campaigns[idx] = { ...campaigns[idx], ...body };
-    writeCollection("campaigns", campaigns);
+    await writeCollection("campaigns", campaigns);
     return NextResponse.json(campaigns[idx]);
   } catch (error) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 }
+
+export const GET = guarded(handleGET);
+export const POST = guarded(handlePOST);
+export const PATCH = guarded(handlePATCH);

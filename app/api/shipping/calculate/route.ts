@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { readCollection } from "@/lib/db/store";
+import { readCollection, readSettings } from "@/lib/db/store";
 import { calculateShippingAndCodFee } from "@/lib/shipping/calculator";
 import type { Product, StoreSettings } from "@/lib/db/types";
 
@@ -13,9 +13,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Cart items are required for shipping calculation." }, { status: 400 });
     }
 
-    const products = readCollection<Product>("products");
-    const settingsList = readCollection<StoreSettings>("settings");
-    const storeSettings = settingsList && settingsList.length > 0 ? settingsList[0] : undefined;
+    const products = await readCollection<Product>("products");
+    const storeSettings = (await readSettings<StoreSettings>("settings")) ?? undefined;
 
     const productsMap = new Map<string, Product>();
     products.forEach((p) => {

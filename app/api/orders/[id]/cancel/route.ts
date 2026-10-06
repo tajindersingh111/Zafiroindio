@@ -1,86 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readCollection, writeCollection } from "@/lib/db/store";
-import type { Order, RefundRecord } from "@/lib/db/types";
+import { findOneByField, getDoc } from "@/lib/db/store";
+import { cancelOrder } from "@/lib/orders/service";
+import { orderMatchesContact } from "@/lib/orders/contact";
 import { sendTransactionalEmail } from "@/lib/email/service";
-import { checkRateLimit, rateLimitResponse } from "@/lib/security/rate-limit";
+import { rateLimit } from "@/lib/security/rate-limit";
+import { createAuditLog } from "@/lib/db/audit";
+import type { Order } from "@/lib/db/types";
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export const dynamic = "force-dynamic";
+
+/** Customer self-service cancel. Needs the order number AND the phone/e-mail it was placed with. */
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const limited = await rateLimit(request, "order-cancel", { windowMs: 60_000, maxRequests: 5 });
+  if (limited) return limited;
+
+  const { id } = await params;
+  const body = (await request.json().catch(() => ({}))) as { reason?: unknown; contact?: unknown };
+  const reason = typeof body.reason === "string" && body.reason.trim() ? body.reason.trim().slice(0, 300) : "Customer requested cancellation";
+
+  const order = (await findOneByField<Order>("orders", "orderNumber", id)) ?? (await getDoc<Order>("orders", id));
+  // Same answer for "no such order" and "wrong contact" so order numbers cannot be probed.
+  if (!order || !orderMatchesContact(order, body.contact)) {
+    return NextResponse.json({ error: "We could not find an order matching those details." }, { status: 404 });
+  }
+
   try {
-    const ip = request.headers.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
-    const rateLimit = await checkRateLimit(`order-cancel:${ip}`, { windowMs: 60000, maxRequests: 5 });
-    if (!rateLimit.success) {
-      return rateLimitResponse(rateLimit.reset);
-    }
+    const result = await cancelOrder(order.id, reason, "customer");
+    if (!result.ok) return NextResponse.json({ error: result.message }, { status: result.code === "not_found" ? 404 : 400 });
+    if (result.alreadyCancelled) return NextResponse.json({ message: "Order is already cancelled.", order: { orderNumber: result.order.orderNumber, status: result.order.status } });
 
-    const { id } = await params;
-    const body = await request.json().catch(() => ({}));
-    const reason = body.reason || "Customer requested cancellation";
+    await createAuditLog({ userId: "customer", userName: order.customerEmail, userRole: "customer", action: "ORDER_CANCELLED_BY_CUSTOMER", module: "orders", recordId: order.id, recordName: order.orderNumber, updatedData: { reason }, riskLevel: "MEDIUM" });
+    await sendTransactionalEmail("ORDER_CANCELLED", result.order).catch(() => {});
 
-    const orders = readCollection<Order>("orders");
-    const idx = orders.findIndex(o => o.id === id || o.orderNumber === id);
-
-    if (idx < 0) {
-      return NextResponse.json({ error: "Order not found." }, { status: 404 });
-    }
-
-    const order = orders[idx];
-
-    // Cancellation Business Rules: Not allowed if shipped or delivered
-    if (["shipped", "out_for_delivery", "delivered"].includes(order.status)) {
-      return NextResponse.json({
-        error: `Cannot cancel order in ${order.status.toUpperCase()} stage. Please initiate a return request instead.`
-      }, { status: 400 });
-    }
-
-    if (order.status === "cancelled") {
-      return NextResponse.json({ message: "Order is already cancelled." }, { status: 200 });
-    }
-
-    const now = new Date().toISOString();
-    order.status = "cancelled";
-    order.notes.unshift({
-      id: `nte-${Date.now()}`,
-      note: `Order cancelled. Reason: ${reason}`,
-      isCustomerNote: false,
-      createdAt: now,
-    });
-    order.updatedAt = now;
-
-    // Handle refund if payment was already made
-    let refund: RefundRecord | null = null;
-    if (order.paymentStatus === "paid") {
-      order.paymentStatus = "refund_pending";
-
-      const refunds = readCollection<RefundRecord>("refunds");
-      refund = {
-        id: `ref-${Date.now()}`,
-        orderId: order.id,
-        orderNumber: order.orderNumber,
-        amount: order.total,
-        reason: `Auto refund on order cancellation: ${reason}`,
-        status: "REFUND_PENDING",
-        createdAt: now,
-        updatedAt: now,
-      };
-      refunds.unshift(refund);
-      writeCollection("refunds", refunds);
-    }
-
-    orders[idx] = order;
-    writeCollection("orders", orders);
-
-    // Dispatch email
-    await sendTransactionalEmail("ORDER_CANCELLED", order);
-    if (refund) {
-      await sendTransactionalEmail("REFUND_COMPLETED", order, { refundAmount: refund.amount });
-    }
-
-    return NextResponse.json({ success: true, order, refund });
-  } catch {
+    return NextResponse.json({ success: true, order: { orderNumber: result.order.orderNumber, status: result.order.status, paymentStatus: result.order.paymentStatus }, refundPending: !!result.refund });
+  } catch (error) {
+    console.error("Cancel order failed:", error);
     return NextResponse.json({ error: "Failed to cancel order." }, { status: 500 });
   }
 }
-
