@@ -16,17 +16,17 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.shiprocket.in https://*.fastrr.app https://checkout.shiprocket.in",
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.shiprocket.in https://*.fastrr.app https://checkout.shiprocket.in https://*.pickrr.com https://cdn.pickrr.com https://*.fastrr.com",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.shiprocket.in https://*.fastrr.app https://*.pickrr.com",
               "font-src 'self' https://fonts.gstatic.com",
-              "img-src 'self' data: blob: https://images.unsplash.com https://*.shiprocket.in https://*.fastrr.app",
-              "connect-src 'self' https://*.shiprocket.in https://fastrr-api.shiprocket.in https://*.fastrr.app",
-              "frame-src 'self' https://*.shiprocket.in https://*.fastrr.app"
+              "img-src 'self' data: blob: https://images.unsplash.com https://*.shiprocket.in https://*.fastrr.app https://*.pickrr.com",
+              "connect-src 'self' https://*.shiprocket.in https://fastrr-api.shiprocket.in https://*.fastrr.app https://*.pickrr.com https://*.fastrr.com",
+              "frame-src 'self' https://*.shiprocket.in https://*.fastrr.app https://*.pickrr.com https://*.fastrr.com"
             ].join("; ")
           },
           {
             key: "X-Frame-Options",
-            value: "SAMEORIGIN"
+            value: "ALLOWALL"
           },
           {
             key: "X-Content-Type-Options",

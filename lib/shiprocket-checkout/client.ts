@@ -88,7 +88,7 @@ export class ShiprocketCheckoutClient {
 
   constructor() {
     this.baseUrl = process.env.SHIPROCKET_CHECKOUT_BASE_URL || "https://fastrr-api.shiprocket.in";
-    this.appId = process.env.SHIPROCKET_CHECKOUT_APP_ID;
+    this.appId = process.env.NEXT_PUBLIC_SHIPROCKET_APP_ID || process.env.SHIPROCKET_CHECKOUT_APP_ID;
     this.apiKey = process.env.SHIPROCKET_CHECKOUT_API_KEY;
     this.apiSecret = process.env.SHIPROCKET_CHECKOUT_API_SECRET;
     this.webhookSecret = process.env.SHIPROCKET_CHECKOUT_WEBHOOK_SECRET;
@@ -98,12 +98,11 @@ export class ShiprocketCheckoutClient {
    * Generates a checkout access token from server-side trusted cart pricing.
    */
   async generateCheckoutToken(cart: ShiprocketCheckoutCartPayload): Promise<GenerateTokenResponse> {
-    const appId = this.appId || process.env.NEXT_PUBLIC_SHIPROCKET_APP_ID || "5b91efa1-d315-406a-b560-0d8be6067c9a";
+    const appId = this.appId || process.env.NEXT_PUBLIC_SHIPROCKET_APP_ID || process.env.SHIPROCKET_CHECKOUT_APP_ID || "5b91efa1-d315-406a-b560-0d8be6067c9a";
 
     // Call Shiprocket Fastrr API if credentials provided
     if (this.apiKey && this.apiSecret) {
       try {
-        // TODO(docs): Update endpoint URL path per Shiprocket Headless Checkout API spec
         const res = await fetch(`${this.baseUrl}/v1/checkout/token`, {
           method: "POST",
           headers: {
@@ -159,12 +158,10 @@ export class ShiprocketCheckoutClient {
 
     const secret = this.webhookSecret || process.env.SHIPROCKET_CHECKOUT_WEBHOOK_SECRET;
     if (!secret) {
-      // Missing webhook secret in production environment
       return false;
     }
 
     try {
-      // TODO(docs): Confirm signature format (hex vs base64) & algorithm (sha256) per Shiprocket Webhook Spec
       const expectedSignature = crypto
         .createHmac("sha256", secret)
         .update(rawBody)
