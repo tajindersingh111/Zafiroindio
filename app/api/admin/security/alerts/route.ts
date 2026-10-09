@@ -66,7 +66,7 @@ async function handlePATCH(request: NextRequest) {
     });
 
     return NextResponse.json({ success: true, alert: alerts[idx] });
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 }

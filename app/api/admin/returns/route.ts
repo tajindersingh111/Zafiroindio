@@ -43,7 +43,7 @@ async function handlePOST(request: Request) {
     returns.push(newRequest);
     await writeCollection("returns", returns);
     return NextResponse.json(newRequest);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 }

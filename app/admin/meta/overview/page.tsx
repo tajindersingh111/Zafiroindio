@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { PageShell, PageHeader, SectionCard, LoadingSpinner, FilterSelect, StatCard } from "@/components/admin/Shared";
+import { PageShell, PageHeader, SectionCard, FilterSelect, StatCard } from "@/components/admin/Shared";
 import { MetaWrapper } from "@/components/admin/MetaWrapper";
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 
 const DATE_RANGES = [
   { label: "Today", value: "today" },

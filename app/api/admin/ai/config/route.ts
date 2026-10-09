@@ -34,7 +34,7 @@ async function handlePATCH(request: Request) {
     const updated = { ...current, ...body };
     await writeSettings("ai-config", updated);
     return NextResponse.json(updated);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Invalid configuration payload" }, { status: 400 });
   }
 }

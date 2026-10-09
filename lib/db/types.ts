@@ -200,8 +200,24 @@ export interface Order {
   shippingDate?: string;
   estimatedDelivery?: string;
   deliveredDate?: string;
+  /** Set once the order has been sent to ShipMozo (courier aggregator). */
+  shipmozo?: ShipmozoOrderInfo;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ShipmozoOrderInfo {
+  /** The order id we gave ShipMozo (our order number). */
+  orderId: string;
+  referenceId?: string;
+  pushedAt: string;
+  /** Parcel the order was booked with (kg / cm). */
+  parcel?: { weightKg: number; l: number; w: number; h: number };
+  courierId?: string;
+  labelUrl?: string;
+  pickupScheduled?: boolean;
+  lastStatus?: string;
+  lastSyncAt?: string;
 }
 
 // ── Customers ───────────────────────────────────────────────
@@ -486,6 +502,8 @@ export interface ShipmentRecord {
   status: "SHIPMENT_CREATED" | "PICKED_UP" | "IN_TRANSIT" | "REACHED_HUB" | "OUT_FOR_DELIVERY" | "DELIVERED" | "CANCELLED" | "RTO" | "RETURNED";
   weight?: number;
   dimensions?: string;
+  /** Courier scan history, newest first. */
+  events?: { date?: string; status: string; location?: string }[];
   shippedAt?: string;
   deliveredAt?: string;
   createdAt: string;

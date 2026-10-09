@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { PageShell, PageHeader, Btn, useToast } from "@/components/admin/Shared";
-import { Upload, Download, FileText, CheckCircle2, AlertTriangle, ArrowLeft } from "lucide-react";
+import { Upload, Download, FileText, CheckCircle2, ArrowLeft } from "lucide-react";
 
 export default function BulkImportProductsPage() {
   const router = useRouter();
@@ -89,7 +89,7 @@ Zafiro Blush Lotus Bedsheet,ZI-LTS-005,1599,1199,40,Floral,https://images.unspla
       } else {
         addToast(data.error || "Failed to import products.", "error");
       }
-    } catch (e) {
+    } catch {
       addToast("Error communicating with server.", "error");
     } finally {
       setImporting(false);

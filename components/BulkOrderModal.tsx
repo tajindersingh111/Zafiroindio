@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, PackageCheck, Send, CheckCircle2, Building2, User, Mail, Phone, Layers, HelpCircle, Sparkles } from "lucide-react";
+import { X, PackageCheck, Send, CheckCircle2, Building2, User, Mail, Phone, Layers, Sparkles } from "lucide-react";
 
 interface BulkOrderModalProps {
   isOpen: boolean;

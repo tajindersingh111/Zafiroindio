@@ -3,8 +3,6 @@ import { readCollection } from "@/lib/db/store";
 import type { Order, Product } from "@/lib/db/types";
 import { guarded } from "@/lib/auth/guard";
 
-function parseDate(d: string) { return new Date(d); }
-
 async function handleGET() {
   const allOrders = await readCollection<Order>("orders");
   const products = await readCollection<Product>("products");

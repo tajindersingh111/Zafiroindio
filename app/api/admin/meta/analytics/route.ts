@@ -1,7 +1,5 @@
-import { readCollection } from "@/lib/db/store";
 import { NextResponse } from "next/server";
 import { readSettings } from "@/lib/db/store";
-import type { Order, Product } from "@/lib/db/types";
 import { guarded } from "@/lib/auth/guard";
 
 interface Campaign {
@@ -21,7 +19,6 @@ async function handleGET() {
 
   const sandbox = await readSettings<{ campaigns: Campaign[] }>("meta-sandbox");
   const campaigns = sandbox?.campaigns ?? [];
-  const products = await readCollection<Product>("products");
 
   // Sum campaign stats
   const totalSpend = campaigns.reduce((s, c) => s + c.spend, 0);

@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { getCatalogCollections } from "@/lib/storefront/catalog";
+import SmartImg from "@/components/SmartImg";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+// Cached page (ISR): rebuilt in the background at most once a minute, and right after admin edits.
+export const revalidate = 60;
 
 export const metadata = {
   title: "Bedsheet Collections | Floral, Minimal, Luxury, Block Print | Zafiro Indio",
@@ -102,8 +103,11 @@ export default async function Collections() {
               >
                 {/* Card Image */}
                 <div style={{ overflow: "hidden", height: 240, position: "relative" }}>
-                  <img
+                  <SmartImg
                     src={c.image}
+                    width={640}
+                    widths={[384, 640, 828]}
+                    sizes="(max-width: 640px) 100vw, 33vw"
                     alt={c.name}
                     loading="lazy"
                     className="collectionCardImg"

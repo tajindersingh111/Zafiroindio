@@ -2,7 +2,7 @@
 
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
-import { PageShell, PageHeader, Btn, SectionCard, useToast, LoadingSpinner, FilterSelect } from "@/components/admin/Shared";
+import { PageShell, PageHeader, Btn, SectionCard, useToast, LoadingSpinner } from "@/components/admin/Shared";
 import ImageUploader from "@/components/admin/ImageUploader";
 import { v4 as uuidv4 } from "uuid";
 

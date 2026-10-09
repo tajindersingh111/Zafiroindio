@@ -1,49 +1,45 @@
 import { NextResponse } from "next/server";
-import { readCollection } from "@/lib/db/store";
+import { prisma } from "@/lib/db/prisma";
 import type { Product, Order, Customer, Coupon } from "@/lib/db/types";
 import { guarded } from "@/lib/auth/guard";
 
+type Row<T> = { data: T };
+
+/**
+ * Admin top-bar search. Matches in SQL (case-insensitive, null-safe: imported records often have null
+ * names/emails), 10 results per type, instead of loading every order and customer per keystroke.
+ */
 async function handleGET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const q = (searchParams.get("q") ?? "").trim().toLowerCase();
+  const q = (searchParams.get("q") ?? "").trim().slice(0, 100);
+  if (!q) return NextResponse.json({ products: [], orders: [], customers: [], coupons: [] });
 
-  if (!q) {
-    return NextResponse.json({ products: [], orders: [], customers: [], coupons: [] });
-  }
-
-  const products = await readCollection<Product>("products");
-  const orders = await readCollection<Order>("orders");
-  const customers = await readCollection<Customer>("customers");
-  const coupons = await readCollection<Coupon>("coupons");
-
-  const matchingProducts = products.filter(
-    (p) => p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q)
-  ).slice(0, 10);
-
-  const matchingOrders = orders.filter(
-    (o) =>
-      o.orderNumber.toLowerCase().includes(q) ||
-      o.customerName.toLowerCase().includes(q) ||
-      o.customerEmail.toLowerCase().includes(q)
-  ).slice(0, 10);
-
-  const matchingCustomers = customers.filter(
-    (c) =>
-      c.firstName.toLowerCase().includes(q) ||
-      c.lastName.toLowerCase().includes(q) ||
-      c.email.toLowerCase().includes(q) ||
-      (c.company && c.company.toLowerCase().includes(q))
-  ).slice(0, 10);
-
-  const matchingCoupons = coupons.filter(
-    (c) => c.code.toLowerCase().includes(q)
-  ).slice(0, 10);
+  const like = `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
+  const [products, orders, customers, coupons] = await Promise.all([
+    prisma.$queryRaw<Row<Product>[]>`
+      SELECT data FROM documents WHERE collection = 'products'
+        AND (coalesce(data->>'name', '') ILIKE ${like} OR coalesce(data->>'sku', '') ILIKE ${like})
+      ORDER BY position LIMIT 10`,
+    prisma.$queryRaw<Row<Order>[]>`
+      SELECT data FROM documents WHERE collection = 'orders'
+        AND (coalesce(data->>'orderNumber', '') ILIKE ${like} OR coalesce(data->>'customerName', '') ILIKE ${like}
+             OR coalesce(data->>'customerEmail', '') ILIKE ${like} OR coalesce(data->>'customerPhone', '') ILIKE ${like})
+      ORDER BY position LIMIT 10`,
+    prisma.$queryRaw<Row<Customer>[]>`
+      SELECT data FROM documents WHERE collection = 'customers'
+        AND (coalesce(data->>'firstName', '') || ' ' || coalesce(data->>'lastName', '') ILIKE ${like}
+             OR coalesce(data->>'email', '') ILIKE ${like} OR coalesce(data->>'phone', '') ILIKE ${like} OR coalesce(data->>'company', '') ILIKE ${like})
+      ORDER BY position LIMIT 10`,
+    prisma.$queryRaw<Row<Coupon>[]>`
+      SELECT data FROM documents WHERE collection = 'coupons' AND coalesce(data->>'code', '') ILIKE ${like}
+      ORDER BY position LIMIT 10`,
+  ]);
 
   return NextResponse.json({
-    products: matchingProducts.map((p) => ({ id: p.id, name: p.name, sku: p.sku, price: p.price })),
-    orders: matchingOrders.map((o) => ({ id: o.id, orderNumber: o.orderNumber, customerName: o.customerName, total: o.total, status: o.status })),
-    customers: matchingCustomers.map((c) => ({ id: c.id, name: `${c.firstName} ${c.lastName}`, email: c.email, company: c.company })),
-    coupons: matchingCoupons.map((c) => ({ id: c.id, code: c.code, amount: c.amount, type: c.type })),
+    products: products.map(({ data: p }) => ({ id: p.id, name: p.name, sku: p.sku, price: p.price })),
+    orders: orders.map(({ data: o }) => ({ id: o.id, orderNumber: o.orderNumber, customerName: o.customerName, total: o.total, status: o.status })),
+    customers: customers.map(({ data: c }) => ({ id: c.id, name: [c.firstName, c.lastName].filter(Boolean).join(" "), email: c.email, company: c.company })),
+    coupons: coupons.map(({ data: c }) => ({ id: c.id, code: c.code, amount: c.amount, type: c.type })),
   });
 }
 

@@ -2,18 +2,21 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ProductCard from "@/components/ProductCard";
-import { getCatalogCollections, getCatalogProducts } from "@/lib/storefront/catalog";
+import { getCatalogCollections, getCatalogProducts, productsIn } from "@/lib/storefront/catalog";
 
-export const dynamic = "force-dynamic";
+// Cached page (ISR): rebuilt in the background at most once a minute, and right after admin edits.
+export const revalidate = 60;
+
+/** No pages at build time: each collection is rendered on its first visit, then served from cache. */
+export async function generateStaticParams() {
+  return [];
+}
 
 async function load(slug: string) {
   const [collections, products] = await Promise.all([getCatalogCollections(), getCatalogProducts()]);
   const collection = collections.find((c) => c.slug === slug);
   if (!collection) return null;
-  const norm = (v: string) => v.toLowerCase().replace(/[^a-z0-9]/g, "");
-  const items = products.filter(
-    (p) => p.collections?.some((c) => norm(c) === norm(slug)) || norm(p.category) === norm(slug) || norm(`${p.category} collection`) === norm(collection.name)
-  );
+  const items = productsIn(products, collection).map((p) => ({ ...p, description: "" })); // cards never show it
   return { collection, items };
 }
 

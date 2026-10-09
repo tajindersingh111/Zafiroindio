@@ -2,24 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import {
-  ArrowRight,
-  Leaf,
-  ShieldCheck,
-  Award,
-  Star,
-  Quote,
-  Gem,
-  HandHeart,
-  Sprout,
-  Flame,
-  Globe,
-  CheckCircle2,
-  Heart,
-  Sparkles,
-  Feather,
-  Package,
-} from "lucide-react";
+import { ArrowRight, ShieldCheck, Award, Star, Quote, Gem, HandHeart, Sprout, Flame, Globe, CheckCircle2, Heart, Sparkles, Package } from "lucide-react";
 
 /* ─────────────────────────────────────────────
    INTERSECTION OBSERVER HOOK

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { PageShell, PageHeader, StatusBadge, SectionCard, LoadingSpinner } from "@/components/admin/Shared";
+import { PageShell, StatusBadge, SectionCard, LoadingSpinner } from "@/components/admin/Shared";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 interface ReportData {

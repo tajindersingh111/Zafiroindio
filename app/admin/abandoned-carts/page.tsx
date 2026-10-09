@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { PageShell, PageHeader, SectionCard, LoadingSpinner, StatusBadge, Btn, useToast } from "@/components/admin/Shared";
+import { PageShell, PageHeader, SectionCard, LoadingSpinner, Btn, useToast } from "@/components/admin/Shared";
 
 interface AbandonedCart {
   id: string;

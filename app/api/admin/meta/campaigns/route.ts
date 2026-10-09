@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { readCollection, writeCollection, readSettings, writeSettings } from "@/lib/db/store";
+import { readSettings, writeSettings } from "@/lib/db/store";
 import { guarded } from "@/lib/auth/guard";
 
 interface MetaConfig {
@@ -42,7 +42,7 @@ async function handleGET(request: Request) {
   let campaigns = sandbox?.campaigns ?? [];
 
   if (search) {
-    campaigns = campaigns.filter((c) => c.name.toLowerCase().includes(search));
+    campaigns = campaigns.filter((c) => String(c.name ?? "").toLowerCase().includes(search));
   }
   if (status) {
     campaigns = campaigns.filter((c) => c.status.toLowerCase() === status.toLowerCase());
@@ -71,7 +71,7 @@ async function handlePOST(request: Request) {
   try {
     const body = await request.json() as Partial<Campaign>;
     const sandbox = await readSettings<{ campaigns: Campaign[]; adsets: any[]; ads: any[]; audiences: any[]; events: any[] }>("meta-sandbox");
-    if (!sandbox) return NextResponse.json({ error: "Internal sandbox error" }, { status: 500 });
+    if (!sandbox) return NextResponse.json({ error: "Meta demo data is not set up. This section is not connected to Facebook yet." }, { status: 503 });
 
     const newCampaign: Campaign = {
       id: "12020394" + Math.floor(Math.random() * 900000 + 100000),
@@ -97,7 +97,7 @@ async function handlePOST(request: Request) {
     sandbox.campaigns.push(newCampaign);
     await writeSettings("meta-sandbox", sandbox);
     return NextResponse.json(newCampaign);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 }

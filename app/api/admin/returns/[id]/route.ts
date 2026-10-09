@@ -36,7 +36,7 @@ async function handlePATCH(request: Request, { params }: { params: Promise<{ id:
     returns[idx] = { ...returns[idx], ...body, id };
     await writeCollection("returns", returns);
     return NextResponse.json(returns[idx]);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 }

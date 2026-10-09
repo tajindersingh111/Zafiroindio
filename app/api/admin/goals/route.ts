@@ -19,7 +19,7 @@ async function handlePATCH(request: Request) {
     const updated = { ...current, ...body };
     await writeSettings("goals", updated);
     return NextResponse.json(updated);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Invalid request payload" }, { status: 400 });
   }
 }

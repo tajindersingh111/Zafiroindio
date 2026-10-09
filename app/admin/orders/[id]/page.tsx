@@ -18,8 +18,10 @@ interface Order {
   transactionId?: string; notes: OrderNote[];
   trackingNumber?: string; courierName?: string; trackingUrl?: string;
   shippingDate?: string; estimatedDelivery?: string; deliveredDate?: string;
+  shipmozo?: { pushedAt: string; labelUrl?: string; lastStatus?: string; lastSyncAt?: string; pickupScheduled?: boolean };
   createdAt: string; updatedAt: string;
 }
+interface CourierRate { courierId: string; name: string; price: number; eta?: string; }
 
 const STATUS_OPTIONS = [
   { label: "Pending Payment", value: "pending_payment" }, { label: "Processing", value: "processing" },
@@ -53,9 +55,12 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
   const [noteText, setNoteText] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const [courierProvider, setCourierProvider] = useState("Shipmozo");
-  const [packageWeight, setPackageWeight] = useState(1.2);
+  const [parcel, setParcel] = useState({ weightKg: "", l: "", w: "", h: "" });
+  const [rates, setRates] = useState<CourierRate[] | null>(null);
+  const [courierId, setCourierId] = useState("");
+  const [loadingRates, setLoadingRates] = useState(false);
   const [dispatching, setDispatching] = useState(false);
+  const [syncing, setSyncing] = useState(false);
 
   const reloadOrder = () => {
     fetch(`/api/admin/orders/${id}`).then((r) => r.json()).then((d) => {
@@ -68,6 +73,26 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
     reloadOrder();
   }, [id]);
 
+  const parcelBody = () => ({ weightKg: Number(parcel.weightKg) || undefined, l: Number(parcel.l) || undefined, w: Number(parcel.w) || undefined, h: Number(parcel.h) || undefined });
+
+  async function loadRates() {
+    if (!order) return;
+    setLoadingRates(true);
+    try {
+      const res = await fetch("/api/shipments/rates", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ orderId: order.id, ...parcelBody() }) });
+      const data = await res.json();
+      if (!res.ok) return addToast(data.error || "Could not get courier rates.", "error");
+      setParcel({ weightKg: String(data.parcel.weightKg), l: String(data.parcel.l), w: String(data.parcel.w), h: String(data.parcel.h) });
+      setRates(data.rates);
+      setCourierId(data.rates[0]?.courierId ?? "");
+      if (!data.rates.length) addToast("ShipMozo returned no courier for this PIN code / weight.", "error");
+    } catch {
+      addToast("Network error getting rates.", "error");
+    } finally {
+      setLoadingRates(false);
+    }
+  }
+
   async function handleDispatchShipment() {
     if (!order) return;
     setDispatching(true);
@@ -75,26 +100,36 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       const res = await fetch("/api/shipments/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          orderId: order.id,
-          courierName: courierProvider,
-          weightKg: packageWeight,
-          dimensionsCm: "30x20x10"
-        })
+        body: JSON.stringify({ orderId: order.id, courierId: courierId || undefined, ...parcelBody() }),
       });
-
+      const data = await res.json();
       if (res.ok) {
-        const data = await res.json();
-        addToast(`Shipment created via ${data.shipment?.courierName || courierProvider}! AWB: ${data.shipment?.trackingNumber}`);
+        addToast(`Courier booked: ${data.shipment.courierName}, AWB ${data.shipment.trackingNumber}${data.shipment.pickupScheduled ? " · pickup scheduled" : ""}`);
+        setRates(null);
         reloadOrder();
       } else {
-        const data = await res.json();
         addToast(data.error || "Failed to create shipment.", "error");
       }
     } catch {
       addToast("Network error creating shipment.", "error");
     } finally {
       setDispatching(false);
+    }
+  }
+
+  async function refreshTracking() {
+    if (!order) return;
+    setSyncing(true);
+    try {
+      const res = await fetch("/api/shipments/sync", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ orderId: order.id }) });
+      const data = await res.json();
+      if (res.ok) addToast(`Courier status: ${data.courierStatus || "no update yet"}`);
+      else addToast(data.error || "Could not refresh tracking.", "error");
+      reloadOrder();
+    } catch {
+      addToast("Network error refreshing tracking.", "error");
+    } finally {
+      setSyncing(false);
     }
   }
 
@@ -366,53 +401,81 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                 {order.trackingNumber ? (
                   <div className="bg-emerald-950/20 border border-emerald-800/30 p-3 rounded text-xs space-y-2">
                     <p className="font-semibold text-emerald-800 dark:text-emerald-300 flex items-center gap-1">
-                      <span>✓</span> Shipment Dispatched via {order.courierName || "Courier"}
+                      <span>✓</span> Courier booked: {order.courierName || "Courier"}
                     </p>
-                    <p className="text-stone">AWB Tracking #: <span className="font-mono font-bold text-ink">{order.trackingNumber}</span></p>
-                    {order.trackingUrl && (
-                      <a href={order.trackingUrl} target="_blank" rel="noopener noreferrer" className="inline-block text-madder hover:underline font-medium">
-                        Track Shipment Live →
-                      </a>
+                    <p className="text-stone">AWB: <span className="font-mono font-bold text-ink">{order.trackingNumber}</span></p>
+                    {order.shipmozo?.lastStatus && (
+                      <p className="text-stone">
+                        Courier status: <span className="font-semibold text-ink">{order.shipmozo.lastStatus}</span>
+                        {order.shipmozo.lastSyncAt && <span> · checked {fmtDate(order.shipmozo.lastSyncAt)}</span>}
+                      </p>
+                    )}
+                    <div className="flex flex-wrap gap-3 pt-1">
+                      {order.shipmozo?.labelUrl && (
+                        <a href={order.shipmozo.labelUrl} target="_blank" rel="noopener noreferrer" className="text-madder hover:underline font-medium">Download label →</a>
+                      )}
+                      {order.trackingUrl && (
+                        <a href={order.trackingUrl} target="_blank" rel="noopener noreferrer" className="text-madder hover:underline font-medium">Customer tracking page →</a>
+                      )}
+                    </div>
+                    {order.shipmozo && (
+                      <Btn size="sm" variant="secondary" onClick={refreshTracking} disabled={syncing} className="w-full justify-center">
+                        {syncing ? "Checking ShipMozo…" : "↻ Refresh tracking"}
+                      </Btn>
                     )}
                   </div>
                 ) : (
                   <div className="space-y-3 bg-stone/5 p-3 rounded border border-stone/15">
                     <p className="text-xs text-stone leading-relaxed">
-                      Push order details to <strong>Shipmozo / Courier API</strong> to generate a live AWB tracking number, shipping label, and trigger email to customer.
+                      Book a courier on <strong>ShipMozo</strong>: it generates the AWB and label and schedules the pickup.
+                      {order.shipmozo?.pushedAt && " The order is already in the ShipMozo panel."}
                     </p>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div>
-                        <label className="block text-[10px] uppercase font-semibold text-stone mb-1">Courier Partner</label>
-                        <select
-                          value={courierProvider}
-                          onChange={(e) => setCourierProvider(e.target.value)}
-                          className="w-full px-2 py-1.5 border border-stone/30 rounded bg-paper text-xs text-ink"
-                        >
-                          <option value="Shipmozo">Shipmozo API</option>
-                          <option value="Delhivery Express">Delhivery Express</option>
-                          <option value="Blue Dart">Blue Dart</option>
-                          <option value="DTDC Express">DTDC Express</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-[10px] uppercase font-semibold text-stone mb-1">Weight (Kg)</label>
-                        <input
-                          type="number"
-                          step="0.1"
-                          value={packageWeight}
-                          onChange={(e) => setPackageWeight(parseFloat(e.target.value) || 1.2)}
-                          className="w-full px-2 py-1.5 border border-stone/30 rounded bg-paper text-xs text-ink"
-                        />
-                      </div>
+                    <div className="grid grid-cols-4 gap-2 text-xs">
+                      {([["weightKg", "Weight kg"], ["l", "L cm"], ["w", "W cm"], ["h", "H cm"]] as const).map(([k, label]) => (
+                        <div key={k}>
+                          <label className="block text-[10px] uppercase font-semibold text-stone mb-1">{label}</label>
+                          <input
+                            type="number"
+                            step={k === "weightKg" ? "0.1" : "1"}
+                            min="0"
+                            placeholder="auto"
+                            value={parcel[k]}
+                            onChange={(e) => { setParcel({ ...parcel, [k]: e.target.value }); setRates(null); }}
+                            className="w-full px-2 py-1.5 border border-stone/30 rounded bg-paper text-xs text-ink"
+                          />
+                        </div>
+                      ))}
                     </div>
-                    <Btn
-                      size="sm"
-                      onClick={handleDispatchShipment}
-                      disabled={dispatching}
-                      className="w-full justify-center font-bold bg-madder text-white hover:bg-madder/90"
-                    >
-                      {dispatching ? "Pushing to Courier API..." : "🚀 Dispatch & Generate AWB"}
-                    </Btn>
+
+                    {rates && rates.length > 0 && (
+                      <div className="max-h-56 overflow-y-auto border border-stone/20 rounded divide-y divide-stone/10 bg-paper">
+                        {rates.map((r) => (
+                          <label key={r.courierId} className={`flex items-center gap-2 px-2.5 py-2 text-xs cursor-pointer ${courierId === r.courierId ? "bg-madder/5" : ""}`}>
+                            <input type="radio" name="courier" checked={courierId === r.courierId} onChange={() => setCourierId(r.courierId)} className="accent-madder" />
+                            <span className="flex-1 text-ink">{r.name}{r.eta && <span className="block text-[10px] text-stone">{r.eta}</span>}</span>
+                            <span className="font-semibold text-ink">{fmt(r.price)}</span>
+                          </label>
+                        ))}
+                        <label className={`flex items-center gap-2 px-2.5 py-2 text-xs cursor-pointer ${courierId === "" ? "bg-madder/5" : ""}`}>
+                          <input type="radio" name="courier" checked={courierId === ""} onChange={() => setCourierId("")} className="accent-madder" />
+                          <span className="flex-1 text-ink">Auto (your ShipMozo courier priority)</span>
+                        </label>
+                      </div>
+                    )}
+
+                    <div className="flex gap-2">
+                      <Btn size="sm" variant="secondary" onClick={loadRates} disabled={loadingRates || dispatching} className="flex-1 justify-center">
+                        {loadingRates ? "Getting rates…" : rates ? "↻ Rates" : "Courier rates"}
+                      </Btn>
+                      <Btn size="sm" onClick={handleDispatchShipment} disabled={dispatching || loadingRates} className="flex-1 justify-center font-bold">
+                        {dispatching ? "Booking…" : "🚀 Book & get AWB"}
+                      </Btn>
+                    </div>
+                    {order.shipmozo?.pushedAt && (
+                      <Btn size="sm" variant="ghost" onClick={refreshTracking} disabled={syncing} className="w-full justify-center">
+                        {syncing ? "Checking ShipMozo…" : "↻ Booked in the ShipMozo panel? Fetch AWB"}
+                      </Btn>
+                    )}
                   </div>
                 )}
               </div>

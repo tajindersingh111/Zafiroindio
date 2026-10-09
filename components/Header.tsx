@@ -12,11 +12,19 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [bulkModalOpen, setBulkModalOpen] = useState(false);
   const [announcements, setAnnouncements] = useState<string[]>([
-    "Complimentary shipping on orders above ₹999",
     "Hand-block printed by artisans in Jaipur",
+    "100% pure cotton",
     "Easy returns within 7 days"
   ]);
   const { cartCount, wishlist } = useStore();
+  // Phones show one announcement at a time (CSS hides the rest); rotate through them.
+  const [annIdx, setAnnIdx] = useState(0);
+  useEffect(() => {
+    const n = Math.min(announcements.length, 3);
+    if (n < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const t = setInterval(() => setAnnIdx((i) => (i + 1) % n), 4000);
+    return () => clearInterval(t);
+  }, [announcements.length]);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 8);
@@ -24,20 +32,12 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handler);
   }, []);
 
-  // Fetch live announcements from admin banners API
+  // Live announcement-bar messages managed in the admin panel (cached endpoint).
   useEffect(() => {
     fetch("/api/banners")
       .then((res) => res.json())
       .then((data) => {
-        if (data.banners && Array.isArray(data.banners)) {
-          const annList = data.banners
-            .filter((b: any) => b.type === "announcement" && b.isActive !== false)
-            .map((b: any) => b.heading || b.subheading)
-            .filter(Boolean);
-          if (annList.length > 0) {
-            setAnnouncements(annList);
-          }
-        }
+        if (Array.isArray(data.announcements) && data.announcements.length) setAnnouncements(data.announcements);
       })
       .catch(() => {});
   }, []);
@@ -61,7 +61,7 @@ export default function Header() {
       {/* ── Dynamic Announcement Bar ─────────────────────────── */}
       <div className="announcement">
         {announcements.slice(0, 3).map((text, idx) => (
-          <span key={idx}>{text}</span>
+          <span key={idx} className={idx === annIdx % Math.min(announcements.length, 3) ? "isActive" : undefined}>{text}</span>
         ))}
       </div>
 

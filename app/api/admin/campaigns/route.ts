@@ -35,7 +35,7 @@ async function handlePOST(request: Request) {
     campaigns.push(newCamp);
     await writeCollection("campaigns", campaigns);
     return NextResponse.json(newCamp);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 }
@@ -50,7 +50,7 @@ async function handlePATCH(request: Request) {
     campaigns[idx] = { ...campaigns[idx], ...body };
     await writeCollection("campaigns", campaigns);
     return NextResponse.json(campaigns[idx]);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 }

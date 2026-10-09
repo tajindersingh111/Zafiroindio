@@ -97,7 +97,7 @@ async function handlePOST(request: Request) {
       errors,
       products: createdProducts
     }, { status: 201 });
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: "Failed to perform bulk product import." }, { status: 500 });
   }
 }

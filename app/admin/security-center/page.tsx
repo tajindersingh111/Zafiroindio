@@ -1,23 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import {
-  ShieldCheck,
-  ShieldAlert,
-  Users,
-  Lock,
-  Key,
-  AlertCircle,
-  Clock,
-  TrendingUp,
-  RefreshCw,
-  CheckCircle2,
-  XCircle,
-  Eye,
-  LogOut,
-  Trash2,
-  ChevronRight
-} from "lucide-react";
+import { ShieldCheck, ShieldAlert, Users, Lock, RefreshCw, CheckCircle2 } from "lucide-react";
 
 interface AlertItem {
   id: string;

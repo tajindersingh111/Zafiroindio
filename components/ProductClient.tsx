@@ -1,21 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  Heart, Share2, Minus, Plus, ChevronDown, ChevronUp,
-  Truck, RotateCcw, ShieldCheck, Search, Check, ShoppingCart, Gift, ChevronLeft, ChevronRight
-} from "lucide-react";
+import { Heart, Share2, Minus, Plus, ChevronDown, ChevronUp, Truck, RotateCcw, ShieldCheck, Search, ShoppingCart, Gift } from "lucide-react";
 import ProductCard from "./ProductCard";
 import type { Product } from "@/lib/data";
 import { useCatalog } from "@/lib/storefront/useCatalog";
 import { useStore } from "./StoreProvider";
+import ShiprocketCheckoutButton from "./ShiprocketCheckoutButton";
+import { img as optimizedImg, imgSrcSet, fallbackToOriginal } from "@/lib/img";
 
 export default function ProductClient({ p }: { p: Product }) {
   const [img, setImg] = useState(0);
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
-  const [size, setSize] = useState(p.sizes[1] || p.sizes[0]);
-  const [color, setColor] = useState(p.colors[0]);
+  const [size, setSize] = useState(p.sizes[1] || p.sizes[0] || "");
+  const [color, setColor] = useState(p.colors[0] || "");
   const [qty, setQtyLocal] = useState(1);
   const [pincode, setPincode] = useState("");
   const [pincodeStatus, setPincodeStatus] = useState<string | null>(null);
@@ -57,44 +56,33 @@ export default function ProductClient({ p }: { p: Product }) {
   const [reviewEmail, setReviewEmail] = useState("");
   const [reviewTitle, setReviewTitle] = useState("");
   const [reviewText, setReviewText] = useState("");
-  const [reviewPhoto, setReviewPhoto] = useState<string | null>(null);
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const [reviewSuccessMsg, setReviewSuccessMsg] = useState<string | null>(null);
-  const [reviewsList, setReviewsList] = useState<any[]>([
-    {
-      id: "rev-sample-1",
-      customerName: "Ritika Sharma",
-      rating: 5,
-      review: "The quality is amazing! Super soft and the handblock print is even more beautiful in real. Totally worth it.",
-      title: "Gorgeous Print & Super Soft Cotton",
-      photoUrl: p.images[0],
-      createdAt: "12 May 2024",
-      verified: true,
-    }
-  ]);
-
-  // Load reviews on mount
-  useState(() => {
-    fetch(`/api/reviews?productId=${p.slug}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setReviewsList(data);
-        }
-      })
-      .catch(() => {});
+  const [reviewsList, setReviewsList] = useState<any[]>([]);
+  // Photos whose file is missing at the source are dropped instead of showing a broken image.
+  const [deadImages, setDeadImages] = useState<string[]>([]);
+  const markDead = (url: string) => setDeadImages((d) => (d.includes(url) ? d : [...d, url]));
+  const gallery = (p.images || []).filter((u) => !deadImages.includes(u));
+  const [showAllReviews, setShowAllReviews] = useState(false);
+  // Star breakdown from the approved reviews actually shown on this page.
+  const starRows = [5, 4, 3, 2, 1].map((n) => {
+    const count = reviewsList.filter((r) => Math.round(Number(r.rating) || 0) === n).length;
+    return { stars: `${n}★`, count, pct: reviewsList.length ? Math.round((count / reviewsList.length) * 100) : 0 };
   });
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setReviewPhoto(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  // Approved reviews for this product (moderated in the admin panel).
+  useEffect(() => {
+    let alive = true;
+    fetch(`/api/reviews?productId=${encodeURIComponent(p.slug)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (alive && Array.isArray(data)) setReviewsList(data);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [p.slug]);
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,21 +101,12 @@ export default function ProductClient({ p }: { p: Product }) {
           rating: reviewRating,
           title: reviewTitle,
           review: reviewText,
-          photoUrl: reviewPhoto || "",
         }),
       });
 
       const data = await res.json();
-      if (res.ok && data.review) {
-        // Prepend new review immediately to on-screen list
-        const formattedNewReview = {
-          ...data.review,
-          createdAt: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
-          verified: true,
-        };
-
-        setReviewsList((prev) => [formattedNewReview, ...prev]);
-        setReviewSuccessMsg("Thank you! Your review is now live on screen.");
+      if (res.ok && data.success) {
+        setReviewSuccessMsg(data.message || "Thank you! Your review will appear once our team approves it.");
         setTimeout(() => {
           setShowReviewModal(false);
           setReviewSuccessMsg(null);
@@ -135,7 +114,6 @@ export default function ProductClient({ p }: { p: Product }) {
           setReviewEmail("");
           setReviewTitle("");
           setReviewText("");
-          setReviewPhoto(null);
         }, 1800);
       } else {
         alert(data.error || "Failed to submit review.");
@@ -171,11 +149,26 @@ export default function ProductClient({ p }: { p: Product }) {
     }
   };
 
+  // Escape closes the zoom view and the review form.
+  useEffect(() => {
+    if (!lightboxImg && !showReviewModal) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setLightboxImg(null);
+      setShowReviewModal(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightboxImg, showReviewModal]);
+
   return (
     <main style={{ background: "#faf8f5", minHeight: "100vh", paddingBottom: 80 }}>
       {/* Lightbox Zoom Modal */}
       {lightboxImg && (
         <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${p.name}: zoomed photo`}
           style={{
             position: "fixed",
             inset: 0,
@@ -191,6 +184,8 @@ export default function ProductClient({ p }: { p: Product }) {
         >
           <button
             type="button"
+            aria-label="Close zoomed photo"
+            autoFocus
             onClick={() => setLightboxImg(null)}
             style={{
               position: "absolute",
@@ -213,7 +208,7 @@ export default function ProductClient({ p }: { p: Product }) {
             ✕
           </button>
           <img
-            src={lightboxImg}
+            src={optimizedImg(lightboxImg, 1920)}
             alt="Product Zoomed View"
             style={{
               maxWidth: "92vw",
@@ -229,24 +224,22 @@ export default function ProductClient({ p }: { p: Product }) {
 
       <div className="container" style={{ maxWidth: 1240, margin: "0 auto", padding: "0 20px" }}>
         {/* Breadcrumb */}
-        <nav style={{ fontSize: 12, color: "#888", padding: "18px 0 20px", display: "flex", gap: 6, alignItems: "center" }}>
-          <Link href="/" style={{ color: "#888", textDecoration: "none" }}>Home</Link>
+        <nav className="pdp-crumbs" aria-label="Breadcrumb">
+          <Link href="/">Home</Link>
           <span>/</span>
-          <Link href="/shop" style={{ color: "#888", textDecoration: "none" }}>Shop</Link>
+          <Link href="/shop">Shop</Link>
           <span>/</span>
-          <Link href={`/shop?collection=${p.category.toLowerCase()}`} style={{ color: "#888", textDecoration: "none" }}>{p.category} Collection</Link>
-          <span>/</span>
-          <span style={{ color: "#1c1917", fontWeight: 500 }}>{p.name}</span>
+          <span className="pdp-crumbs-current">{p.name}</span>
         </nav>
 
         {/* ── Top Layout: Gallery + Product Controls ──────────────────────────── */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 480px", gap: 40, marginBottom: 40, alignItems: "start" }}>
-          {/* Left: Gallery */}
-          <div style={{ display: "flex", gap: 16 }}>
+        <div className="pdp-grid">
+          {/* Left: Gallery (desktop: thumbnails + stacked images; phone: swipeable slides) */}
+          <div className="pdp-gallery">
             {/* Vertical Thumbnails (Sticky) */}
-            {p.images && p.images.length > 1 && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 12, width: 76, position: "sticky", top: 20, alignSelf: "start" }}>
-                {p.images.map((x, i) => (
+            {gallery.length > 1 && (
+              <div className="pdp-thumbs">
+                {gallery.map((x, i) => (
                   <button
                     key={i}
                     type="button"
@@ -263,8 +256,10 @@ export default function ProductClient({ p }: { p: Product }) {
                     }}
                   >
                     <img
-                      src={x}
+                      src={optimizedImg(x, 128)}
+                      onError={fallbackToOriginal(x, () => markDead(x))}
                       alt={`${p.name} thumb ${i + 1}`}
+                      loading="lazy"
                       style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                     />
                   </button>
@@ -273,22 +268,16 @@ export default function ProductClient({ p }: { p: Product }) {
             )}
 
             {/* Main Image Stack */}
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 20 }}>
-              {p.images && p.images.length > 0 ? (
-                p.images.map((imgUrl, i) => (
-                  <div
-                    key={i}
-                    id={`product-img-${i}`}
-                    style={{
-                      position: "relative",
-                      borderRadius: 8,
-                      overflow: "hidden",
-                      border: "1px solid #e7e1d6",
-                      background: "#ffffff",
-                      cursor: "zoom-in"
-                    }}
-                    onClick={() => setLightboxImg(imgUrl)}
-                  >
+            <div
+              className="pdp-stack"
+              onScroll={(e) => {
+                const el = e.currentTarget;
+                if (el.scrollWidth > el.clientWidth + 4) setImg(Math.round(el.scrollLeft / el.clientWidth));
+              }}
+            >
+              {gallery.length > 0 ? (
+                gallery.map((imgUrl, i) => (
+                  <div key={i} id={`product-img-${i}`} className="pdp-slide" onClick={() => setLightboxImg(imgUrl)}>
                     {i === 0 && p.badge && (
                       <span
                         style={{
@@ -311,9 +300,15 @@ export default function ProductClient({ p }: { p: Product }) {
                     )}
 
                     <img
-                      src={imgUrl}
+                      src={optimizedImg(imgUrl, 1080)}
+                      srcSet={imgSrcSet(imgUrl, [640, 828, 1080, 1200])}
+                      sizes="(max-width: 900px) 100vw, 55vw"
+                      onError={fallbackToOriginal(imgUrl, () => markDead(imgUrl))}
                       alt={`${p.name} view ${i + 1}`}
-                      style={{ width: "100%", height: "auto", minHeight: 480, maxHeight: 680, objectFit: "cover", display: "block" }}
+                      className="pdp-img"
+                      loading={i === 0 ? "eager" : "lazy"}
+                      fetchPriority={i === 0 ? "high" : "auto"}
+                      decoding="async"
                     />
 
                     <button
@@ -347,8 +342,8 @@ export default function ProductClient({ p }: { p: Product }) {
               ) : null}
 
               {/* Craft & Quality Feature Banner if 2 or fewer images */}
-              {(!p.images || p.images.length <= 2) && (
-                <div style={{ background: "#ffffff", border: "1px solid #e7e1d6", borderRadius: 8, padding: "24px 28px" }}>
+              {(gallery.length <= 2) && (
+                <div className="pdp-craft">
                   <h4 style={{ fontSize: 12, fontWeight: 800, letterSpacing: "1px", textTransform: "uppercase", color: "#1c1917", marginBottom: 14 }}>
                     ARTISANAL CRAFT &amp; QUALITY HIGHLIGHTS
                   </h4>
@@ -373,10 +368,15 @@ export default function ProductClient({ p }: { p: Product }) {
                 </div>
               )}
             </div>
+            {gallery.length > 1 && (
+              <div className="pdp-dots" aria-hidden="true">
+                {gallery.map((_, i) => <i key={i} className={i === img ? "on" : ""} />)}
+              </div>
+            )}
           </div>
 
           {/* Right: Product Details & Controls (Sticky) */}
-          <div style={{ background: "#ffffff", border: "1px solid #e7e1d6", borderRadius: 8, padding: "28px 32px", position: "sticky", top: 20, alignSelf: "start" }}>
+          <div className="pdp-info">
             <h1
               className="serif"
               style={{
@@ -390,14 +390,14 @@ export default function ProductClient({ p }: { p: Product }) {
               {p.name}
             </h1>
 
-            {/* Rating Row */}
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+            {/* Rating Row (only once there are reviews) */}
+            {p.reviews > 0 && <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
               <span style={{ color: "#c5a028", fontSize: 14 }}>
                 {"★".repeat(starCount)}{"☆".repeat(5 - starCount)}
               </span>
               <span style={{ fontSize: 13, fontWeight: 700, color: "#1c1917" }}>{p.rating}</span>
-              <span style={{ fontSize: 12, color: "#777" }}>({p.reviews} reviews)</span>
-            </div>
+              <span style={{ fontSize: 12, color: "#777" }}>({p.reviews} {p.reviews === 1 ? "review" : "reviews"})</span>
+            </div>}
 
             {/* Price Row */}
             <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 4 }}>
@@ -411,29 +411,8 @@ export default function ProductClient({ p }: { p: Product }) {
             </div>
             <div style={{ fontSize: 11, color: "#888", marginBottom: 18 }}>Inclusive of all taxes</div>
 
-            {/* Description */}
-            {(() => {
-              if (!p.description) return null;
-              const cleaned = p.description.replace(/\\n/g, "\n");
-              const isHtml = /<[a-z][\s\S]*>/i.test(cleaned);
-              if (isHtml) {
-                return (
-                  <div
-                    className="product-description-content text-stone-700 leading-relaxed mb-6"
-                    style={{ fontSize: 13.5, color: "#555", lineHeight: 1.6, margin: "0 0 24px" }}
-                    dangerouslySetInnerHTML={{ __html: cleaned }}
-                  />
-                );
-              }
-              return (
-                <div style={{ fontSize: 13.5, color: "#555", lineHeight: 1.6, margin: "0 0 24px", whiteSpace: "pre-line" }}>
-                  {cleaned}
-                </div>
-              );
-            })()}
-
             {/* Select Size */}
-            <div style={{ marginBottom: 20 }}>
+            {p.sizes.length > 0 && <div style={{ marginBottom: 20 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
                 <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: "1px", textTransform: "uppercase", color: "#1c1917" }}>
                   SELECT SIZE
@@ -463,10 +442,10 @@ export default function ProductClient({ p }: { p: Product }) {
                   </button>
                 ))}
               </div>
-            </div>
+            </div>}
 
             {/* Select Color */}
-            <div style={{ marginBottom: 20 }}>
+            {p.colors.length > 0 && <div style={{ marginBottom: 20 }}>
               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "1px", textTransform: "uppercase", color: "#1c1917", marginBottom: 10 }}>
                 SELECT COLOR: <span style={{ fontWeight: 600, color: "#a67c37", textTransform: "none" }}>{color}</span>
               </div>
@@ -487,11 +466,11 @@ export default function ProductClient({ p }: { p: Product }) {
                       padding: 0
                     }}
                   >
-                    <img src={p.images[i % p.images.length]} alt={c} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    <img src={optimizedImg(p.images[i % p.images.length], 128)} alt={c} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   </button>
                 ))}
               </div>
-            </div>
+            </div>}
 
             {/* Quantity */}
             <div style={{ marginBottom: 24 }}>
@@ -510,7 +489,7 @@ export default function ProductClient({ p }: { p: Product }) {
                 <span style={{ padding: "0 12px", fontSize: 13, fontWeight: 700, minWidth: 24, textAlign: "center" }}>{qty}</span>
                 <button
                   type="button"
-                  onClick={() => setQtyLocal(qty + 1)}
+                  onClick={() => setQtyLocal(Math.min(10, qty + 1))}
                   style={{ border: 0, background: "none", padding: "8px 14px", cursor: "pointer" }}
                   aria-label="Increase quantity"
                 >
@@ -549,29 +528,15 @@ export default function ProductClient({ p }: { p: Product }) {
                 <ShoppingCart size={16} /> {p.badge === "SOLD OUT" ? "SOLD OUT" : "ADD TO CART"}
               </button>
 
-              <Link
-                href="/checkout"
-                onClick={() => { for (let i = 0; i < qty; i++) add(p, size, color); }}
-                style={{
-                  width: "100%",
-                  background: "#1c1917",
-                  color: "#ffffff",
-                  border: 0,
-                  padding: "15px 20px",
-                  fontSize: 12,
-                  fontWeight: 800,
-                  letterSpacing: "1px",
-                  textTransform: "uppercase",
-                  borderRadius: 4,
-                  cursor: "pointer",
-                  textAlign: "center",
-                  textDecoration: "none",
-                  display: "block",
-                  boxSizing: "border-box"
-                }}
-              >
-                BUY IT NOW
-              </Link>
+              {p.badge !== "SOLD OUT" && (
+                // One tap to Shiprocket's checkout for just this item; the cart is left as it is.
+                <ShiprocketCheckoutButton
+                  label="BUY IT NOW"
+                  items={[{ productId: p.slug, qty, size, color }]}
+                  source="buy-now"
+                  className="btn-buy-now"
+                />
+              )}
             </div>
 
             {/* Secondary Actions */}
@@ -618,22 +583,32 @@ export default function ProductClient({ p }: { p: Product }) {
                 {pincodeStatus || "Usually delivered in 3-5 days"}
               </div>
             </div>
+
+            {/* Description (after the buy buttons, so they stay above the fold) */}
+            {(() => {
+              if (!p.description) return null;
+              const cleaned = p.description.replace(/\\n/g, "\n");
+              const isHtml = /<[a-z][\s\S]*>/i.test(cleaned);
+              if (isHtml) {
+                return (
+                  <div
+                    className="product-description-content text-stone-700 leading-relaxed mb-6"
+                    style={{ fontSize: 13.5, color: "#555", lineHeight: 1.6, margin: "22px 0 0" }}
+                    dangerouslySetInnerHTML={{ __html: cleaned }}
+                  />
+                );
+              }
+              return (
+                <div style={{ fontSize: 13.5, color: "#555", lineHeight: 1.6, margin: "22px 0 0", whiteSpace: "pre-line" }}>
+                  {cleaned}
+                </div>
+              );
+            })()}
           </div>
         </div>
 
         {/* ── Features Bar ────────────────────────────────────────── */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: 20,
-            background: "#ffffff",
-            border: "1px solid #e7e1d6",
-            borderRadius: 8,
-            padding: "20px 24px",
-            marginBottom: 40
-          }}
-        >
+        <div className="pdp-features">
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#faf6f0", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
               <ShieldCheck size={20} color="#a67c37" />
@@ -672,7 +647,7 @@ export default function ProductClient({ p }: { p: Product }) {
         </div>
 
         {/* ── 2-Column Section: Left Accordions + Right Customer Reviews ─────── */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 480px", gap: 40, marginBottom: 60 }}>
+        <div className="pdp-grid pdp-lower">
           {/* Left: Accordions */}
           <div>
             {accordionItems.map((item) => {
@@ -717,26 +692,24 @@ export default function ProductClient({ p }: { p: Product }) {
               <h3 style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.5px", textTransform: "uppercase", color: "#1c1917", margin: 0 }}>
                 CUSTOMER REVIEWS
               </h3>
-              <a href="#" style={{ fontSize: 11, color: "#777", textDecoration: "underline" }}>See all</a>
+              {reviewsList.length > 3 && (
+                <button type="button" onClick={() => setShowAllReviews((v) => !v)} style={{ fontSize: 11, color: "#777", textDecoration: "underline", background: "none", border: 0, cursor: "pointer", padding: 0 }}>
+                  {showAllReviews ? "Show fewer" : `See all ${reviewsList.length}`}
+                </button>
+              )}
             </div>
 
             {/* Summary Box */}
             <div style={{ display: "grid", gridTemplateColumns: "120px 1fr", gap: 20, alignItems: "center", marginBottom: 20, paddingBottom: 20, borderBottom: "1px solid #e7e1d6" }}>
               <div style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 44, fontWeight: 800, color: "#1c1917", lineHeight: 1 }}>{p.rating}</div>
-                <div style={{ color: "#c5a028", fontSize: 13, margin: "4px 0" }}>{"★".repeat(starCount)}</div>
-                <div style={{ fontSize: 10.5, color: "#888" }}>Based on {p.reviews} reviews</div>
+                <div style={{ fontSize: 44, fontWeight: 800, color: "#1c1917", lineHeight: 1 }}>{p.reviews > 0 ? p.rating : "–"}</div>
+                <div style={{ color: "#c5a028", fontSize: 13, margin: "4px 0" }}>{"★".repeat(starCount)}{"☆".repeat(5 - starCount)}</div>
+                <div style={{ fontSize: 10.5, color: "#888" }}>{p.reviews > 0 ? `Based on ${p.reviews} review${p.reviews === 1 ? "" : "s"}` : "No reviews yet"}</div>
               </div>
 
               {/* Star Progress Bars */}
               <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                {[
-                  { stars: "5★", pct: 96, count: 96 },
-                  { stars: "4★", pct: 22, count: 22 },
-                  { stars: "3★", pct: 6, count: 6 },
-                  { stars: "2★", pct: 2, count: 2 },
-                  { stars: "1★", pct: 0, count: 0 }
-                ].map((row) => (
+                {starRows.map((row) => (
                   <div key={row.stars} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: "#666" }}>
                     <span style={{ width: 18 }}>{row.stars}</span>
                     <div style={{ flex: 1, height: 6, background: "#eee", borderRadius: 3, overflow: "hidden" }}>
@@ -888,40 +861,13 @@ export default function ProductClient({ p }: { p: Product }) {
                         />
                       </div>
 
-                      {/* Photo Upload Attachment */}
-                      <div>
-                        <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                          Attach Photo (Optional)
-                        </label>
-                        <div className="flex items-center gap-3">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handlePhotoUpload}
-                            className="text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xs file:border-0 file:text-xs file:font-semibold file:bg-[#12192c] file:text-[#c5a028] hover:file:bg-[#1a2544] cursor-pointer"
-                          />
-                          {reviewPhoto && (
-                            <div className="relative w-10 h-10 rounded-xs overflow-hidden border border-[#c5a028]/40 shadow-xs">
-                              <img src={reviewPhoto} alt="Upload preview" className="w-full h-full object-cover" />
-                              <button
-                                type="button"
-                                onClick={() => setReviewPhoto(null)}
-                                className="absolute top-0 right-0 bg-red-600 text-white text-[9px] w-3.5 h-3.5 flex items-center justify-center font-bold"
-                              >
-                                ✕
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
                       {/* Submit */}
                       <button
                         type="submit"
                         disabled={reviewSubmitting}
                         className="w-full py-3 bg-[#12192c] hover:bg-[#1a2544] text-[#c5a028] font-bold text-xs uppercase tracking-widest border border-[#c5a028]/40 transition-all rounded-xs shadow-md"
                       >
-                        {reviewSubmitting ? "Submitting Review..." : "Submit Review & Publish Live"}
+                        {reviewSubmitting ? "Submitting review…" : "Submit review"}
                       </button>
                     </form>
                   )}
@@ -931,7 +877,10 @@ export default function ProductClient({ p }: { p: Product }) {
 
             {/* Dynamic Customer Reviews List */}
             <div className="space-y-4">
-              {reviewsList.map((rev, idx) => {
+              {reviewsList.length === 0 && (
+                <p style={{ fontSize: 12.5, color: "#777", margin: 0 }}>No reviews yet. Bought this piece? Be the first to review it.</p>
+              )}
+              {(showAllReviews ? reviewsList : reviewsList.slice(0, 3)).map((rev, idx) => {
                 const initial = rev.customerName ? rev.customerName.charAt(0).toUpperCase() : "C";
                 const starRating = Math.round(rev.rating || 5);
 
@@ -944,7 +893,7 @@ export default function ProductClient({ p }: { p: Product }) {
                         </div>
                         <div>
                           <div style={{ fontSize: 12.5, fontWeight: 700, color: "#1c1917" }}>
-                            {rev.customerName} <span style={{ fontSize: 10, color: "#2e7d32", fontWeight: 600, marginLeft: 4 }}>✓ Verified Buyer</span>
+                            {rev.customerName}{rev.verified && <span style={{ fontSize: 10, color: "#2e7d32", fontWeight: 600, marginLeft: 4 }}>✓ Verified Buyer</span>}
                           </div>
                           <div style={{ color: "#c5a028", fontSize: 11 }}>{"★".repeat(starRating)}</div>
                         </div>
@@ -987,7 +936,7 @@ export default function ProductClient({ p }: { p: Product }) {
             </Link>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 18 }}>
+          <div className="pdp-related">
             {youMayLike.map((x) => (
               <ProductCard key={x.slug} p={x} />
             ))}

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Package, ArrowRight, Clock, CheckCircle2, Truck, AlertCircle } from "lucide-react";
+import { Package, ArrowRight } from "lucide-react";
 import type { Order } from "@/lib/db/types";
 
 export default function CustomerOrdersPage() {

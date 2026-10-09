@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { readCollection, writeCollection } from "@/lib/db/store";
+import { readCollection } from "@/lib/db/store";
 import type { Order } from "@/lib/db/types";
 
 async function handleGET(request: Request) {
@@ -18,9 +18,9 @@ async function handleGET(request: Request) {
   if (search) {
     orders = orders.filter(
       (o) =>
-        o.orderNumber.toLowerCase().includes(search) ||
-        o.customerName.toLowerCase().includes(search) ||
-        o.customerEmail.toLowerCase().includes(search)
+        String(o.orderNumber ?? "").toLowerCase().includes(search) ||
+        String(o.customerName ?? "").toLowerCase().includes(search) ||
+        String(o.customerEmail ?? "").toLowerCase().includes(search)
     );
   }
   if (status) orders = orders.filter((o) => o.status === status);

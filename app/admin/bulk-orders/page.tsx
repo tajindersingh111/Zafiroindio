@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { PackageCheck, Search, Filter, MessageSquare, Phone, Mail, Building2, Calendar, RefreshCw, Trash2, Edit3, CheckCircle, Clock, ExternalLink, Download, FileSpreadsheet } from "lucide-react";
-import { StatusBadge } from "@/components/admin/Shared";
+import { PackageCheck, Search, MessageSquare, Building2, RefreshCw, Trash2, Edit3, CheckCircle, Clock, FileSpreadsheet } from "lucide-react";
 
 type BulkOrderInquiry = {
   id: string;
@@ -137,8 +136,8 @@ export default function AdminBulkOrdersPage() {
   // Filtered inquiries
   const filtered = inquiries.filter((item) => {
     const matchesSearch =
-      item.name.toLowerCase().includes(search.toLowerCase()) ||
-      item.phone.toLowerCase().includes(search.toLowerCase()) ||
+      String(item.name ?? "").toLowerCase().includes(search.toLowerCase()) ||
+      String(item.phone ?? "").toLowerCase().includes(search.toLowerCase()) ||
       (item.email || "").toLowerCase().includes(search.toLowerCase()) ||
       (item.businessName || "").toLowerCase().includes(search.toLowerCase()) ||
       item.category.toLowerCase().includes(search.toLowerCase());

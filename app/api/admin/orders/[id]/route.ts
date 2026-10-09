@@ -5,6 +5,7 @@ import { requireSuperAdmin, getAuthSession } from "@/lib/auth/rbac";
 import { createAuditLog } from "@/lib/db/audit";
 import { generateInvoiceForOrder } from "@/lib/db/invoices";
 import { cancelOrder } from "@/lib/orders/service";
+import { onOrderCancelled } from "@/lib/shipping/provider";
 import { guarded } from "@/lib/auth/guard";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -49,7 +50,9 @@ async function handlePATCH(request: NextRequest, { params }: Ctx) {
       action: "CANCEL_ORDER", module: "orders", recordId: id,
       previousData: { status: existing.status }, updatedData: { status: "cancelled" },
     });
-    return NextResponse.json({ order: res.order });
+    // Cancel the courier booking too; the outcome is written to the order notes.
+    await onOrderCancelled(id).catch((e) => console.error("ShipMozo cancel failed:", e));
+    return NextResponse.json({ order: (await getDoc<Order>("orders", id)) ?? res.order });
   }
 
   const { result: updated } = await updateDoc<Order, Order | null>("orders", id, (o) => {

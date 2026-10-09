@@ -13,7 +13,7 @@ async function handleGET(request: Request) {
 
   let coupons = await readCollection<Coupon>("coupons");
 
-  if (search) coupons = coupons.filter((c) => c.code.toLowerCase().includes(search));
+  if (search) coupons = coupons.filter((c) => String(c.code ?? "").toLowerCase().includes(search));
   if (isActive !== null && isActive !== "") coupons = coupons.filter((c) => String(c.isActive) === isActive);
 
   const total = coupons.length;

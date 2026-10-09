@@ -1,21 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import {
-  ShieldAlert,
-  Search,
-  Filter,
-  Clock,
-  UserCheck,
-  Lock,
-  Eye,
-  AlertCircle,
-  CheckCircle2,
-  XCircle,
-  FileText,
-  RefreshCw,
-  ChevronRight,
-  X
-} from "lucide-react";
+import { ShieldAlert, Search, Lock, RefreshCw, X } from "lucide-react";
 
 interface AuditLog {
   id: string;

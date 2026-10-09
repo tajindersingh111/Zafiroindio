@@ -10,6 +10,14 @@ import { canAccessSection, sectionForPath } from "@/lib/auth/access";
  */
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Shiprocket's checkout SDK (Shopify flavour) probes Shopify JSON endpoints on every product page
+  // (/products/<slug>.js|.json, /cart.js|.json). We are not Shopify: answer instantly instead of
+  // rendering a product-page 404 for each probe.
+  if (!pathname.startsWith("/admin") && !pathname.startsWith("/api/")) {
+    return NextResponse.json({ error: "Not found" }, { status: 404, headers: { "Cache-Control": "public, max-age=3600" } });
+  }
+
   const isApi = pathname.startsWith("/api/");
 
   const requestHeaders = new Headers(request.headers);
@@ -43,5 +51,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*"],
+  matcher: ["/admin/:path*", "/api/admin/:path*", "/products/:slug([^/]+\\.(?:js|json))", "/cart.js", "/cart.json"],
 };

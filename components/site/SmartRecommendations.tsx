@@ -22,6 +22,7 @@ import { getRankedRecommendations, getRecentlyViewed, formatDwellTime, type Reco
 import { type Product } from "@/lib/data";
 import { useCatalog } from "@/lib/storefront/useCatalog";
 import ProductCard from "@/components/ProductCard";
+import { img } from "@/lib/img";
 
 interface Props {
   excludeSlug?: string;
@@ -113,8 +114,9 @@ export default function SmartRecommendations({
               style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none" }}
             >
               <img
-                src={p.images[0]}
+                src={img(p.images[0], 128)}
                 alt={p.name}
+                loading="lazy"
                 style={{ width: 52, height: 52, objectFit: "cover", borderRadius: 6, flexShrink: 0, border: "1px solid #eae4d9" }}
                 onError={(e) => { e.currentTarget.src = "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=200&q=70"; }}
               />

@@ -1,14 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
+import SmartImg from "@/components/SmartImg";
+import heroEditorial from "@/public/editorial/hero.jpg";
+import artisanEditorial from "@/public/editorial/heritage.jpg";
+import craftEditorial from "@/public/editorial/craft.jpg";
 import { ArrowRight, Leaf, Sparkles, RotateCcw, ShieldCheck, HeartHandshake } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import { getCatalogProducts, getCatalogBanners, getCatalogCollections } from "@/lib/storefront/catalog";
 import HeroDepth from "@/components/site/HeroDepth";
+import HeroSlider from "@/components/site/HeroSlider";
 import Carousel3D from "@/components/site/Carousel3D";
 import SmartRecommendations from "@/components/site/SmartRecommendations";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+// Cached page (ISR): rebuilt in the background at most once a minute, and right after admin edits.
+export const revalidate = 60;
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://zafiroindio.com";
 
@@ -35,10 +41,10 @@ export const metadata: Metadata = {
     url: BASE_URL,
     images: [
       {
-        url: "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85",
-        width: 1200,
-        height: 800,
-        alt: "Zafiro Indio hand-block printed floral cotton bedsheet",
+        url: `${BASE_URL}/editorial/hero.jpg`,
+        width: 1376,
+        height: 768,
+        alt: "Zafiro Indio hand-block printed cotton bedding in a Jaipur haveli bedroom",
       },
     ],
   },
@@ -90,15 +96,18 @@ const websiteJsonLd = {
 
 export default async function Home() {
   const [products, banners, collectionsList] = await Promise.all([getCatalogProducts(), getCatalogBanners(), getCatalogCollections()]);
-  const heroBanner = banners[0] || {
+  // Shown only when no banner is active in Admin → Marketing → Banners.
+  const heroBanner = {
     title: "Make Your Bedroom Feel Like Sanctuary.",
     subtitle: "Handcrafted 100% pure cotton bedsheets designed for everyday comfort and timeless Indian heritage.",
     ctaText: "Shop Collection",
     ctaLink: "/shop",
-    image: "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=2000&q=85"
+    image: "",
   };
 
-  const featured = products.filter(p => p.badge === "BESTSELLER" || !p.badge).slice(0, 8);
+  // Cards and the carousel only need listing fields: full descriptions would bloat every page view.
+  const featured = products.filter((p) => p.badge === "BESTSELLER" || !p.badge).slice(0, 8).map((p) => ({ ...p, description: "" }));
+  const carousel = products.slice(0, 8).map((p) => ({ slug: p.slug, name: p.name, price: p.price, image: p.images[0] }));
 
   return (
     <>
@@ -113,11 +122,11 @@ export default async function Home() {
     <main>
       {/* ── 1. HERO SECTION ──────────────────────────────────── */}
       <HeroDepth>
-        <img
-          src={heroBanner.image}
-          alt={heroBanner.title}
-          className="heroImg"
-        />
+        {banners.length > 0 ? (
+          <HeroSlider slides={banners.map((b) => ({ id: b.id, title: b.title, subtitle: b.subtitle, ctaText: b.ctaText, ctaLink: b.ctaLink, image: b.image }))} />
+        ) : (
+        <>
+        <Image src={heroEditorial} alt="Hand-block printed cotton bedding in a Jaipur haveli bedroom" className="heroImg" fill preload sizes="100vw" placeholder="blur" />
         <div className="container">
           <div className="heroContent">
             <span className="eyebrow">
@@ -135,6 +144,8 @@ export default async function Home() {
             </div>
           </div>
         </div>
+        </>
+        )}
       </HeroDepth>
 
       {/* ── 2. VALUE PROPOSITION BAR ─────────────────────────── */}
@@ -175,7 +186,7 @@ export default async function Home() {
             <p className="eyebrow">Drag to explore</p>
             <h2 className="serif" style={{ fontSize: "clamp(30px,4.5vw,48px)", margin: "10px 0 0" }}>The Zafiro Atelier</h2>
           </div>
-          <Carousel3D products={products} />
+          <Carousel3D items={carousel} />
         </section>
       )}
 
@@ -184,8 +195,8 @@ export default async function Home() {
         <div className="container">
           <div className="sectionHead">
             <div>
-              <p className="eyebrow">Curated Collections</p>
-              <h2 className="serif">Shop by Aesthetic</h2>
+              <p className="eyebrow">Shop by Category</p>
+              <h2 className="serif">Explore the Collection</h2>
             </div>
             <Link className="link" href="/collections">
               View All Edits <ArrowRight size={13} style={{ display: "inline", verticalAlign: "middle" }} />
@@ -195,16 +206,11 @@ export default async function Home() {
           <div className="collections">
             {collectionsList.map((c) => (
               <Link
-                href={`/shop?collection=${c.slug}`}
+                href={`/collections/${c.slug}`}
                 className="collection"
                 key={c.slug}
               >
-                <img
-                  src={c.image}
-                  alt={c.name}
-                  className="collectionImg"
-                  loading="lazy"
-                />
+                <SmartImg src={c.image} width={640} widths={[384, 640, 828]} sizes="(max-width: 640px) 50vw, 33vw" alt={c.name} className="collectionImg" loading="lazy" />
                 <div className="collectionText">
                   {c.name}
                   <small>{c.desc.substring(0, 42)}…</small>
@@ -218,14 +224,17 @@ export default async function Home() {
       {/* ── 4. FOUNDER & BRAND STORY SECTION ─────────────────── */}
       <section className="section" style={{ background: "linear-gradient(180deg, var(--cream) 0%, #f1ebd8 100%)", borderTop: "1px solid var(--line-gold)", borderBottom: "1px solid var(--line-gold)" }}>
         <div className="container">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 56, alignItems: "center" }}>
+          <div className="home-story">
             <div style={{ position: "relative" }}>
-              <img
-                src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=85"
-                alt="Zafiro Karigar craftsmanship"
-                style={{ width: "100%", aspectRatio: "4/5", objectFit: "cover", borderRadius: 2, border: "1px solid rgba(197, 160, 40, 0.3)" }}
+              <Image
+                src={artisanEditorial}
+                alt="A master block-printer in Jaipur holding a hand-carved wooden block"
+                sizes="(max-width: 900px) 100vw, 50vw"
+                placeholder="blur"
+                style={{ width: "100%", height: "auto", aspectRatio: "4/5", objectFit: "cover", borderRadius: 2, border: "1px solid rgba(197, 160, 40, 0.3)" }}
               />
               <div
+                className="home-story-badge"
                 style={{
                   position: "absolute",
                   bottom: -20,
@@ -291,15 +300,9 @@ export default async function Home() {
       />
 
       {/* ── 6. EDITORIAL BANNER ──────────────────────────────── */}
-      <section
-        style={{
-          background: "#0f172a",
-          color: "#fff",
-          padding: "80px 0",
-          textAlign: "center"
-        }}
-      >
-        <div className="container" style={{ maxWidth: 680 }}>
+      <section className="home-editorial">
+        <Image src={craftEditorial} alt="" fill sizes="100vw" placeholder="blur" className="home-editorial-bg" />
+        <div className="container" style={{ maxWidth: 680, position: "relative", zIndex: 1 }}>
           <p className="eyebrow" style={{ color: "#c5a028", marginBottom: 14 }}>Tactile Perfection</p>
           <h2 className="serif" style={{ fontSize: 40, margin: "0 0 18px", color: "#fff" }}>
             Crafted for Beauty. Built for Every Night.

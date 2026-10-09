@@ -28,7 +28,7 @@ async function handlePATCH(request: Request) {
     notifications[idx].status = status;
     await writeCollection("notifications", notifications);
     return NextResponse.json(notifications[idx]);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 }

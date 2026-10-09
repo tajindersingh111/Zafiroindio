@@ -32,10 +32,6 @@ export default function AIRecommendationsPage() {
   const [audiences, setAudiences] = useState<string[]>([]);
   const [processing, setProcessing] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchRecommendations();
-  }, []);
-
   function fetchRecommendations() {
     setLoading(true);
     fetch("/api/admin/ai/recommendations")
@@ -48,6 +44,11 @@ export default function AIRecommendationsPage() {
         setLoading(false);
       });
   }
+
+  useEffect(() => {
+    fetchRecommendations();
+  }, []);
+
 
   async function handleApprove(recId: string, actionText: string) {
     setProcessing(recId);

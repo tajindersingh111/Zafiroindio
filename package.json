@@ -7,17 +7,15 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "postinstall": "prisma generate",
-    "lint": "eslint"
+    "lint": "eslint",
+    "warm-images": "node scripts/warm-images.mjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
-    "@types/bcryptjs": "^2.4.6",
     "@types/nodemailer": "^8.0.2",
     "@types/pg": "^8.23.1",
-    "@types/sharp": "^0.31.1",
     "bcryptjs": "^3.0.3",
-    "date-fns": "^4.4.0",
     "framer-motion": "^13.2.0",
     "lucide-react": "^0.468.0",
     "next": "16.3.1",

@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { PageShell, PageHeader, SectionCard, Btn, useToast, LoadingSpinner } from "@/components/admin/Shared";
+import { PageShell, PageHeader, SectionCard, useToast, LoadingSpinner } from "@/components/admin/Shared";
 import ImageUploader from "@/components/admin/ImageUploader";
-import { Layers, Plus, Trash2, Edit3, Image as ImageIcon, ExternalLink } from "lucide-react";
+import { Trash2, Edit3, ExternalLink } from "lucide-react";
 
 interface Collection {
   id?: string;

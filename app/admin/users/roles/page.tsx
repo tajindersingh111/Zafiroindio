@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Shield, ShieldAlert, Check, X, Lock, Key, Users } from "lucide-react";
+import { Shield, Check, X, Lock } from "lucide-react";
 import { DEFAULT_ROLE_PERMISSIONS, UserRole } from "@/lib/auth/access";
 
 export default function RolesPermissionsPage() {

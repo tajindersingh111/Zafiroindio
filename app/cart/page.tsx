@@ -4,6 +4,7 @@ import { X, Heart, Minus, Plus, Truck, ShieldCheck, RotateCcw } from "lucide-rea
 import { useStore } from "@/components/StoreProvider";
 import ShiprocketCheckoutButton from "@/components/ShiprocketCheckoutButton";
 import SmartRecommendations from "@/components/site/SmartRecommendations";
+import { img, fallbackToOriginal } from "@/lib/img";
 
 const FREE_SHIPPING_FROM = 999;
 
@@ -48,7 +49,7 @@ export default function Cart() {
 
               {cart.map((x) => (
                 <div className="cartItem" key={`${x.product.slug}-${x.size}-${x.color}`}>
-                  <img src={x.product.images[0]} alt={x.product.name} />
+                  <img src={img(x.product.images[0], 256)} onError={fallbackToOriginal(x.product.images[0])} alt={x.product.name} loading="lazy" decoding="async" />
                   <div>
                     <Link href={`/products/${x.product.slug}`} className="serif" style={{ fontSize: 20, lineHeight: 1.2 }}>
                       {x.product.name}

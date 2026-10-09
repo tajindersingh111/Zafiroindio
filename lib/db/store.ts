@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db/prisma";
+import { storefrontChanged } from "@/lib/storefront/revalidate";
 
 /**
  * Postgres-backed document store.
@@ -86,6 +87,7 @@ export async function writeCollection<T>(collection: string, data: T[]): Promise
     await lockCollection(tx, collection);
     await replaceAll(tx, collection, data as unknown as Doc[]);
   });
+  storefrontChanged(collection);
 }
 
 /**
@@ -96,7 +98,7 @@ export async function mutateCollection<T, R = void>(
   collection: string,
   fn: (items: T[]) => Promise<R> | R
 ): Promise<R> {
-  return prisma.$transaction(
+  const result = await prisma.$transaction(
     async (tx) => {
       await lockCollection(tx, collection);
       const items = await readAll<T>(tx, collection);
@@ -106,6 +108,8 @@ export async function mutateCollection<T, R = void>(
     },
     { timeout: 20_000, maxWait: 10_000 }
   );
+  storefrontChanged(collection);
+  return result;
 }
 
 export async function getDoc<T>(collection: string, id: string): Promise<T | null> {

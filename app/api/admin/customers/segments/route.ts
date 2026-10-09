@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { readCollection } from "@/lib/db/store";
-import type { Customer, Order } from "@/lib/db/types";
+import type { Customer } from "@/lib/db/types";
 import { guarded } from "@/lib/auth/guard";
 
 interface AbandonedCart {
@@ -17,10 +17,8 @@ function parseDate(d?: string | null): Date {
 
 async function handleGET() {
   const customers = await readCollection<Customer>("customers");
-  const orders = await readCollection<Order>("orders");
   const carts = await readCollection<AbandonedCart>("abandoned-carts");
 
-  const now = new Date();
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
   const sixtyDaysAgo = new Date();

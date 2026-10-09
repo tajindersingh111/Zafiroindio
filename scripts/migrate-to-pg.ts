@@ -89,7 +89,7 @@ async function main() {
           status: cust.status || "active",
         },
       });
-    } catch (err: any) {
+    } catch {
       // ignore
     }
   }

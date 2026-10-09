@@ -2,8 +2,7 @@
 
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Printer, Download, ArrowLeft, CheckCircle2, Clock, AlertCircle, FileText, Building2 } from "lucide-react";
+import { Printer, Download, ArrowLeft, AlertCircle, Building2 } from "lucide-react";
 import type { Invoice } from "@/lib/db/types";
 
 export default function InvoicePage({ params }: { params: Promise<{ id: string }> }) {

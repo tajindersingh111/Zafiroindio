@@ -4,7 +4,6 @@ import { readCollection, writeCollection } from "@/lib/db/store";
 import type { Product } from "@/lib/db/types";
 import { v4 as uuidv4 } from "uuid";
 import { requireSuperAdmin, getAuthSession } from "@/lib/auth/rbac";
-import { createAuditLog } from "@/lib/db/audit";
 import { evaluatePriceChange, evaluateInventoryChange } from "@/lib/db/anomalies";
 import { moveToRecycleBin } from "@/lib/db/recycle-bin";
 import { guarded } from "@/lib/auth/guard";

@@ -113,17 +113,18 @@ export default function OrdersPage() {
           ) : (
             <button
               onClick={async () => {
+                if (!window.confirm(`Book a courier for ${o.orderNumber} on ShipMozo (your courier priority, else the cheapest)? This charges your ShipMozo wallet.`)) return;
                 const res = await fetch("/api/shipments/create", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ orderId: o.id, courierName: "Shipmozo" })
+                  body: JSON.stringify({ orderId: o.id })
                 });
+                const data = await res.json().catch(() => ({}));
                 if (res.ok) {
-                  const data = await res.json();
-                  addToast(`Dispatched ${o.orderNumber} via Shipmozo! AWB: ${data.shipment?.trackingNumber}`);
+                  addToast(`${o.orderNumber}: ${data.shipment.courierName}, AWB ${data.shipment.trackingNumber}`);
                   fetchOrders();
                 } else {
-                  addToast("Failed to dispatch order.", "error");
+                  addToast(data.error || "Failed to dispatch order.", "error");
                 }
               }}
               className="text-[11px] font-semibold text-white bg-madder hover:bg-madder/90 px-2.5 py-1 rounded transition-colors"

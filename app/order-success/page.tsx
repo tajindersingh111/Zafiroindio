@@ -3,8 +3,9 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Check, ShoppingBag, ArrowRight, Package, FileText, Truck } from "lucide-react";
+import { Check, ShoppingBag, ArrowRight, Package, FileText, Truck, RotateCcw } from "lucide-react";
 import { useStore } from "@/components/StoreProvider";
+import { img } from "@/lib/img";
 
 type PublicOrder = {
   orderNumber: string;
@@ -17,9 +18,13 @@ type PublicOrder = {
 };
 
 function OrderSuccessContent() {
-  const ref = useSearchParams().get("ref") || "";
+  const sp = useSearchParams();
+  const ref = sp.get("ref") || "";
+  // Shiprocket appends its order id (oid) and outcome (ost) when it redirects back here.
+  const oid = sp.get("oid") || "";
+  const failedRedirect = (sp.get("ost") || "").toUpperCase() === "FAILED";
   const { clearCart } = useStore();
-  const [state, setState] = useState<"loading" | "ready" | "missing">(ref ? "loading" : "missing");
+  const [state, setState] = useState<"loading" | "ready" | "missing" | "failed" | "slow">(ref ? "loading" : "missing");
   const [order, setOrder] = useState<PublicOrder | null>(null);
   const [invoiceUrl, setInvoiceUrl] = useState("");
   const tries = useRef(0);
@@ -29,22 +34,34 @@ function OrderSuccessContent() {
     let stop = false;
     let timer: ReturnType<typeof setTimeout>;
 
-    // Shiprocket confirms the order to our server a moment after payment, so poll briefly.
+    // The server confirms the order with Shiprocket (and its webhook) a moment after payment: poll,
+    // quickly at first, then more gently. After ~3 minutes show a calm "we'll e-mail you" state.
+    const qs = `ref=${encodeURIComponent(ref)}${oid ? `&oid=${encodeURIComponent(oid)}` : ""}`;
     const poll = async () => {
       try {
-        const res = await fetch(`/api/orders/by-ref?ref=${encodeURIComponent(ref)}`, { cache: "no-store" });
+        const res = await fetch(`/api/orders/by-ref?${qs}`, { cache: "no-store" });
         if (res.status === 404) return !stop && setState("missing");
         const data = await res.json();
+        if (stop) return;
         if (data.status === "ready") {
-          if (stop) return;
           setOrder(data.order);
           setInvoiceUrl(data.invoiceUrl);
           setState("ready");
-          clearCart();
+          // Buy it now never touched the cart, so only a cart checkout empties it.
+          let source = "cart";
+          try {
+            source = sessionStorage.getItem(`zafiro-checkout:${ref}`) || "cart";
+            sessionStorage.removeItem(`zafiro-checkout:${ref}`);
+          } catch {}
+          if (source === "cart") clearCart();
           return;
         }
+        if (data.status === "failed" || (failedRedirect && tries.current >= 2)) return setState("failed");
       } catch {}
-      if (!stop && ++tries.current < 40) timer = setTimeout(poll, 2500);
+      tries.current += 1;
+      if (stop) return;
+      if (tries.current >= 45) return setState("slow");
+      timer = setTimeout(poll, tries.current < 10 ? 2000 : 5000);
     };
     poll();
     return () => {
@@ -62,6 +79,28 @@ function OrderSuccessContent() {
             <p className="eyebrow">Confirming payment</p>
             <h1 className="serif" style={{ fontSize: 32, margin: "10px 0" }}>Just a moment…</h1>
             <p style={{ color: "var(--muted)" }}>We're confirming your order with the payment partner. Please don't close this page.</p>
+          </>
+        )}
+
+        {state === "failed" && (
+          <>
+            <p className="eyebrow">Payment not completed</p>
+            <h1 className="serif" style={{ fontSize: 32, margin: "10px 0" }}>Your payment didn't go through</h1>
+            <p style={{ color: "var(--muted)", marginBottom: 22 }}>
+              No order was placed and nothing has been charged. If money left your account, it is returned automatically by your bank. Your cart is saved.
+            </p>
+            <Link href="/cart" className="btn gold"><RotateCcw size={15} /> Return to cart &amp; try again</Link>
+          </>
+        )}
+
+        {state === "slow" && (
+          <>
+            <p className="eyebrow">Almost there</p>
+            <h1 className="serif" style={{ fontSize: 32, margin: "10px 0" }}>We're still confirming your order</h1>
+            <p style={{ color: "var(--muted)", marginBottom: 22 }}>
+              This can take a few minutes with some banks. You'll receive a confirmation e-mail and SMS as soon as it's done, so it's safe to close this page.
+            </p>
+            <Link href="/track" className="btn gold">Track an order</Link>
           </>
         )}
 
@@ -92,7 +131,7 @@ function OrderSuccessContent() {
             <div style={{ textAlign: "left", margin: "28px 0", borderTop: "1px solid var(--line)" }}>
               {order.items.map((i, idx) => (
                 <div key={idx} style={{ display: "flex", gap: 14, alignItems: "center", padding: "12px 0", borderBottom: "1px solid var(--line)" }}>
-                  {i.image && <img src={i.image} alt="" width={52} height={52} style={{ objectFit: "cover", borderRadius: 2 }} />}
+                  {i.image && <img src={img(i.image, 128)} alt="" width={52} height={52} style={{ objectFit: "cover", borderRadius: 2 }} />}
                   <div style={{ flex: 1, fontSize: 14 }}>
                     {i.name}
                     <div style={{ fontSize: 12, color: "var(--muted)" }}>Qty {i.quantity}</div>

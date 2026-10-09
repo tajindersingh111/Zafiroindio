@@ -1,14 +1,22 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import type { Product } from "@/lib/data";
+import { img, imgSrcSet, fallbackToOriginal } from "@/lib/img";
 
-/** Draggable, auto-rotating 3D ring of product cards (pure CSS 3D, no extra libraries). */
-export default function Carousel3D({ products }: { products: Product[] }) {
-  const items = products.slice(0, 8);
-  const [angle, setAngle] = useState(0);
+export type CarouselItem = { slug: string; name: string; price: number; image: string };
+
+/**
+ * Draggable, auto-rotating 3D ring of product cards (pure CSS 3D, no extra libraries).
+ * The rotation is written straight to the ring's style each frame (no React re-render), and the
+ * animation sleeps while the ring is off screen.
+ */
+export default function Carousel3D({ items }: { items: CarouselItem[] }) {
+  const ring = useRef<HTMLDivElement>(null);
+  const root = useRef<HTMLDivElement>(null);
+  const angle = useRef(0);
   const drag = useRef<{ x: number; a: number; moved: boolean } | null>(null);
   const paused = useRef(false);
+  const visible = useRef(false);
   const [radius, setRadius] = useState(380);
 
   useEffect(() => {
@@ -16,35 +24,50 @@ export default function Carousel3D({ products }: { products: Product[] }) {
     calc();
     window.addEventListener("resize", calc);
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const io = new IntersectionObserver(([e]) => (visible.current = e.isIntersecting));
+    if (root.current) io.observe(root.current);
     let id = 0;
     let last = performance.now();
     const tick = (t: number) => {
-      const dt = t - last;
+      const dt = Math.min(64, t - last);
       last = t;
-      if (!paused.current && !drag.current && !reduce) setAngle((a) => a - dt * 0.012);
+      if (visible.current && !paused.current && !drag.current && !reduce) {
+        angle.current -= dt * 0.012;
+        paint();
+      }
       id = requestAnimationFrame(tick);
     };
     id = requestAnimationFrame(tick);
     return () => {
       cancelAnimationFrame(id);
+      io.disconnect();
       window.removeEventListener("resize", calc);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => paint());
+
+  function paint() {
+    if (ring.current) ring.current.style.transform = `translateZ(-${radius}px) rotateY(${angle.current}deg)`;
+  }
 
   if (items.length < 3) return null;
   const step = 360 / items.length;
 
   return (
     <div
+      ref={root}
       className="c3d"
       onPointerDown={(e) => {
-        drag.current = { x: e.clientX, a: angle, moved: false };
+        drag.current = { x: e.clientX, a: angle.current, moved: false };
       }}
       onPointerMove={(e) => {
         if (!drag.current) return;
         const dx = e.clientX - drag.current.x;
         if (Math.abs(dx) > 4) drag.current.moved = true;
-        setAngle(drag.current.a + dx * 0.35);
+        angle.current = drag.current.a + dx * 0.35;
+        paint();
       }}
       onPointerUp={() => setTimeout(() => (drag.current = null), 0)}
       onPointerLeave={() => {
@@ -56,7 +79,7 @@ export default function Carousel3D({ products }: { products: Product[] }) {
       role="list"
       aria-label="Featured bedsheets"
     >
-      <div className="c3d-ring" style={{ transform: `translateZ(-${radius}px) rotateY(${angle}deg)` }}>
+      <div ref={ring} className="c3d-ring" style={{ transform: `translateZ(-${radius}px) rotateY(0deg)` }}>
         {items.map((p, i) => (
           <Link
             role="listitem"
@@ -67,7 +90,7 @@ export default function Carousel3D({ products }: { products: Product[] }) {
             onClick={(e) => drag.current?.moved && e.preventDefault()}
             draggable={false}
           >
-            <img src={p.images[0]} alt={p.name} draggable={false} loading="lazy" />
+            <img src={img(p.image, 384)} srcSet={imgSrcSet(p.image, [256, 384, 640])} sizes="240px" onError={fallbackToOriginal(p.image)} alt={p.name} draggable={false} loading="lazy" decoding="async" />
             <span className="c3d-cap">
               <b className="serif">{p.name}</b>
               <i>₹{p.price.toLocaleString("en-IN")}</i>

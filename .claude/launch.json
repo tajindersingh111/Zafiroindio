@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "zafiro-dev-localdb",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "set \"DATABASE_URL=postgresql://postgres@localhost:5435/zafiro_dev\" && npm run dev"],
+      "port": 3000
+    }
+  ]
+}

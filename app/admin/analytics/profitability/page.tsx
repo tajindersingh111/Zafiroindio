@@ -1,23 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
-  AlertTriangle,
-  Package,
-  Layers,
-  BarChart3,
-  Calculator,
-  ShieldAlert,
-  ArrowUpDown,
-  Search,
-  Filter,
-  CheckCircle2,
-  RefreshCw,
-  Info
-} from "lucide-react";
+import { TrendingUp, DollarSign, AlertTriangle, Package, Layers, BarChart3, Calculator, ShieldAlert, Search, RefreshCw, Info } from "lucide-react";
 import type {
   GlobalProfitabilitySummary,
   ProductProfitabilitySummary,
@@ -66,7 +50,7 @@ export default function ProfitabilityDashboardPage() {
   // Sorting products
   const sortedProducts = [...productSummaries].filter((p) =>
     p.productName.toLowerCase().includes(search.toLowerCase()) ||
-    p.sku.toLowerCase().includes(search.toLowerCase())
+    String(p.sku ?? "").toLowerCase().includes(search.toLowerCase())
   ).sort((a, b) => {
     switch (sortBy) {
       case "netProfitDesc":

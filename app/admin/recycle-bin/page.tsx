@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import { Trash2, RotateCcw, Shield, AlertTriangle, RefreshCw, X, Check } from "lucide-react";
+import { Trash2, RotateCcw, Shield, RefreshCw } from "lucide-react";
 import { DeleteConfirmModal } from "@/components/admin/DeleteConfirmModal";
 
 interface TrashItem {

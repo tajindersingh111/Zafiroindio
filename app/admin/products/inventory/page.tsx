@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { PageShell, PageHeader, SectionCard, StatusBadge, Btn, SearchBar, FilterSelect, LoadingSpinner, useToast } from "@/components/admin/Shared";
+import { PageShell, PageHeader, SectionCard, StatusBadge, SearchBar, FilterSelect, LoadingSpinner, useToast } from "@/components/admin/Shared";
 
 interface Product {
   id: string; name: string; sku: string; categoryId: string; stock: number;
@@ -27,7 +27,7 @@ export default function InventoryPage() {
   }, []);
 
   const filtered = products.filter((p) => {
-    const matchSearch = !search || p.name.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase());
+    const matchSearch = !search || String(p.name ?? "").toLowerCase().includes(search.toLowerCase()) || String(p.sku ?? "").toLowerCase().includes(search.toLowerCase());
     const matchStock = !stockFilter || p.stockStatus === stockFilter;
     return matchSearch && matchStock;
   });
@@ -122,7 +122,7 @@ export default function InventoryPage() {
                 <tr key={p.id} className="border-b border-stone/10 last:border-0 hover:bg-paper/50">
                   <td className="px-4 py-3">
                     <p className="font-medium text-ink">{p.name}</p>
-                    {p.variations.length > 0 && <p className="text-[11px] text-stone">{p.variations.length} variations</p>}
+                    {(p.variations?.length ?? 0) > 0 && <p className="text-[11px] text-stone">{p.variations.length} variations</p>}
                   </td>
                   <td className="px-4 py-3 font-mono text-xs text-stone">{p.sku}</td>
                   <td className="px-4 py-3">{fmt(p.price)}</td>

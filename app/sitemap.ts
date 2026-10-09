@@ -1,12 +1,12 @@
 import type { MetadataRoute } from "next";
 import { getCatalogProducts, getCatalogCollections } from "@/lib/storefront/catalog";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 const BASE = process.env.NEXT_PUBLIC_SITE_URL || "https://zafiroindio.com";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [products, collections] = await Promise.all([getCatalogProducts().catch(() => []), getCatalogCollections().catch(() => [])]);
+  const [products, collections] = await Promise.all([getCatalogProducts(), getCatalogCollections()]);
   const staticPages: MetadataRoute.Sitemap = [
     { url: BASE, changeFrequency: "weekly", priority: 1.0 },
     { url: `${BASE}/shop`, changeFrequency: "daily", priority: 0.9 },

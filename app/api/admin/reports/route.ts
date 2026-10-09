@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { readCollection, readSettings } from "@/lib/db/store";
-import type { Order, Product, Customer, Coupon } from "@/lib/db/types";
+import type { Order, Product, Customer } from "@/lib/db/types";
 import { guarded } from "@/lib/auth/guard";
 
 interface GoalData {

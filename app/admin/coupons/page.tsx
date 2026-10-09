@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { PageShell, PageHeader, DataTable, Pagination, SearchBar, FilterSelect, StatusBadge, Column, ConfirmDialog, Btn, LoadingSpinner, useToast, SectionCard } from "@/components/admin/Shared";
+import { PageShell, PageHeader, DataTable, Pagination, SearchBar, FilterSelect, StatusBadge, Column, ConfirmDialog, Btn, LoadingSpinner, useToast } from "@/components/admin/Shared";
 
 interface Coupon {
   id: string; code: string; type: string; amount: number; minimumSpend?: number;
@@ -99,6 +99,12 @@ export default function CouponsPage() {
         subtitle={`${total} coupons`}
         action={<Btn onClick={() => setShowModal(true)}>+ Add Coupon</Btn>}
       />
+
+      <div className="p-3 rounded border border-amber-600/30 bg-amber-500/10 text-xs text-ink leading-relaxed">
+        <strong>Coupons that shoppers type at checkout live in the Shiprocket Checkout (Fastrr) dashboard</strong>, because
+        Shiprocket runs the checkout. Create every advertised code there (e.g. <code>WELCOME10</code> from the welcome pop-up).
+        Codes added on this page are for your own records and reports only.
+      </div>
 
       <div className="flex gap-3">
         <SearchBar value={search} onChange={setSearch} placeholder="Search coupon code…" className="w-64" />

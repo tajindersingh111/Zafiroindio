@@ -21,7 +21,7 @@ async function handlePOST(request: Request) {
   try {
     const { name, type } = await request.json() as { name: string; type: string };
     const sandbox = await readSettings<{ campaigns: any[]; adsets: any[]; ads: any[]; audiences: any[] }>("meta-sandbox");
-    if (!sandbox) return NextResponse.json({ error: "Internal sandbox error" }, { status: 500 });
+    if (!sandbox) return NextResponse.json({ error: "Meta demo data is not set up. This section is not connected to Facebook yet." }, { status: 503 });
 
     const newAudience = {
       id: "aud-" + Math.floor(Math.random() * 900 + 100),
@@ -35,7 +35,7 @@ async function handlePOST(request: Request) {
     sandbox.audiences.push(newAudience);
     await writeSettings("meta-sandbox", sandbox);
     return NextResponse.json(newAudience);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Invalid request payload" }, { status: 400 });
   }
 }
