@@ -1,9 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, CheckCircle2, Gift, Sparkles } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { X, CheckCircle2 } from "lucide-react";
 
 export default function WelcomeDiscountModal() {
+  const pathname = usePathname();
+  const isStorefront = !pathname?.startsWith("/admin");
   const [open, setOpen] = useState(false);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -16,6 +19,7 @@ export default function WelcomeDiscountModal() {
 
 
   useEffect(() => {
+    if (!isStorefront) return;
     try {
       const dismissed = localStorage.getItem("zafiro_lead_dismissed");
       const captured = localStorage.getItem("zafiro_lead_captured");
@@ -28,7 +32,7 @@ export default function WelcomeDiscountModal() {
         return () => clearTimeout(timer);
       }
     } catch {}
-  }, []);
+  }, [isStorefront]);
 
   const handleClose = () => {
     setOpen(false);
@@ -61,22 +65,11 @@ export default function WelcomeDiscountModal() {
 
     try {
 
-      // Post lead info to customer admin collection asynchronously
-      const nameParts = fullName.trim().split(" ");
-      const firstName = nameParts[0] || "Guest";
-      const lastName = nameParts.slice(1).join(" ") || "";
-
-      fetch("/api/admin/customers", {
+      // Public endpoint (the old call went to an admin-only API and was silently rejected for shoppers).
+      fetch("/api/subscribers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          firstName,
-          lastName,
-          email: cleanEmail,
-          phone: cleanPhone,
-          type: "retail",
-          status: "active"
-        })
+        body: JSON.stringify({ name: fullName.trim(), email: cleanEmail, phone: cleanPhone, source: "welcome-popup" })
       }).catch(() => {});
 
       localStorage.setItem("zafiro_lead_captured", "true");
@@ -94,7 +87,7 @@ export default function WelcomeDiscountModal() {
     setTimeout(() => setCopied(false), 2500);
   };
 
-  if (!open) return null;
+  if (!open || !isStorefront) return null;
 
   return (
     <div

@@ -24,7 +24,7 @@ async function handlePOST(request: NextRequest) {
     }
 
     return NextResponse.json({ success: true, message: result.message });
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: "Failed to offboard employee." }, { status: 500 });
   }
 }

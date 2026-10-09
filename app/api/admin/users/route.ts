@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { readCollection, writeCollection } from "@/lib/db/store";
 import type { AdminUser } from "@/lib/db/types";
-import { requireSuperAdmin, getAuthSession, forbiddenResponse } from "@/lib/auth/rbac";
+import { requireSuperAdmin } from "@/lib/auth/rbac";
 import { createAuditLog } from "@/lib/db/audit";
 import { guarded } from "@/lib/auth/guard";
 
@@ -26,7 +26,7 @@ async function handlePOST(request: NextRequest) {
     }
 
     const users = await readCollection<AdminUser>("admin-users");
-    const existing = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+    const existing = users.find((u) => String(u.email ?? "").toLowerCase() === email.toLowerCase());
     if (existing) {
       return NextResponse.json({ error: "An admin user with this email already exists." }, { status: 400 });
     }

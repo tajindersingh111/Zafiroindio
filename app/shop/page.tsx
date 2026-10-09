@@ -5,20 +5,21 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
 import { useCatalog } from "@/lib/storefront/useCatalog";
-import { ChevronDown, ChevronUp, LayoutGrid, Grid, Check, Heart } from "lucide-react";
+import { ChevronDown, ChevronUp, LayoutGrid, Grid, Check, SlidersHorizontal, X } from "lucide-react";
 
 function ShopContent() {
   const searchParams = useSearchParams();
   const { products: allProducts, loading: catalogLoading } = useCatalog();
 
   // Filter states
-  const [selectedCategory, setSelectedCategory] = useState<string>("All Bedsheets");
+  const [selectedCategory, setSelectedCategory] = useState<string>(""); // category or collection slug; "" = everything
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
-  const [maxPrice, setMaxPrice] = useState<number>(10000);
+  const [maxPrice, setMaxPrice] = useState<number | null>(null); // null = no price limit
   const [minRating, setMinRating] = useState<number>(0);
   const [sort, setSort] = useState<string>("featured");
   const [viewMode, setViewMode] = useState<"grid4" | "grid3">("grid4");
+  const [filtersOpen, setFiltersOpen] = useState(false); // phone filter drawer
 
   // Accordion state
   const [openSections, setOpenSections] = useState({
@@ -33,46 +34,40 @@ function ShopContent() {
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  // Sync URL query params (collection, badge)
+  // Sync URL query params (?collection=<category or collection slug>, ?badge=)
   useEffect(() => {
-    const collection = searchParams.get("collection");
+    const collection = searchParams.get("collection") || searchParams.get("category");
     const badge = searchParams.get("badge");
-    if (collection) {
-      const catMap: Record<string, string> = {
-        floral: "Floral",
-        minimal: "Minimal",
-        printed: "Printed",
-        luxury: "Luxury",
-        everyday: "Everyday Comfort",
-        new: "New Arrivals",
-      };
-      if (catMap[collection]) {
-        setSelectedCategory(catMap[collection]);
-      } else {
-        setSelectedCategory("All Bedsheets");
-      }
-    }
+    setSelectedCategory(collection ?? "");
     if (badge === "bestseller") setSort("bestseller");
     if (badge === "new") setSort("newest");
   }, [searchParams]);
 
-  // Available Filter Lists (Calculated Dynamically from Products)
+  // Filter options come from the catalogue itself, so a filter can never lead to an empty page.
   const categoriesList = useMemo(() => {
-    const cats = Array.from(new Set(allProducts.map((p) => p.category))).filter(Boolean);
-    return ["All Bedsheets", ...cats];
+    const m = new Map<string, { slug: string; name: string; count: number }>();
+    for (const p of allProducts) {
+      if (!p.categorySlug) continue;
+      const c = m.get(p.categorySlug) ?? { slug: p.categorySlug, name: p.categoryName || p.categorySlug, count: 0 };
+      c.count += 1;
+      m.set(p.categorySlug, c);
+    }
+    return Array.from(m.values()).sort((a, b) => b.count - a.count);
   }, [allProducts]);
 
-  const sizesList = ["Single", "Double", "Queen", "King"];
+  const sizesList = useMemo(() => Array.from(new Set(allProducts.flatMap((p) => p.sizes || []))), [allProducts]);
 
-  const colorSwatches = [
-    { name: "Ivory", hex: "#ffffff", border: true },
-    { name: "Beige", hex: "#d4b896" },
-    { name: "Sage Green", hex: "#1b6b68" },
-    { name: "Blush", hex: "#f4a6b2" },
-    { name: "Terracotta", hex: "#701c34" },
-    { name: "Grey", hex: "#a8a8a8" },
-    { name: "Indigo Blue", hex: "#3d3d3d" },
-  ];
+  const SWATCH: Record<string, string> = { ivory: "#ffffff", white: "#ffffff", beige: "#d4b896", "sage green": "#1b6b68", green: "#4a7c59", blush: "#f4a6b2", pink: "#f4a6b2", terracotta: "#b5543b", grey: "#a8a8a8", gray: "#a8a8a8", "indigo blue": "#2e3a6e", blue: "#2e5aa8", indigo: "#2e3a6e", yellow: "#e7c13b", red: "#b23a3a", black: "#1c1917" };
+  const colorSwatches = useMemo(
+    () => Array.from(new Set(allProducts.flatMap((p) => p.colors || []))).map((name) => ({ name, hex: SWATCH[name.toLowerCase()] ?? "#cbbfa9", border: /ivory|white/i.test(name) })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [allProducts]
+  );
+
+  const priceCeil = useMemo(() => Math.max(500, Math.ceil(Math.max(0, ...allProducts.map((p) => p.price || 0)) / 100) * 100), [allProducts]);
+  const priceFloor = useMemo(() => (allProducts.length ? Math.floor(Math.min(...allProducts.map((p) => p.price || 0)) / 100) * 100 : 0), [allProducts]);
+  const ratingCounts = useMemo(() => [5, 4, 3, 2].map((stars) => ({ stars, count: allProducts.filter((p) => (p.rating || 0) >= stars).length })), [allProducts]);
+  const hasRatings = ratingCounts.some((r) => r.count > 0);
 
   const toggleSize = (s: string) => {
     setSelectedSizes((prev) =>
@@ -91,8 +86,8 @@ function ShopContent() {
     let result = [...allProducts];
 
     // Category Filter
-    if (selectedCategory && selectedCategory !== "All Bedsheets") {
-      result = result.filter((p) => p.category === selectedCategory);
+    if (selectedCategory) {
+      result = result.filter((p) => p.categorySlug === selectedCategory || p.category === selectedCategory || p.collections?.includes(selectedCategory));
     }
 
     // Size Filter
@@ -110,7 +105,7 @@ function ShopContent() {
     }
 
     // Price Filter
-    result = result.filter((p) => (p.price || 0) <= maxPrice);
+    if (maxPrice !== null) result = result.filter((p) => (p.price || 0) <= maxPrice);
 
     // Rating Filter
     if (minRating > 0) {
@@ -120,10 +115,12 @@ function ShopContent() {
     // Sorting
     switch (sort) {
       case "newest":
-        result = [...result.filter((p) => p.badge === "NEW"), ...result.filter((p) => p.badge !== "NEW")];
+        // Tagged "new" first, then most recently added.
+        result = [...result].sort((a, b) => Number(b.badge === "NEW") - Number(a.badge === "NEW") || (b.createdAt || "").localeCompare(a.createdAt || ""));
         break;
       case "bestseller":
-        result = [...result.filter((p) => p.badge === "BESTSELLER"), ...result.filter((p) => p.badge !== "BESTSELLER")];
+        // Real units sold; admin "bestseller" tags count as a tie-breaker boost.
+        result = [...result].sort((a, b) => (b.popularity || 0) - (a.popularity || 0) || Number(b.badge === "BESTSELLER") - Number(a.badge === "BESTSELLER"));
         break;
       case "price-low":
         result = [...result].sort((a, b) => (a.price || 0) - (b.price || 0));
@@ -140,17 +137,17 @@ function ShopContent() {
   }, [allProducts, selectedCategory, selectedSizes, selectedColors, maxPrice, minRating, sort]);
 
   const hasFilters =
-    selectedCategory !== "All Bedsheets" ||
+    !!selectedCategory ||
     selectedSizes.length > 0 ||
     selectedColors.length > 0 ||
     minRating > 0 ||
-    maxPrice < 10000;
+    maxPrice !== null;
 
   const clearFilters = () => {
-    setSelectedCategory("All Bedsheets");
+    setSelectedCategory("");
     setSelectedSizes([]);
     setSelectedColors([]);
-    setMaxPrice(2499);
+    setMaxPrice(null);
     setMinRating(0);
   };
 
@@ -176,7 +173,7 @@ function ShopContent() {
               margin: "0 0 6px"
             }}
           >
-            SHOP ALL BEDSHEETS
+            SHOP ALL
           </h1>
           <p style={{ fontSize: 14, color: "#66625d", margin: 0 }}>
             Timeless designs. Premium comfort.
@@ -184,25 +181,20 @@ function ShopContent() {
         </div>
 
         {/* Toolbar Bar */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            paddingBottom: 20,
-            marginBottom: 24,
-            borderBottom: "1px solid #e7e1d6"
-          }}
-        >
-          <div style={{ fontSize: 13, color: "#666" }}>
-            Showing 1–{filteredProducts.length} of {allProducts.length} products
+        <div className="shop-toolbar">
+          <button type="button" className="shop-filter-toggle" onClick={() => setFiltersOpen(true)} aria-expanded={filtersOpen} aria-controls="shop-filters">
+            <SlidersHorizontal size={15} /> Filters{hasFilters ? " •" : ""}
+          </button>
+          <div className="shop-count">
+            {catalogLoading ? "Loading products…" : `${filteredProducts.length} of ${allProducts.length} products`}
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             {/* Sort Dropdown */}
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <label style={{ fontSize: 12, color: "#666", fontWeight: 500 }}>Sort by:</label>
+              <label htmlFor="shop-sort" className="shop-sort-label">Sort by:</label>
               <select
+                id="shop-sort"
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
                 style={{
@@ -227,7 +219,7 @@ function ShopContent() {
             </div>
 
             {/* View Mode Buttons */}
-            <div style={{ display: "flex", gap: 4 }}>
+            <div className="shop-viewmode">
               <button
                 type="button"
                 onClick={() => setViewMode("grid4")}
@@ -267,9 +259,14 @@ function ShopContent() {
         </div>
 
         {/* Shop Main Layout: Sidebar Filters + Products Grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "240px 1fr", gap: 36 }}>
-          {/* Left Filter Sidebar */}
-          <aside>
+        <div className="shop-layout">
+          {filtersOpen && <div className="shop-filters-backdrop" onClick={() => setFiltersOpen(false)} />}
+          {/* Left Filter Sidebar (a bottom drawer on phones) */}
+          <aside id="shop-filters" className={`shop-filters${filtersOpen ? " open" : ""}`} aria-label="Filters">
+            <div className="shop-filters-head">
+              <strong>Filters</strong>
+              <button type="button" onClick={() => setFiltersOpen(false)} aria-label="Close filters"><X size={20} /></button>
+            </div>
             <div
               style={{
                 display: "flex",
@@ -329,34 +326,36 @@ function ShopContent() {
 
               {openSections.category && (
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  {categoriesList.map((cat) => (
+                  {[{ slug: "", name: "All products", count: allProducts.length }, ...categoriesList].map((cat) => (
                     <label
-                      key={cat}
+                      key={cat.slug || "all"}
                       style={{
                         display: "flex",
                         alignItems: "center",
                         gap: 10,
                         fontSize: 13,
-                        color: selectedCategory === cat ? "#1c1917" : "#555",
-                        fontWeight: selectedCategory === cat ? 600 : 400,
+                        color: selectedCategory === cat.slug ? "#1c1917" : "#555",
+                        fontWeight: selectedCategory === cat.slug ? 600 : 400,
                         cursor: "pointer"
                       }}
                     >
                       <input
-                        type="checkbox"
-                        checked={selectedCategory === cat}
-                        onChange={() => setSelectedCategory(selectedCategory === cat ? "All Bedsheets" : cat)}
+                        type="radio"
+                        name="categoryFilter"
+                        checked={selectedCategory === cat.slug}
+                        onChange={() => setSelectedCategory(cat.slug)}
                         style={{ accentColor: "#a67c37", width: 15, height: 15, cursor: "pointer" }}
                       />
-                      {cat}
+                      <span style={{ flex: 1 }}>{cat.name}</span>
+                      <span style={{ color: "#999", fontSize: 11 }}>{cat.count}</span>
                     </label>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Accordion 2: SIZE */}
-            <div style={{ borderBottom: "1px solid #e7e1d6", paddingBottom: 16, marginBottom: 16 }}>
+            {/* Accordion 2: SIZE (only when products have sizes) */}
+            {sizesList.length > 0 && <div style={{ borderBottom: "1px solid #e7e1d6", paddingBottom: 16, marginBottom: 16 }}>
               <button
                 type="button"
                 onClick={() => toggleSection("size")}
@@ -406,10 +405,10 @@ function ShopContent() {
                   ))}
                 </div>
               )}
-            </div>
+            </div>}
 
-            {/* Accordion 3: COLOR */}
-            <div style={{ borderBottom: "1px solid #e7e1d6", paddingBottom: 16, marginBottom: 16 }}>
+            {/* Accordion 3: COLOR (only when products have colours) */}
+            {colorSwatches.length > 0 && <div style={{ borderBottom: "1px solid #e7e1d6", paddingBottom: 16, marginBottom: 16 }}>
               <button
                 type="button"
                 onClick={() => toggleSection("color")}
@@ -467,7 +466,7 @@ function ShopContent() {
                   })}
                 </div>
               )}
-            </div>
+            </div>}
 
             {/* Accordion 4: PRICE */}
             <div style={{ borderBottom: "1px solid #e7e1d6", paddingBottom: 16, marginBottom: 16 }}>
@@ -498,11 +497,12 @@ function ShopContent() {
                 <div>
                   <input
                     type="range"
-                    min={499}
-                    max={2499}
+                    aria-label="Maximum price"
+                    min={priceFloor}
+                    max={priceCeil}
                     step={100}
-                    value={maxPrice}
-                    onChange={(e) => setMaxPrice(Number(e.target.value))}
+                    value={maxPrice ?? priceCeil}
+                    onChange={(e) => setMaxPrice(Number(e.target.value) >= priceCeil ? null : Number(e.target.value))}
                     style={{
                       width: "100%",
                       accentColor: "#a67c37",
@@ -510,15 +510,15 @@ function ShopContent() {
                     }}
                   />
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginTop: 8, color: "#666" }}>
-                    <span>₹ 499</span>
-                    <span style={{ color: "#1c1917", fontWeight: 700 }}>₹ {maxPrice.toLocaleString("en-IN")}</span>
+                    <span>₹ {priceFloor.toLocaleString("en-IN")}</span>
+                    <span style={{ color: "#1c1917", fontWeight: 700 }}>{maxPrice === null ? "Any price" : `Up to ₹ ${maxPrice.toLocaleString("en-IN")}`}</span>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Accordion 5: RATING */}
-            <div>
+            {/* Accordion 5: RATING (only once products have reviews) */}
+            {hasRatings && <div>
               <button
                 type="button"
                 onClick={() => toggleSection("rating")}
@@ -544,12 +544,7 @@ function ShopContent() {
 
               {openSections.rating && (
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  {[
-                    { stars: 5, label: "5 Stars", count: 24 },
-                    { stars: 4, label: "& above", count: 36 },
-                    { stars: 3, label: "& above", count: 42 },
-                    { stars: 2, label: "& above", count: 45 }
-                  ].map((item) => (
+                  {ratingCounts.map((item) => ({ ...item, label: "& above" })).map((item) => (
                     <label
                       key={item.stars}
                       style={{
@@ -577,12 +572,19 @@ function ShopContent() {
                   ))}
                 </div>
               )}
-            </div>
+            </div>}
+            <button type="button" className="btn gold full shop-filters-apply" onClick={() => setFiltersOpen(false)}>
+              Show {filteredProducts.length} {filteredProducts.length === 1 ? "product" : "products"}
+            </button>
           </aside>
 
           {/* Right Product Grid Area */}
-          <div>
-            {filteredProducts.length === 0 ? (
+          <div style={{ minWidth: 0 }}>
+            {catalogLoading ? (
+              <div className={`shop-grid ${viewMode}`} aria-busy="true">
+                {Array.from({ length: 8 }, (_, i) => <div key={i} className="shop-skeleton" />)}
+              </div>
+            ) : filteredProducts.length === 0 ? (
               <div style={{ textAlign: "center", padding: "60px 0", color: "#666" }}>
                 <p style={{ fontSize: 15, marginBottom: 16 }}>No products match the selected filters.</p>
                 <button
@@ -604,13 +606,7 @@ function ShopContent() {
                 </button>
               </div>
             ) : (
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: viewMode === "grid4" ? "repeat(4, 1fr)" : "repeat(3, 1fr)",
-                  gap: 22
-                }}
-              >
+              <div className={`shop-grid ${viewMode}`}>
                 {filteredProducts.map((p) => (
                   <ProductCard key={p.slug} p={p} />
                 ))}

@@ -5,10 +5,11 @@ import { Heart, Sparkles, Check } from "lucide-react";
 import { Product } from "@/lib/data";
 import { useStore } from "./StoreProvider";
 import Tilt from "@/components/site/Tilt";
+import { img, imgSrcSet, fallbackToOriginal } from "@/lib/img";
 
 export default function ProductCard({ p }: { p: Product }) {
   const { add, wishlist, toggleWish } = useStore();
-  const [selectedSize, setSelectedSize] = useState(p.sizes[0] || "King");
+  const [selectedSize, setSelectedSize] = useState(p.sizes[0] || "");
   const [addedSuccess, setAddedSuccess] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -30,7 +31,7 @@ export default function ProductCard({ p }: { p: Product }) {
     e.stopPropagation();
     if (isOutOfStock) return;
 
-    add(p, selectedSize, p.colors[0] || "Standard");
+    add(p, selectedSize, p.colors[0] || "");
     setAddedSuccess(true);
     setTimeout(() => setAddedSuccess(false), 1800);
   }
@@ -47,21 +48,39 @@ export default function ProductCard({ p }: { p: Product }) {
         <Link href={`/products/${p.slug}`} className="block w-full h-full">
           {/* Primary Image */}
           <img
-            src={p.images[0]}
+            src={img(p.images[0], 640)}
+            srcSet={imgSrcSet(p.images[0], [384, 640, 828])}
+            sizes="(max-width: 640px) 50vw, (max-width: 1100px) 33vw, 25vw"
+            decoding="async"
             alt={`${p.name} luxury bedsheet`}
             loading="lazy"
             className={`w-full h-full object-cover object-center transition-all duration-700 ease-out ${
               isHovered && hasSecondImage ? "scale-105 opacity-0" : "scale-100 opacity-100"
             }`}
             onError={(e) => {
-              e.currentTarget.src = "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85";
+              // Resized copy failed -> original file; original failed too -> neutral placeholder. Never loops.
+              const el = e.currentTarget;
+              const stage = el.dataset.fallback;
+              if (stage === "2") return;
+              el.removeAttribute("srcset");
+              if (!stage && p.images[0]) {
+                el.dataset.fallback = "1";
+                el.src = p.images[0];
+              } else {
+                el.dataset.fallback = "2";
+                el.src = "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=800&q=75";
+              }
             }}
           />
 
           {/* Secondary Hover Image */}
           {hasSecondImage && (
             <img
-              src={p.images[1]}
+              src={img(p.images[1], 640)}
+              srcSet={imgSrcSet(p.images[1], [384, 640, 828])}
+              sizes="(max-width: 640px) 50vw, (max-width: 1100px) 33vw, 25vw"
+              decoding="async"
+              onError={fallbackToOriginal(p.images[1])}
               alt={`${p.name} lifestyle detail`}
               loading="lazy"
               className={`absolute inset-0 w-full h-full object-cover object-center transition-all duration-700 ease-out ${
@@ -133,12 +152,12 @@ export default function ProductCard({ p }: { p: Product }) {
           >
             {addedSuccess ? (
               <>
-                <Check size={14} /> Added ({selectedSize})
+                <Check size={14} /> Added{selectedSize ? ` (${selectedSize})` : ""}
               </>
             ) : isOutOfStock ? (
               "Sold Out"
             ) : (
-              `+ Quick Add (${selectedSize})`
+              `+ Quick Add${selectedSize ? ` (${selectedSize})` : ""}`
             )}
           </button>
         </div>

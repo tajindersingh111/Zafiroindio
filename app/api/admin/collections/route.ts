@@ -34,7 +34,7 @@ async function handleGET() {
   try {
     const list = await getCollections();
     return NextResponse.json({ success: true, collections: list });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Failed to fetch collections" }, { status: 500 });
   }
 }
@@ -70,7 +70,7 @@ async function handlePOST(req: Request) {
     await writeCollection(COLLECTION_NAME, updated);
 
     return NextResponse.json({ success: true, message: "Collection created successfully.", collection: newCol });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Failed to create collection." }, { status: 500 });
   }
 }
@@ -100,7 +100,7 @@ async function handlePUT(req: Request) {
     await writeCollection(COLLECTION_NAME, currentList);
 
     return NextResponse.json({ success: true, message: "Collection updated.", collection: currentList[idx] });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Failed to update collection." }, { status: 500 });
   }
 }
@@ -120,7 +120,7 @@ async function handleDELETE(req: Request) {
     await writeCollection(COLLECTION_NAME, updated);
 
     return NextResponse.json({ success: true, message: "Collection deleted." });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Failed to delete collection." }, { status: 500 });
   }
 }

@@ -68,7 +68,7 @@ async function handlePOST(request: Request) {
     };
 
     return NextResponse.json(safe);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Invalid configuration payload" }, { status: 400 });
   }
 }

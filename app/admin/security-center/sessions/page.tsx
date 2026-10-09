@@ -1,18 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import {
-  Users,
-  LogOut,
-  UserX,
-  Shield,
-  Laptop,
-  Smartphone,
-  Globe,
-  Clock,
-  RefreshCw,
-  AlertTriangle
-} from "lucide-react";
+import { LogOut, UserX, RefreshCw } from "lucide-react";
 
 interface ActiveSession {
   id: string;

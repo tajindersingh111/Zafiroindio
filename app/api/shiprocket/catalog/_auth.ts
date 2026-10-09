@@ -1,15 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { shiprocketCheckoutClient } from "@/lib/shiprocket-checkout/client";
+import { rateLimit } from "@/lib/security/rate-limit";
 
 export function siteOrigin(request: NextRequest): string {
   return (process.env.NEXT_PUBLIC_SITE_URL || request.nextUrl.origin).replace(/\/$/, "");
 }
 
-/** Only Shiprocket (holding our API secret) may pull the catalogue. Fails closed. */
-export function authorizeCatalogRequest(request: NextRequest): NextResponse | null {
-  const url = request.nextUrl;
-  const ok = shiprocketCheckoutClient.verifySignature("", request.headers, [url.pathname + url.search, url.search.replace(/^\?/, ""), url.toString()]);
-  return ok ? null : NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+/**
+ * The catalogue feed is the same public information the storefront shows (names, prices, stock), so
+ * it is open to Shiprocket's sync without a signature: an HMAC requirement that Shiprocket's
+ * catalogue calls don't meet would silently empty its catalogue and break checkout. It is rate
+ * limited and served from cache; prices are still re-checked server-side when a checkout starts.
+ */
+export async function guardCatalogRequest(request: NextRequest): Promise<NextResponse | null> {
+  return rateLimit(request, "sr-catalog", { windowMs: 60_000, maxRequests: 240, store: "memory" });
 }
 
 export function pageParams(request: NextRequest) {
@@ -18,3 +21,5 @@ export function pageParams(request: NextRequest) {
   const limit = Math.min(250, Math.max(1, Number(sp.get("limit") || 100) || 100));
   return { page, limit };
 }
+
+export const CATALOG_HEADERS = { "Cache-Control": "public, max-age=60, s-maxage=60" };

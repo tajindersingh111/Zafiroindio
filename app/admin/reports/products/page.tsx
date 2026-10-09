@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { PageShell, PageHeader, SectionCard, StatusBadge, FilterSelect, LoadingSpinner } from "@/components/admin/Shared";
+import { PageShell, PageHeader, SectionCard, FilterSelect, LoadingSpinner } from "@/components/admin/Shared";
 
 const DATE_RANGES = [
   { label: "Last 7 days", value: "7d" }, { label: "Last 30 days", value: "30d" },

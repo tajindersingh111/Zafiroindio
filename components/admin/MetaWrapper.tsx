@@ -44,5 +44,13 @@ export function MetaWrapper({ children }: { children: ReactNode }) {
     );
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      <div className="mx-6 mt-4 p-3 rounded border border-amber-600/30 bg-amber-500/10 text-xs text-ink leading-relaxed">
+        <strong>Demo only:</strong> this Meta Ads section is not connected to Facebook / Meta yet. Campaigns, audiences and
+        figures here are sample data and nothing is created on your ad account. Use Meta Ads Manager for real campaigns.
+      </div>
+      {children}
+    </>
+  );
 }

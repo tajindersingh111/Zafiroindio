@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { PackageCheck, ShieldCheck, Truck, Sparkles, Send, CheckCircle2, Building2, User, Mail, Phone, Layers, Award } from "lucide-react";
+import { ShieldCheck, Truck, Sparkles, Send, CheckCircle2, Building2, User, Mail, Phone, Layers, Award } from "lucide-react";
 
 const CATEGORIES = [
   "Bedsheets & Sheet Sets",

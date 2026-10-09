@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { getAllExpenses, saveExpense, deleteExpense } from "@/lib/db/expenses";
+import { getAllExpenses, saveExpense } from "@/lib/db/expenses";
 import { createAuditLog } from "@/lib/db/audit";
-import type { Expense } from "@/lib/db/types";
 import { guarded } from "@/lib/auth/guard";
 
 async function handleGET(request: Request) {
@@ -21,7 +20,7 @@ async function handleGET(request: Request) {
     }
     if (search) {
       expenses = expenses.filter(
-        (e) => e.title.toLowerCase().includes(search) || (e.notes && e.notes.toLowerCase().includes(search))
+        (e) => String(e.title ?? "").toLowerCase().includes(search) || (e.notes && String(e.notes ?? "").toLowerCase().includes(search))
       );
     }
 

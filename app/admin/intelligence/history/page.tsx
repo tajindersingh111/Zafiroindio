@@ -25,10 +25,6 @@ export default function AIHistoryPage() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("");
 
-  useEffect(() => {
-    fetchHistory();
-  }, []);
-
   function fetchHistory() {
     setLoading(true);
     // Simple fetch of seeded history data (which is in data/ai-history.json)
@@ -67,6 +63,10 @@ export default function AIHistoryPage() {
   }
 
   const filtered = statusFilter ? history.filter((h) => h.status === statusFilter) : history;
+
+  useEffect(() => {
+    fetchHistory();
+  }, []);
 
   return (
     <PageShell>

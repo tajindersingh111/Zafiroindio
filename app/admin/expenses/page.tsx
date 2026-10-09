@@ -1,24 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  DollarSign,
-  Plus,
-  Search,
-  Filter,
-  Trash2,
-  Edit2,
-  PieChart,
-  TrendingDown,
-  Building,
-  Truck,
-  CreditCard,
-  Megaphone,
-  AlertTriangle,
-  CheckCircle,
-  Tag,
-  FileText
-} from "lucide-react";
+import { DollarSign, Plus, Search, Trash2, Edit2, PieChart, Building, Truck, CreditCard, Megaphone, AlertTriangle } from "lucide-react";
 import type { Expense, ExpenseCategory, ExpenseClassification, ExpenseAllocation } from "@/lib/db/types";
 
 export default function ExpensesPage() {
@@ -143,7 +126,7 @@ export default function ExpensesPage() {
         setShowModal(false);
         fetchExpenses();
       }
-    } catch (err) {
+    } catch {
       setFormError("An unexpected error occurred.");
     } finally {
       setSaving(false);
@@ -164,15 +147,15 @@ export default function ExpensesPage() {
         setDeletingId(null);
         fetchExpenses();
       }
-    } catch (err) {
+    } catch {
       setDeleteError("Failed to delete expense.");
     }
   };
 
   const filteredExpenses = expenses.filter((e) => {
     const matchesSearch =
-      e.title.toLowerCase().includes(search.toLowerCase()) ||
-      (e.notes && e.notes.toLowerCase().includes(search.toLowerCase())) ||
+      String(e.title ?? "").toLowerCase().includes(search.toLowerCase()) ||
+      (e.notes && String(e.notes ?? "").toLowerCase().includes(search.toLowerCase())) ||
       e.id.toLowerCase().includes(search.toLowerCase());
     const matchesCat = categoryFilter === "all" || e.category === categoryFilter;
     const matchesClass = classificationFilter === "all" || e.classification === classificationFilter;

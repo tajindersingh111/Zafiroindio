@@ -4,6 +4,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Instagram, Facebook, Twitter, Youtube, CheckCircle2 } from "lucide-react";
 
+/** Contact details and social profiles shown in the footer. Empty entries are not rendered. */
+const CONTACT = { email: "hello@zafiroindio.com", phone: "", hours: "Mon–Sat · 10AM–7PM IST" };
+const SOCIAL = [
+  { label: "Instagram", href: "", Icon: Instagram },
+  { label: "Facebook", href: "", Icon: Facebook },
+  { label: "Twitter", href: "", Icon: Twitter },
+  { label: "Youtube", href: "", Icon: Youtube },
+].filter((x) => x.href);
+
 export default function Footer() {
   const pathname = usePathname();
   const [email, setEmail] = useState("");
@@ -64,7 +73,7 @@ export default function Footer() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email address (e.g. tajindsingh012@gmail.com)" 
+                placeholder="Your email address" 
                 aria-label="Email address" 
               />
               <button type="submit" disabled={loading}>
@@ -89,12 +98,13 @@ export default function Footer() {
                 />
               </Link>
               <p>Beautiful bedsheets for beautiful homes. Thoughtfully crafted for everyday comfort and timeless style.</p>
-              <div className="footerSocial">
-                <a href="#" aria-label="Instagram"><Instagram size={14} /></a>
-                <a href="#" aria-label="Facebook"><Facebook size={14} /></a>
-                <a href="#" aria-label="Twitter"><Twitter size={14} /></a>
-                <a href="#" aria-label="Youtube"><Youtube size={14} /></a>
-              </div>
+              {SOCIAL.length > 0 && (
+                <div className="footerSocial">
+                  {SOCIAL.map(({ label, href, Icon }) => (
+                    <a key={label} href={href} aria-label={label} target="_blank" rel="noopener noreferrer"><Icon size={14} /></a>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Shop */}
@@ -129,15 +139,15 @@ export default function Footer() {
             {/* Contact */}
             <div>
               <h4>Contact Us</h4>
-              <p>✉ hello@zafiro.in</p>
-              <p>☎ +91 98765 43210</p>
-              <p>Mon–Sat · 10AM–7PM IST</p>
+              <p><a href={`mailto:${CONTACT.email}`}>✉ {CONTACT.email}</a></p>
+              {CONTACT.phone && <p><a href={`tel:${CONTACT.phone.replace(/\s/g, "")}`}>☎ {CONTACT.phone}</a></p>}
+              <p>{CONTACT.hours}</p>
               <p style={{ marginTop: 14 }}>Jaipur, Rajasthan, India</p>
             </div>
           </div>
 
           <div className="footerBottom">
-            <span>© 2026 Zafiro. All rights reserved.</span>
+            <span>© {new Date().getFullYear()} Zafiro Indio. All rights reserved.</span>
             <div className="footerLegalLinks">
               <Link href="/about">Privacy Policy</Link>
               <span className="dot">•</span>

@@ -37,7 +37,7 @@ async function handlePOST(request: Request) {
     journeys.push(newJourney);
     await writeSettings("ai-journeys", journeys);
     return NextResponse.json(newJourney);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Invalid request payload" }, { status: 400 });
   }
 }
@@ -52,7 +52,7 @@ async function handlePATCH(request: Request) {
     journeys[idx] = { ...journeys[idx], ...body };
     await writeSettings("ai-journeys", journeys);
     return NextResponse.json(journeys[idx]);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Invalid request payload" }, { status: 400 });
   }
 }

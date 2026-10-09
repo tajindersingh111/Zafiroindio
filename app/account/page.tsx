@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Package, Truck, FileText, RotateCcw, Heart, ShieldCheck } from "lucide-react";
 import { useStore } from "@/components/StoreProvider";
+import { img } from "@/lib/img";
 
 type Lookup = {
   order: { orderNumber: string; status: string; customerFirstName: string; customerCity: string; orderDate: string; total: number; paymentMethod: string; items: { name: string; qty: number; price: number; image?: string }[] };
@@ -120,7 +121,7 @@ export default function AccountPage() {
 
             {data.order.items.map((i, idx) => (
               <div key={idx} style={{ display: "flex", gap: 14, alignItems: "center", padding: "10px 0", borderTop: "1px solid var(--line)" }}>
-                {i.image && <img src={i.image} alt="" width={52} height={52} style={{ objectFit: "cover" }} />}
+                {i.image && <img src={img(i.image, 128)} alt="" width={52} height={52} style={{ objectFit: "cover" }} />}
                 <div style={{ flex: 1, fontSize: 14 }}>{i.name}<div style={{ fontSize: 12, color: "var(--muted)" }}>Qty {i.qty}</div></div>
                 <span>₹{(i.price * i.qty).toLocaleString("en-IN")}</span>
               </div>

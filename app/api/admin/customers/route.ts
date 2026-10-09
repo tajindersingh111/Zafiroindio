@@ -20,7 +20,7 @@ async function handleGET(request: Request) {
     customers = customers.filter(
       (c) =>
         `${c.firstName} ${c.lastName}`.toLowerCase().includes(search) ||
-        c.email.toLowerCase().includes(search) ||
+        String(c.email ?? "").toLowerCase().includes(search) ||
         (c.phone ?? "").includes(search) ||
         (c.company ?? "").toLowerCase().includes(search)
     );

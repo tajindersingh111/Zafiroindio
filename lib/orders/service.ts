@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/db/prisma";
+import { sellingPrice } from "@/lib/price-rules";
 import { Prisma } from "@prisma/client";
 import { getDoc, upsertDoc, nextSequence, decrementProductStock, restoreProductStock, updateDoc, findOneByField } from "@/lib/db/store";
-import { resolveVariantId } from "@/lib/shiprocket/variants";
+import { resolveProductNumber, resolveVariantId } from "@/lib/shiprocket/variants";
 import type { Address, Customer, Order, OrderItem, OrderStatus, PaymentMethod, PaymentStatus, Product, RefundRecord, ShipmentRecord } from "@/lib/db/types";
 import { normalizeEmail, normalizePhone } from "@/lib/orders/contact";
 
@@ -77,10 +78,14 @@ export function normalizeCheckoutWebhook(payload: Raw): NormalizedCheckoutOrder 
   const paymentTypeText = String(pick(paymentRaw, "method") ?? pick(src, "payment_type", "paymentType", "payment_method") ?? "").toLowerCase();
   const isCod = paymentTypeText.includes("cod") || paymentTypeText.includes("cash");
 
-  const statusText = String(pick(src, "status", "payment_status", "paymentStatus") ?? pick(paymentRaw, "status") ?? "").toLowerCase();
+  // Order status and payment status are reported separately; read both.
+  const statusText = [pick(src, "status", "order_status"), pick(src, "payment_status", "paymentStatus"), pick(paymentRaw, "status")]
+    .filter((v) => v !== undefined)
+    .join(" ")
+    .toLowerCase();
   const eventType = String(pick(payload, "eventType", "event", "event_type") ?? "order.created");
-  const failed = /fail|cancel|abandon/.test(statusText) || /fail/.test(eventType);
-  const success = /success|paid|captured|complete|placed/.test(statusText) || isCod || /paid|success/.test(eventType);
+  const failed = /fail|cancel|abandon|expire|declin|reject/.test(statusText) || /fail|cancel/.test(eventType);
+  const success = isCod || /success|paid|captured|complete|placed|confirm/.test(statusText) || /paid|success|placed/.test(eventType);
   const outcome: NormalizedCheckoutOrder["outcome"] = failed ? "failed" : success ? "success" : "pending";
 
   const itemsRaw: Raw[] = src.items ?? src.cart_data?.items ?? src.cartData?.items ?? [];
@@ -117,8 +122,19 @@ export function normalizeCheckoutWebhook(payload: Raw): NormalizedCheckoutOrder 
 
 export type CreateOrderResult =
   | { status: "created"; order: Order; onHold: boolean }
-  | { status: "duplicate" }
+  | { status: "duplicate"; orderId?: string }
   | { status: "ignored"; reason: string };
+
+/** One row per Shiprocket order id: the unique key that stops two confirmations racing into two orders. */
+const SR_ORDER_INDEX = "orders-by-sr";
+
+/** Our order for a Shiprocket order id, if it has been stored already. */
+export async function findOrderIdBySrOrder(externalOrderId: string): Promise<string | null> {
+  const marker = await getDoc<{ id: string; orderId: string }>(SR_ORDER_INDEX, externalOrderId);
+  if (marker) return marker.orderId;
+  const legacy = await findOneByField<Order>("orders", "externalOrderId", externalOrderId);
+  return legacy?.id ?? null;
+}
 
 function isUniqueViolation(err: unknown): boolean {
   return err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002";
@@ -178,15 +194,17 @@ async function upsertCustomerDoc(tx: Prisma.TransactionClient, n: NormalizedChec
 export async function createOrderFromCheckout(n: NormalizedCheckoutOrder, eventId: string, rawPayload: unknown): Promise<CreateOrderResult> {
   if (n.outcome === "failed") {
     await prisma.webhookEvent.create({
-      data: { eventId, provider: "shiprocket_checkout", eventType: n.eventType, payload: { orderId: n.externalOrderId, outcome: "failed" }, status: "ignored" },
+      data: { eventId: `${eventId}:failed`, provider: "shiprocket_checkout", eventType: n.eventType, payload: { orderId: n.externalOrderId, outcome: "failed" }, status: "ignored" },
     }).catch((e) => { if (!isUniqueViolation(e)) throw e; });
     return { status: "ignored", reason: "payment failed / abandoned" };
   }
+  // Not paid (yet): nothing is stored, so a later confirmation of the same order still goes through.
+  if (n.outcome !== "success") return { status: "ignored", reason: "payment not confirmed yet" };
   if (!n.lines.length) return { status: "ignored", reason: "no items" };
 
-  // Same Shiprocket order delivered twice under different event ids -> still one order.
-  const existingOrder = await findOneByField<Order>("orders", "externalOrderId", n.externalOrderId);
-  if (existingOrder) return { status: "duplicate" };
+  // Same Shiprocket order delivered twice (webhook retry, webhook + confirmation page) -> still one order.
+  const existingId = await findOrderIdBySrOrder(n.externalOrderId);
+  if (existingId) return { status: "duplicate", orderId: existingId };
 
   const now = new Date().toISOString();
   const seq = await nextSequence("order", 10000);
@@ -195,6 +213,8 @@ export async function createOrderFromCheckout(n: NormalizedCheckoutOrder, eventI
 
   try {
     return await prisma.$transaction(async (tx) => {
+      // Primary key (collection, id): a concurrent confirmation of the same order fails here and rolls back.
+      await tx.document.create({ data: { collection: SR_ORDER_INDEX, id: n.externalOrderId, data: { id: n.externalOrderId, orderId } } });
       await tx.webhookEvent.create({
         data: {
           eventId,
@@ -218,7 +238,8 @@ export async function createOrderFromCheckout(n: NormalizedCheckoutOrder, eventI
           productId = ref?.productId;
           variationId = ref?.variationId;
         }
-        productId ??= line.productRef;
+        // Shiprocket may send its numeric product id instead of (or as well as) the variant id.
+        if (!productId && line.productRef) productId = (/^\d+$/.test(line.productRef) ? await resolveProductNumber(line.productRef) : null) ?? line.productRef;
 
         let product: Product | null = null;
         if (productId) {
@@ -240,7 +261,7 @@ export async function createOrderFromCheckout(n: NormalizedCheckoutOrder, eventI
         }
 
         const variation = variationId ? product.variations?.find((v) => v.id === variationId) : undefined;
-        const catalogPrice = variation?.salePrice ?? variation?.price ?? product.salePrice ?? product.price;
+        const catalogPrice = sellingPrice(variation ?? product);
         if (line.unitPrice !== undefined && Math.abs(line.unitPrice - catalogPrice) > 1) {
           notes.unshift({ id: `nte-${Date.now()}-p${items.length}`, note: `Price mismatch for ${product.name}: Shiprocket ₹${line.unitPrice} vs catalogue ₹${catalogPrice}. Catalogue price used.`, isCustomerNote: false, createdAt: now });
         }
@@ -305,7 +326,7 @@ export async function createOrderFromCheckout(n: NormalizedCheckoutOrder, eventI
       return { status: "created" as const, order, onHold };
     }, { timeout: 30_000, maxWait: 10_000 });
   } catch (err) {
-    if (isUniqueViolation(err)) return { status: "duplicate" };
+    if (isUniqueViolation(err)) return { status: "duplicate", orderId: (await findOrderIdBySrOrder(n.externalOrderId)) ?? undefined };
     throw err;
   }
 }
@@ -374,12 +395,18 @@ export type ShipmentEvent = {
 };
 
 function mapShipmentStatus(text: string): { order?: OrderStatus; rto?: boolean; shipment: ShipmentRecord["status"] | null } {
-  const t = text.toUpperCase();
-  if (t.includes("RTO") || t.includes("RETURN TO ORIGIN") || t.includes("UNDELIVERED")) return { rto: true, shipment: "RTO" };
-  if (t.includes("OUT FOR DELIVERY") || t.includes("OUT_FOR_DELIVERY")) return { order: "out_for_delivery", shipment: "OUT_FOR_DELIVERY" };
-  if (t.includes("DELIVERED")) return { order: "delivered", shipment: "DELIVERED" };
-  if (t.includes("IN TRANSIT") || t.includes("IN_TRANSIT") || t.includes("SHIPPED") || t.includes("DISPATCHED") || t.includes("PICKED")) return { order: "shipped", shipment: t.includes("PICKED") ? "PICKED_UP" : "IN_TRANSIT" };
+  const t = text.toUpperCase().replace(/[_-]+/g, " ");
+  if (/\bRTO\b|RETURN(ED)? TO ORIGIN/.test(t)) return { rto: true, shipment: "RTO" };
   if (t.includes("CANCEL")) return { shipment: "CANCELLED" };
+  // Not handed over yet: booked, manifested, pickup pending / scheduled / failed.
+  if (/NOT PICKED|PICKUP (PENDING|SCHEDULED|GENERATED|FAILED|EXCEPTION|RESCHEDULED)|MANIFEST|BOOKED|READY TO SHIP|AWB ASSIGNED/.test(t)) return { shipment: "SHIPMENT_CREATED" };
+  // A failed delivery attempt (NDR) is not a return: the courier tries again, the parcel is still out.
+  if (/UNDELIVERED|NDR|DELIVERY ATTEMPT|FAILED DELIVERY|NOT DELIVERED/.test(t)) return { order: "shipped", shipment: "IN_TRANSIT" };
+  if (t.includes("OUT FOR DELIVERY")) return { order: "out_for_delivery", shipment: "OUT_FOR_DELIVERY" };
+  if (t.includes("DELIVERED")) return { order: "delivered", shipment: "DELIVERED" };
+  if (/PICKED|PICK UP DONE|PICKUP DONE/.test(t)) return { order: "shipped", shipment: "PICKED_UP" };
+  if (/HUB|REACHED/.test(t)) return { order: "shipped", shipment: "REACHED_HUB" };
+  if (/TRANSIT|SHIPPED|DISPATCHED|IN SCAN|OUT SCAN/.test(t)) return { order: "shipped", shipment: "IN_TRANSIT" };
   return { shipment: null }; // unknown status: never rewrite the order with a guess
 }
 
@@ -395,9 +422,9 @@ export async function applyShipmentEvent(orderRef: string, ev: ShipmentEvent): P
     let updated: Order = { ...current, updatedAt: now };
     let applied = false;
 
-    if (ev.awb) { updated.trackingNumber = ev.awb; applied = true; }
-    if (ev.courier) { updated.courierName = ev.courier; applied = true; }
-    if (ev.trackingUrl) { updated.trackingUrl = ev.trackingUrl; applied = true; }
+    if (ev.awb && ev.awb !== current.trackingNumber) { updated.trackingNumber = ev.awb; applied = true; }
+    if (ev.courier && ev.courier !== current.courierName) { updated.courierName = ev.courier; applied = true; }
+    if (ev.trackingUrl && ev.trackingUrl !== current.trackingUrl) { updated.trackingUrl = ev.trackingUrl; applied = true; }
 
     if (mapped.order) {
       const curRank = RANK[current.status];
@@ -423,18 +450,22 @@ export async function applyShipmentEvent(orderRef: string, ev: ShipmentEvent): P
     return { doc: applied ? updated : null, result: { applied, status: updated.status } };
   });
 
-  if (result?.applied && ev.awb) {
+  const awb = ev.awb || order.trackingNumber;
+  if (awb && (result?.applied || mapped.shipment)) {
+    // Merge: keep the label, parcel and scan history stored when the shipment was booked.
+    const prev = await getDoc<ShipmentRecord>("shipments", `shp-${order.id}`);
     const shipment: ShipmentRecord = {
+      ...prev,
       id: `shp-${order.id}`,
       orderId: order.id,
       orderNumber: order.orderNumber,
-      courierName: ev.courier || order.courierName || "Shiprocket",
-      trackingNumber: ev.awb,
-      trackingUrl: ev.trackingUrl,
-      status: mapped.shipment ?? "SHIPMENT_CREATED",
-      shippedAt: mapped.order === "shipped" ? now : undefined,
-      deliveredAt: mapped.order === "delivered" ? now : undefined,
-      createdAt: now,
+      courierName: ev.courier || prev?.courierName || order.courierName || "Courier",
+      trackingNumber: awb,
+      trackingUrl: ev.trackingUrl ?? prev?.trackingUrl ?? order.trackingUrl,
+      status: mapped.shipment ?? prev?.status ?? "SHIPMENT_CREATED",
+      shippedAt: prev?.shippedAt ?? (mapped.order === "shipped" || mapped.order === "out_for_delivery" ? now : undefined),
+      deliveredAt: prev?.deliveredAt ?? (mapped.order === "delivered" ? now : undefined),
+      createdAt: prev?.createdAt ?? now,
       updatedAt: now,
     };
     await upsertDoc("shipments", shipment);

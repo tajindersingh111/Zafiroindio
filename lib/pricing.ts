@@ -1,4 +1,5 @@
-import { readCollection } from "@/lib/db/store";
+import { prisma } from "@/lib/db/prisma";
+import { listPrice, sellingPrice } from "@/lib/price-rules";
 import { getOrCreateVariantId } from "@/lib/shiprocket/variants";
 import type { Product } from "@/lib/db/types";
 
@@ -43,9 +44,13 @@ const MAX_QTY = 20;
 export async function priceCart(inputItems: PricingInputItem[]): Promise<PricingResult> {
   if (!Array.isArray(inputItems) || inputItems.length === 0) throw new CartError("Your cart is empty.");
 
-  const products = await readCollection<Product>("products");
+  // Only the products in this cart (by id or slug) - never the whole catalogue.
+  const keys = Array.from(new Set(inputItems.map((i) => String(i.productId))));
+  const rows = await prisma.$queryRaw<{ data: Product }[]>`
+    SELECT data FROM documents
+    WHERE collection = 'products' AND (id = ANY(${keys}::text[]) OR data->>'slug' = ANY(${keys}::text[]))`;
   const byKey = new Map<string, Product>();
-  for (const p of products) {
+  for (const { data: p } of rows) {
     if (p.status && p.status !== "active") continue;
     byKey.set(p.id, p);
     byKey.set(p.slug, p);
@@ -61,8 +66,8 @@ export async function priceCart(inputItems: PricingInputItem[]): Promise<Pricing
 
     // Variable products: match the selected options to a variation.
     let variationId: string | undefined;
-    let unitPrice = product.salePrice ?? product.price;
-    let mrp = product.mrp ?? product.price;
+    let unitPrice = sellingPrice(product);
+    let mrp = listPrice(product);
     let sku = product.sku;
     let available = product.stock;
     let image = product.images?.[0];
@@ -72,8 +77,8 @@ export async function priceCart(inputItems: PricingInputItem[]): Promise<Pricing
       const variation = product.variations.find((v) => wanted.every((w) => v.attributes.some((a) => a.value.toLowerCase() === w))) ?? (wanted.length ? undefined : product.variations[0]);
       if (!variation) throw new CartError(`Please choose a valid size/colour for ${product.name}.`);
       variationId = variation.id;
-      unitPrice = variation.salePrice ?? variation.price;
-      mrp = variation.price;
+      unitPrice = sellingPrice(variation);
+      mrp = listPrice(variation);
       sku = variation.sku || sku;
       available = variation.stock;
       image = variation.image ?? image;

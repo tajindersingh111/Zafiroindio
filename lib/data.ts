@@ -10,10 +10,17 @@ export type Product = {
   fabric: string;
   description: string;
   category: string;
+  /** Display name and URL slug of the category (the raw `category` is an id like "cat-149"). */
+  categoryName?: string;
+  categorySlug?: string;
   collections?: string[];
   colors: string[];
   sizes: string[];
   images: string[];
+  /** Relative sales rank (higher = sells more, 0 = no sales). Real unit counts never leave the server. */
+  popularity?: number;
+  /** When the product was added, for the Newest sort. */
+  createdAt?: string;
 };
 
 export type Banner = {
@@ -53,25 +60,3 @@ export const collections = [
  {name:"Everyday Comfort Collection",slug:"everyday",desc:"Soft, durable and perfect for everyday use.",image:I("photo-1595526114035-0d45ed16cfbf")},
  {name:"New Arrivals",slug:"new",desc:"Explore the latest designs and freshest additions to our collection.",image:I("photo-1600566753086-00f18fb6b3ea")}
 ];
-
-export function getStorefrontProducts(): Product[] {
-  return fallbackProducts;
-}
-
-export function getStorefrontBanners(): Banner[] {
-  return [
-    {
-      id: "b1",
-      title: "Make Your Bedroom Feel Like Sanctuary.",
-      subtitle: "Handcrafted 100% pure cotton bedsheets designed for everyday comfort and timeless Indian heritage.",
-      ctaText: "Shop Collection",
-      ctaLink: "/shop",
-      image: "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85",
-      isActive: true
-    }
-  ];
-}
-
-export function getStorefrontCollections(): { name: string; slug: string; desc: string; image: string }[] {
-  return collections;
-}

@@ -43,7 +43,7 @@ async function handlePOST(request: NextRequest) {
     }
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: "Failed to process recycle bin operation." }, { status: 500 });
   }
 }

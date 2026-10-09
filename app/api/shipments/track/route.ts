@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readCollection } from "@/lib/db/store";
+import { findOneByField, getDoc } from "@/lib/db/store";
+import { prisma } from "@/lib/db/prisma";
+import { syncOrderTracking } from "@/lib/shipping/provider";
 import { orderMatchesContact } from "@/lib/orders/contact";
 import { rateLimit } from "@/lib/security/rate-limit";
 import type { Order, ShipmentRecord } from "@/lib/db/types";
@@ -22,16 +24,24 @@ async function lookup(request: NextRequest, q: string, contact: string) {
     return NextResponse.json({ error: "Order number aur registered phone ya email dono zaroori hain." }, { status: 400 });
   }
 
-  const orders = await readCollection<Order>("orders");
-  const order = orders.find(
-    (o) => o.orderNumber.toLowerCase().replace(/^#/, "") === cleanQ || (o.trackingNumber && o.trackingNumber.toLowerCase() === cleanQ)
-  );
+  const rows = await prisma.$queryRaw<{ data: Order }[]>`
+    SELECT data FROM documents
+    WHERE collection = 'orders'
+      AND (lower(ltrim(data->>'orderNumber', '#')) = ${cleanQ} OR lower(data->>'trackingNumber') = ${cleanQ})
+    LIMIT 1`;
+  let order = rows[0]?.data;
   // Same message whether the order is missing or the contact is wrong: no enumeration.
   const miss = NextResponse.json({ error: "Koi order nahi mila. Order number aur phone/email check karein." }, { status: 404 });
   if (!order || !orderMatchesContact(order, contact)) return miss;
 
-  const shipments = await readCollection<ShipmentRecord>("shipments");
-  const shipment = shipments.find((s) => s.orderId === order.id);
+  // Courier status older than 15 minutes: refresh it from ShipMozo (bounded, never blocks the answer for long).
+  const lastSync = order.shipmozo?.lastSyncAt ? new Date(order.shipmozo.lastSyncAt).getTime() : 0;
+  if (order.shipmozo && ["paid", "processing", "shipped", "out_for_delivery"].includes(order.status) && Date.now() - lastSync > 15 * 60_000) {
+    await Promise.race([syncOrderTracking(order).catch(() => null), new Promise((r) => setTimeout(r, 6000))]);
+    order = (await getDoc<Order>("orders", order.id)) ?? order;
+  }
+
+  const shipment = (await getDoc<ShipmentRecord>("shipments", `shp-${order.id}`)) ?? (await findOneByField<ShipmentRecord>("shipments", "orderId", order.id));
   const statusStr = String(shipment?.status || order.status || "processing").toUpperCase();
   const currentStep = STEP.find(([re]) => re.test(statusStr))?.[1] ?? 1;
 
@@ -46,6 +56,7 @@ async function lookup(request: NextRequest, q: string, contact: string) {
           status: shipment.status,
           shippedAt: shipment.shippedAt,
           deliveredAt: shipment.deliveredAt,
+          events: (shipment.events || []).slice(0, 15),
         }
       : order.trackingNumber
         ? { courierName: order.courierName, trackingNumber: order.trackingNumber, trackingUrl: order.trackingUrl, status: statusStr }

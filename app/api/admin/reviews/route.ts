@@ -29,7 +29,7 @@ async function handlePATCH(request: Request) {
     reviews[idx].status = status;
     await writeCollection("reviews", reviews);
     return NextResponse.json(reviews[idx]);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 }

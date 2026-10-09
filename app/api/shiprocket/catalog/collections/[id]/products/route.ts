@@ -1,25 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readCollection } from "@/lib/db/store";
-import { loadActiveProducts, toSrProduct } from "@/lib/shiprocket/catalog";
-import { authorizeCatalogRequest, pageParams, siteOrigin } from "../../../_auth";
+import { loadActiveProducts, loadCollections, productsInCollection, toSrProducts } from "@/lib/shiprocket/catalog";
+import { resolveCollectionNumber } from "@/lib/shiprocket/variants";
+import { CATALOG_HEADERS, guardCatalogRequest, pageParams, siteOrigin } from "../../../_auth";
 
 export const dynamic = "force-dynamic";
 
-type Col = { id?: string; slug: string };
-
-// GET /api/shiprocket/catalog/collections/:id/products
+// GET /api/shiprocket/catalog/collections/:id/products  (:id = numeric Shiprocket id, our id, or slug)
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const denied = authorizeCatalogRequest(request);
+  const denied = await guardCatalogRequest(request);
   if (denied) return denied;
 
   const { id } = await params;
-  const cols = await readCollection<Col>("collections");
-  const col = cols.find((c) => c.id === id || c.slug === id);
-  const slug = col?.slug ?? id;
+  const slug = /^\d+$/.test(id) ? await resolveCollectionNumber(id) : null;
+  const cols = await loadCollections();
+  const col = cols.find((c) => c.slug === (slug ?? id) || c.id === id) ?? { slug: slug ?? id };
 
   const { page, limit } = pageParams(request);
-  const all = (await loadActiveProducts()).filter((p) => p.collections?.includes(slug) || p.collections?.includes(col?.id ?? "") || p.categoryId === slug);
-  const origin = siteOrigin(request);
-  const products = await Promise.all(all.slice((page - 1) * limit, page * limit).map((p) => toSrProduct(p, origin)));
-  return NextResponse.json({ data: { total: all.length, page, limit, products } });
+  const all = productsInCollection(await loadActiveProducts(), col);
+  const products = await toSrProducts(all.slice((page - 1) * limit, page * limit), siteOrigin(request));
+  return NextResponse.json({ success: true, data: { total: all.length, page, limit, products } }, { headers: CATALOG_HEADERS });
 }

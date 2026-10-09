@@ -55,13 +55,35 @@ export function rateLimitResponse(reset: number): NextResponse {
   );
 }
 
-/** Convenience: returns a 429 response when the caller is over the limit, otherwise null. */
+/**
+ * Per-instance fixed window kept in memory: no database round trip. For high-volume, low-risk
+ * buckets (polling, catalogue sync, webhooks) where an exact cross-instance count doesn't matter.
+ */
+const memory = new Map<string, { count: number; resetAt: number }>();
+function checkMemoryLimit(identifier: string, config: RateLimitConfig): RateLimitResult {
+  const now = Date.now();
+  let w = memory.get(identifier);
+  if (!w || w.resetAt <= now) {
+    if (memory.size > 50_000) for (const [k, v] of memory) if (v.resetAt <= now) memory.delete(k);
+    w = { count: 0, resetAt: now + config.windowMs };
+    memory.set(identifier, w);
+  }
+  w.count += 1;
+  return { success: w.count <= config.maxRequests, limit: config.maxRequests, remaining: Math.max(0, config.maxRequests - w.count), reset: Math.ceil(w.resetAt / 1000) };
+}
+
+/**
+ * Convenience: returns a 429 response when the caller is over the limit, otherwise null.
+ * Limits are per IP; remember that mobile carriers put many shoppers behind one IP (CGNAT), so
+ * shopping paths need generous limits. `store: "memory"` skips the database (see checkMemoryLimit).
+ */
 export async function rateLimit(
   request: Request,
   bucket: string,
-  config: RateLimitConfig,
+  config: RateLimitConfig & { store?: "db" | "memory" },
   extraKey = ""
 ): Promise<NextResponse | null> {
-  const result = await checkRateLimit(`${bucket}:${getClientIp(request)}${extraKey ? ":" + extraKey : ""}`, config);
+  const id = `${bucket}:${getClientIp(request)}${extraKey ? ":" + extraKey : ""}`;
+  const result = config.store === "memory" ? checkMemoryLimit(id, config) : await checkRateLimit(id, config);
   return result.success ? null : rateLimitResponse(result.reset);
 }

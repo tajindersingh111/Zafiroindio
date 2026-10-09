@@ -1,12 +1,9 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import {
-  Truck, Search, CheckCircle2, Clock, MapPin, Package, ShieldCheck,
-  PhoneCall, FileText, ArrowRight, AlertCircle, RefreshCw
-} from "lucide-react";
+import { Truck, Search, CheckCircle2, MapPin, PhoneCall, AlertCircle, RefreshCw } from "lucide-react";
 
 function TrackContent() {
   const searchParams = useSearchParams();
@@ -236,6 +233,24 @@ function TrackContent() {
                 })}
               </div>
             </div>
+
+            {/* Courier scan history (from ShipMozo) */}
+            {trackingData.shipment?.events?.length > 0 && (
+              <div style={{ marginBottom: 28 }}>
+                <h3 style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.5px", textTransform: "uppercase", color: "#1c1917", marginBottom: 12 }}>
+                  Courier updates
+                </h3>
+                <ol style={{ listStyle: "none", margin: 0, padding: 0, borderLeft: "2px solid #e7e1d6" }}>
+                  {trackingData.shipment.events.map((ev: { date?: string; status: string; location?: string }, i: number) => (
+                    <li key={i} style={{ position: "relative", padding: "0 0 14px 16px" }}>
+                      <span style={{ position: "absolute", left: -6, top: 4, width: 10, height: 10, borderRadius: "50%", background: i === 0 ? "#a67c37" : "#d6cfc3" }} />
+                      <div style={{ fontSize: 13, fontWeight: i === 0 ? 800 : 600, color: "#1c1917" }}>{ev.status}</div>
+                      <div style={{ fontSize: 11.5, color: "#777", marginTop: 2 }}>{[ev.location, ev.date].filter(Boolean).join(" · ")}</div>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
 
             {/* Order Items Info */}
             {trackingData.order && (

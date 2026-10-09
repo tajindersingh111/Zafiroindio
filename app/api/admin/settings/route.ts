@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 import { readSettings, writeSettings } from "@/lib/db/store";
 import { guarded } from "@/lib/auth/guard";
+import { invalidate } from "@/lib/cache";
 
 export const dynamic = "force-dynamic";
 
+// Courier API secrets are managed only through /api/admin/shipping and never sent to the browser.
+const SECRET_KEYS = ["shipmozo_private_key", "shipmozo_secret_key", "shipmozo_public_key", "shipmozo_api_key"];
+const withoutSecrets = (s: Record<string, unknown>) => Object.fromEntries(Object.entries(s).filter(([k]) => !SECRET_KEYS.includes(k)));
+
 async function handleGET() {
-  return NextResponse.json({ settings: (await readSettings<Record<string, unknown>>("settings")) ?? {} });
+  return NextResponse.json({ settings: withoutSecrets((await readSettings<Record<string, unknown>>("settings")) ?? {}) });
 }
 
 async function handlePATCH(request: Request) {
@@ -20,10 +25,11 @@ async function handlePATCH(request: Request) {
   }
   const current = (await readSettings<Record<string, unknown>>("settings")) ?? {};
   // Drop prototype-pollution style keys.
-  const safe = Object.fromEntries(Object.entries(body as Record<string, unknown>).filter(([k]) => !["__proto__", "constructor", "prototype"].includes(k)));
+  const safe = Object.fromEntries(Object.entries(body as Record<string, unknown>).filter(([k]) => !["__proto__", "constructor", "prototype", ...SECRET_KEYS].includes(k)));
   const updated = { ...current, ...safe };
   await writeSettings("settings", updated);
-  return NextResponse.json({ settings: updated });
+  invalidate("shipmozo:");
+  return NextResponse.json({ settings: withoutSecrets(updated) });
 }
 
 export const GET = guarded(handleGET);

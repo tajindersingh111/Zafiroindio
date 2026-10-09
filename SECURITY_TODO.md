@@ -18,7 +18,7 @@ The following API keys and database credentials were exposed in plain text in so
 - **Regenerate:**
   - Reset your Shiprocket Account Password.
   - Regenerate API Secret / Integration Tokens for Fastrr / 1-Click Checkout.
-- **Update Environment Variables:** Set `SHIPROCKET_EMAIL`, `SHIPROCKET_PASSWORD`, `SHIPROCKET_API_KEY`, and `SHIPROCKET_SECRET_KEY` in deployment environment settings.
+- **Update Environment Variables:** Set `SHIPROCKET_CHECKOUT_API_KEY` and `SHIPROCKET_CHECKOUT_API_SECRET` in deployment environment settings. (Shiprocket shipping credentials `SHIPROCKET_EMAIL` / `SHIPROCKET_PASSWORD` are no longer used — shipping runs on ShipMozo — remove them.)
 
 ### 3. Fast2SMS Credentials (If Active)
 - **Action:** Log in to Fast2SMS dashboard ([https://www.fast2sms.com](https://www.fast2sms.com)) and regenerate your API Key.
@@ -42,9 +42,21 @@ If this repository is hosted publicly or shared with third parties, consider scr
 1. `npx prisma db push` — creates the new `documents` and `rate_limits` tables.
 2. `npx tsx scripts/migrate-json-to-documents.ts` — imports `data/*.json` (admin users, banners, collections, coupons, settings...) into Postgres and seeds starter products if the catalogue is empty.
 3. Set `SESSION_SECRET` (min 32 chars) — the app refuses to run production auth without it. Existing admin sessions are invalidated; everyone must log in again.
-4. Set the Shiprocket variables from `.env.example` and register these URLs in the Shiprocket dashboard:
+4. Set the Shiprocket Checkout variables from `.env.example` and register these URLs in the Shiprocket dashboard:
    - Order webhook: `https://<your-domain>/api/webhooks/shiprocket-checkout`
-   - Tracking webhook: `https://<your-domain>/api/webhooks/shipping`
    - Catalog (products / collections) base: `https://<your-domain>/api/shiprocket/catalog/`
 5. Create the coupon codes you advertise (e.g. `WELCOME10`) in the Shiprocket Checkout dashboard — coupons are applied there, not in the cart.
 6. Rotate every credential listed above and remove `data/` and any `.env*` from git history.
+
+---
+
+## Customer data in git (found 2026-10-08)
+
+`data/*.json` (469 customers, 356 orders, admin password hashes) and `scratch/` (a 41 MB SQL dump) were
+committed before `.gitignore` excluded them. They are now untracked (`git rm --cached`; the files stay on
+disk), so the next commit stops shipping them, but **they remain in the repository history on GitHub**:
+
+1. Treat the admin passwords as exposed: change them.
+2. If the repository is or was public/shared, purge `data/` and `scratch/` from history
+   (`git filter-repo --path data --path scratch --invert-paths`, then force-push) and tell anyone with a
+   clone to re-clone.

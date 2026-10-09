@@ -25,8 +25,6 @@ async function handleGET() {
   const products = await readCollection<Product>("products");
   const customers = await readCollection<Customer>("customers");
   const coupons = await readCollection<Coupon>("coupons");
-  const returns = await readCollection<ReturnRequest>("returns");
-  const reviews = await readCollection<ReviewItem>("reviews");
   const abandonedCarts = await readCollection<AbandonedCart>("abandoned-carts");
 
   const paidOrders = allOrders.filter((o) => o.paymentStatus === "paid" || o.paymentStatus === "partially_paid");

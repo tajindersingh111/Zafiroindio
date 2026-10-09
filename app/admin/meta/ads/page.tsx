@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { PageShell, PageHeader, SectionCard, LoadingSpinner, StatusBadge } from "@/components/admin/Shared";
+import { PageShell, PageHeader, SectionCard, LoadingSpinner } from "@/components/admin/Shared";
 import { MetaWrapper } from "@/components/admin/MetaWrapper";
 
 interface Ad {

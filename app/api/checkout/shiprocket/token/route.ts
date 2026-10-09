@@ -31,7 +31,7 @@ function siteOrigin(request: NextRequest): string {
 
 /** Start a Shiprocket Checkout session for the cart. Prices come from our database, never the browser. */
 export async function POST(request: NextRequest) {
-  const limited = await rateLimit(request, "checkout-token", { windowMs: 60_000, maxRequests: 15 });
+  const limited = await rateLimit(request, "checkout-token", { windowMs: 60_000, maxRequests: 60 });
   if (limited) return limited;
 
   const parsed = bodySchema.safeParse(await request.json().catch(() => null));

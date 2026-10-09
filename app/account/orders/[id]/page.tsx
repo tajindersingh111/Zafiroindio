@@ -43,7 +43,7 @@ export default function CustomerOrderDetailPage({ params }: { params: Promise<{ 
       } else {
         alert(data.error || "Failed to cancel order.");
       }
-    } catch (e) {
+    } catch {
       alert("Error processing cancellation request.");
     }
   };
@@ -64,7 +64,7 @@ export default function CustomerOrderDetailPage({ params }: { params: Promise<{ 
       } else {
         alert(data.error || "Failed to submit return request.");
       }
-    } catch (e) {
+    } catch {
       alert("Error submitting return request.");
     }
   };

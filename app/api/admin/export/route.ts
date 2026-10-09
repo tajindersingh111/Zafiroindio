@@ -52,7 +52,7 @@ async function handlePOST(request: NextRequest) {
     await writeCollection("export-logs", exportLogs.slice(0, 300));
 
     return NextResponse.json({ success: true, message: `Export authorized for ${exportType}.` });
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: "Export authorization failed." }, { status: 500 });
   }
 }

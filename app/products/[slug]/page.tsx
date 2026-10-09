@@ -4,7 +4,13 @@ import ProductClient from "@/components/ProductClient";
 import ProductViewTracker from "@/components/site/ProductViewTracker";
 import { getProductBySlug } from "@/lib/storefront/catalog";
 
-export const dynamic = "force-dynamic";
+// Cached page (ISR): rebuilt in the background at most once a minute, and right after admin edits.
+export const revalidate = 60;
+
+/** No pages at build time: each product is rendered on its first visit, then served from cache. */
+export async function generateStaticParams() {
+  return [];
+}
 
 const BASE = process.env.NEXT_PUBLIC_SITE_URL || "https://zafiroindio.com";
 

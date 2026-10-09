@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PageShell, PageHeader, SectionCard, LoadingSpinner, Btn } from "@/components/admin/Shared";
+import { PageShell, PageHeader, SectionCard, LoadingSpinner } from "@/components/admin/Shared";
 
 interface Notification {
   id: string;

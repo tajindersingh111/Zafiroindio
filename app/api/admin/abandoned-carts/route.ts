@@ -48,7 +48,7 @@ async function handlePATCH(request: Request) {
     };
     await writeCollection("abandoned-carts", carts);
     return NextResponse.json(carts[idx]);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 }

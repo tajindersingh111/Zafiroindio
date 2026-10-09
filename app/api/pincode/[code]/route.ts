@@ -1,78 +1,66 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { cached } from "@/lib/cache";
+import { rateLimit } from "@/lib/security/rate-limit";
+import { checkServiceability } from "@/lib/shipping/shipmozo";
 
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ code: string }> }
-) {
-  const { code } = await params;
+const METROS = ["Bengaluru", "Mumbai", "Delhi", "Jaipur", "Kolkata", "Chennai", "Hyderabad", "Pune", "Ahmedabad"];
 
-  const cleanCode = (code || "").trim().replace(/\D/g, "");
+type Place = { area: string; city: string; state: string } | null;
 
-  if (cleanCode.length !== 6) {
-    return NextResponse.json(
-      { available: false, message: "Please enter a valid 6-digit Indian PIN Code." },
-      { status: 400 }
-    );
-  }
-
-  try {
-    // Query Official India Post Postal PIN Code API
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3500);
-
-    const apiRes = await fetch(`https://api.postalpincode.in/pincode/${cleanCode}`, {
-      signal: controller.signal,
-      headers: { "User-Agent": "ZafiroIndio/1.0" }
-    });
-    clearTimeout(timeoutId);
-
-    if (apiRes.ok) {
+/** City / state for a PIN from India Post (cached a day; null if unknown or the API is down). */
+function lookupPlace(pin: string): Promise<Place> {
+  return cached(`pin-place:${pin}`, 24 * 3_600_000, async () => {
+    try {
+      const apiRes = await fetch(`https://api.postalpincode.in/pincode/${pin}`, {
+        signal: AbortSignal.timeout(3500),
+        headers: { "User-Agent": "ZafiroIndio/1.0" },
+      });
+      if (!apiRes.ok) return null;
       const data = await apiRes.json();
-      if (Array.isArray(data) && data[0] && data[0].Status === "Success" && data[0].PostOffice?.length > 0) {
-        const po = data[0].PostOffice[0];
-        const areaName = po.Name || po.Block || "";
-        const city = po.District || po.Division || "";
-        const state = po.State || "";
-        const locationStr = [areaName, city, state].filter(Boolean).join(", ");
-
-        // Determine estimated delivery timeline based on region
-        const isMetro = ["Bengaluru", "Mumbai", "Delhi", "Jaipur", "Kolkata", "Chennai", "Hyderabad", "Pune", "Ahmedabad"].some(
-          m => city.toLowerCase().includes(m.toLowerCase()) || state.toLowerCase().includes(m.toLowerCase())
-        );
-
-        const days = isMetro ? "2–3 business days" : "4–5 business days";
-        const expressDays = isMetro ? "1–2 business days" : "2–3 business days";
-
-        return NextResponse.json({
-          available: true,
-          pincode: cleanCode,
-          area: areaName,
-          city: city,
-          state: state,
-          location: locationStr,
-          estimatedDays: days,
-          expressDays: expressDays,
-          message: `Delivery available to ${locationStr} · Usually delivered in ${days}`
-        });
-      }
+      const po = Array.isArray(data) && data[0]?.Status === "Success" ? data[0].PostOffice?.[0] : null;
+      return po ? { area: po.Name || po.Block || "", city: po.District || po.Division || "", state: po.State || "" } : null;
+    } catch (err) {
+      console.error("India Post PIN API fetch error:", err);
+      return null;
     }
-  } catch (err) {
-    console.error("India Post PIN API fetch error:", err);
+  });
+}
+
+/** Product page "check delivery": courier serviceability from ShipMozo, place name from India Post. */
+export async function GET(request: NextRequest, { params }: { params: Promise<{ code: string }> }) {
+  const limited = await rateLimit(request, "pincode", { windowMs: 60_000, maxRequests: 30 });
+  if (limited) return limited;
+
+  const { code } = await params;
+  const pin = (code || "").trim().replace(/\D/g, "");
+  if (!/^[1-9][0-9]{5}$/.test(pin)) {
+    return NextResponse.json({ available: false, message: "Please enter a valid 6-digit Indian PIN Code." }, { status: 400 });
   }
 
-  // Fallback heuristic for valid 6-digit PIN codes if Postal API is temporarily down
-  if (/^[1-9][0-9]{5}$/.test(cleanCode)) {
-    return NextResponse.json({
-      available: true,
-      pincode: cleanCode,
-      estimatedDays: "3–5 business days",
-      expressDays: "1–2 business days",
-      message: `Delivery available to PIN code ${cleanCode} · Usually delivered in 3–5 business days`
-    });
+  const [place, courier] = await Promise.all([lookupPlace(pin), checkServiceability(pin)]);
+
+  if (courier && !courier.serviceable) {
+    return NextResponse.json({ available: false, pincode: pin, message: "Sorry, our couriers don't deliver to this PIN code yet. Please try another address." });
+  }
+  if (!place && !courier) {
+    // Neither source answered (India Post down, ShipMozo not connected): accept any well-formed PIN.
+    return NextResponse.json({ available: true, pincode: pin, estimatedDays: "3–5 business days", message: `Delivery available to PIN code ${pin} · Usually delivered in 3–5 business days` });
   }
 
-  return NextResponse.json(
-    { available: false, message: "PIN code not serviceable or invalid. Please check again." },
-    { status: 404 }
-  );
+  const isMetro = !!place && METROS.some((m) => `${place.city} ${place.state}`.toLowerCase().includes(m.toLowerCase()));
+  const days = isMetro ? "2–3 business days" : "4–5 business days";
+  const location = place ? [place.area, place.city, place.state].filter(Boolean).join(", ") : `PIN code ${pin}`;
+  const codNote = courier?.cod === false ? " · Cash on Delivery not available here (prepaid only)" : "";
+
+  return NextResponse.json({
+    available: true,
+    pincode: pin,
+    area: place?.area,
+    city: place?.city,
+    state: place?.state,
+    location,
+    estimatedDays: days,
+    cod: courier?.cod,
+    message: `Delivery available to ${location} · Usually delivered in ${days}${codNote}`,
+  });
 }

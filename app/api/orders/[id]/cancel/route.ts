@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { findOneByField, getDoc } from "@/lib/db/store";
 import { cancelOrder } from "@/lib/orders/service";
+import { onOrderCancelled } from "@/lib/shipping/provider";
 import { orderMatchesContact } from "@/lib/orders/contact";
 import { sendTransactionalEmail } from "@/lib/email/service";
 import { rateLimit } from "@/lib/security/rate-limit";
@@ -31,6 +32,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     await createAuditLog({ userId: "customer", userName: order.customerEmail, userRole: "customer", action: "ORDER_CANCELLED_BY_CUSTOMER", module: "orders", recordId: order.id, recordName: order.orderNumber, updatedData: { reason }, riskLevel: "MEDIUM" });
     await sendTransactionalEmail("ORDER_CANCELLED", result.order).catch(() => {});
+    after(() => onOrderCancelled(order.id).catch((e) => console.error("ShipMozo cancel failed:", e)));
 
     return NextResponse.json({ success: true, order: { orderNumber: result.order.orderNumber, status: result.order.status, paymentStatus: result.order.paymentStatus }, refundPending: !!result.refund });
   } catch (error) {
