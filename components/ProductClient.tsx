@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Heart, Share2, Minus, Plus, ChevronDown, ChevronUp, Truck, RotateCcw, ShieldCheck, Search, ShoppingCart, Gift } from "lucide-react";
+import { Heart, Share2, Minus, Plus, ChevronDown, ChevronUp, Truck, RotateCcw, Search, ShoppingCart, Gift, ShieldCheck, X, Layers, Hash, Stamp, Ruler, Package, Leaf, Droplets, Lock, HandHeart, ShoppingBag, House, type LucideIcon } from "lucide-react";
 import ProductCard from "./ProductCard";
 import type { Product } from "@/lib/data";
 import { useCatalog } from "@/lib/storefront/useCatalog";
@@ -10,7 +10,18 @@ import { useStore } from "./StoreProvider";
 import ShiprocketCheckoutButton from "./ShiprocketCheckoutButton";
 import { img as optimizedImg, imgSrcSet, fallbackToOriginal } from "@/lib/img";
 
-export default function ProductClient({ p }: { p: Product }) {
+const SPEC_ICONS: Record<string, LucideIcon> = {
+  fabric: Layers,
+  weight: Hash,
+  craft: Stamp,
+  size: Ruler,
+  includes: Package,
+  dye: Leaf,
+  care: Droplets,
+};
+
+/** `story` / `makers`: server-rendered sections; the story follows the buy box, the makers follow the reviews. */
+export default function ProductClient({ p, story, makers }: { p: Product; story?: React.ReactNode; makers?: React.ReactNode }) {
   const [img, setImg] = useState(0);
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
   const [size, setSize] = useState(p.sizes[1] || p.sizes[0] || "");
@@ -18,8 +29,29 @@ export default function ProductClient({ p }: { p: Product }) {
   const [qty, setQtyLocal] = useState(1);
   const [pincode, setPincode] = useState("");
   const [pincodeStatus, setPincodeStatus] = useState<string | null>(null);
-  const [openAccordion, setOpenAccordion] = useState<string | null>("PRODUCT DETAILS");
-  const { add, toggleWish, wishlist } = useStore();
+  const [openAccordion, setOpenAccordion] = useState<string | null>(null);
+  const { add, toggleWish, wishlist, cartCount, subtotal } = useStore();
+  // Confirmation drawer after Add to Cart (the cart badge alone is easy to miss).
+  const [addedQty, setAddedQty] = useState(0);
+  const [shareMsg, setShareMsg] = useState("");
+  const addToCart = () => {
+    for (let i = 0; i < qty; i++) add(p, size, color);
+    setAddedQty(qty);
+  };
+  const share = async () => {
+    const url = window.location.href;
+    try {
+      if (navigator.share) await navigator.share({ title: p.name, url });
+      else {
+        await navigator.clipboard.writeText(url);
+        setShareMsg("Link copied");
+        setTimeout(() => setShareMsg(""), 2000);
+      }
+    } catch {
+      // Share sheet dismissed.
+    }
+  };
+  const toReviews = () => document.getElementById("reviews")?.scrollIntoView({ behavior: "smooth", block: "start" });
   const wished = wishlist.includes(p.slug);
 
   const starCount = Math.round(p.rating || 0);
@@ -32,19 +64,64 @@ export default function ProductClient({ p }: { p: Product }) {
     }
   };
 
-  const accordionItems = [
-    { title: "PRODUCT DETAILS", content: `Premium ${p.fabric} bedsheet with ${p.category.toLowerCase()} design. Machine washable. Fits mattresses up to 10 inches deep.` },
-    { title: "FABRIC & MATERIAL", content: `Made from ${p.fabric}. Breathable, soft, and durable. Tested for skin-safety and long wash cycles.` },
-    { title: "DIMENSIONS", content: "Single: 60×90 in · Double: 90×100 in · Queen: 90×108 in · King: 108×108 in. Pillow covers: 18×28 in each." },
-    { title: "WHAT'S INCLUDED", content: "1 Flat Bedsheet + 2 Pillow Covers (1 for Single size)." },
-    { title: "CARE INSTRUCTIONS", content: "Machine wash cold, gentle cycle. Tumble dry low. Do not bleach. Iron on medium heat." },
-    { title: "SHIPPING INFORMATION", content: "Free shipping on orders above ₹999. Standard delivery in 3–5 business days. Express delivery available at ₹149." },
+  const specs = p.specs ?? [];
+  // The grid under the price shows the deciding facts; care goes in the full list below.
+  const gridSpecs = specs.filter((s) => s.key !== "care").slice(0, 6);
+
+  // The description itself is shown in the story section below the buy box.
+  const accordionItems: { title: string; content: React.ReactNode }[] = [
+    ...(specs.length
+      ? [{
+          title: "SPECIFICATIONS",
+          content: (
+            <dl className="pdp-spec-list">
+              {specs.map((s) => (
+                <div key={s.label}><dt>{s.label}</dt><dd>{s.value}</dd></div>
+              ))}
+            </dl>
+          ),
+        }]
+      : []),
+    { title: "SHIPPING INFORMATION", content: "Orders are dispatched within 1–2 business days. Delivery across India in 3–5 business days, depending on your location." },
     { title: "RETURNS & EXCHANGE", content: "Easy 7-day returns on unused, unwashed items in original packaging. Pickup from your doorstep." },
-    { title: "FAQS", content: "Q: Will the colour fade? A: No, our colours are tested for 50+ washes. Q: Is it pre-shrunk? A: Yes, all fabrics are pre-shrunk before finishing." },
   ];
 
+  // Delivery estimate, computed in the browser (the page itself is cached, so "today" can't be baked in).
+  const [eta, setEta] = useState<{ ordered: string; dispatched: string; delivered: string } | null>(null);
+  useEffect(() => {
+    const addBusinessDays = (from: Date, n: number) => {
+      const d = new Date(from);
+      while (n > 0) {
+        d.setDate(d.getDate() + 1);
+        if (d.getDay() !== 0) n--;
+      }
+      return d;
+    };
+    const fmt = (d: Date) => d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+    const range = (a: Date, b: Date) => (a.getMonth() === b.getMonth() ? `${a.getDate()}–${fmt(b)}` : `${fmt(a)} – ${fmt(b)}`);
+    const now = new Date();
+    setEta({
+      ordered: fmt(now),
+      dispatched: range(addBusinessDays(now, 1), addBusinessDays(now, 2)),
+      delivered: range(addBusinessDays(now, 3), addBusinessDays(now, 5)),
+    });
+  }, []);
+
+  // Phones: a slim add-to-cart bar once the main button has scrolled away.
+  const buyRef = useRef<HTMLDivElement>(null);
+  const [showStickyBar, setShowStickyBar] = useState(false);
+  useEffect(() => {
+    const el = buyRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setShowStickyBar(!e.isIntersecting && e.boundingClientRect.top < 0));
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   const { products: catalogProducts } = useCatalog();
-  const youMayLike = catalogProducts.filter(x => x.slug !== p.slug).slice(0, 5);
+  // Same category first, then the rest of the catalogue.
+  const others = catalogProducts.filter((x) => x.slug !== p.slug && x.badge !== "SOLD OUT");
+  const youMayLike = [...others.filter((x) => x.category === p.category), ...others.filter((x) => x.category !== p.category)].slice(0, 5);
 
   const [checkingPincode, setCheckingPincode] = useState(false);
 
@@ -65,6 +142,10 @@ export default function ProductClient({ p }: { p: Product }) {
   const gallery = (p.images || []).filter((u) => !deadImages.includes(u));
   const [showAllReviews, setShowAllReviews] = useState(false);
   // Star breakdown from the approved reviews actually shown on this page.
+  // The strongest approved review to quote in the buy box: 4★ or more, readable length, with a name.
+  const topReview = reviewsList
+    .filter((r) => Number(r.rating) >= 4 && typeof r.review === "string" && r.review.trim().length >= 30 && r.customerName)
+    .sort((a, b) => Number(b.rating) - Number(a.rating) || Number(!!b.verified) - Number(!!a.verified) || Math.abs(a.review.length - 140) - Math.abs(b.review.length - 140))[0];
   const starRows = [5, 4, 3, 2, 1].map((n) => {
     const count = reviewsList.filter((r) => Math.round(Number(r.rating) || 0) === n).length;
     return { stars: `${n}★`, count, pct: reviewsList.length ? Math.round((count / reviewsList.length) * 100) : 0 };
@@ -151,15 +232,16 @@ export default function ProductClient({ p }: { p: Product }) {
 
   // Escape closes the zoom view and the review form.
   useEffect(() => {
-    if (!lightboxImg && !showReviewModal) return;
+    if (!lightboxImg && !showReviewModal && !addedQty) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
       setLightboxImg(null);
       setShowReviewModal(false);
+      setAddedQty(0);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [lightboxImg, showReviewModal]);
+  }, [lightboxImg, showReviewModal, addedQty]);
 
   return (
     <main style={{ background: "#faf8f5", minHeight: "100vh", paddingBottom: 80 }}>
@@ -341,33 +423,29 @@ export default function ProductClient({ p }: { p: Product }) {
                 ))
               ) : null}
 
-              {/* Craft & Quality Feature Banner if 2 or fewer images */}
+              {/* Craft notes fill the column when there are 2 or fewer photos */}
               {(gallery.length <= 2) && (
                 <div className="pdp-craft">
                   <h4 style={{ fontSize: 12, fontWeight: 800, letterSpacing: "1px", textTransform: "uppercase", color: "#1c1917", marginBottom: 14 }}>
-                    ARTISANAL CRAFT &amp; QUALITY HIGHLIGHTS
+                    MADE BY HAND IN JAIPUR
                   </h4>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-                    <div style={{ background: "#faf8f5", padding: "14px 16px", borderRadius: 6, border: "1px solid #eee8dd" }}>
-                      <strong style={{ fontSize: 12, color: "#1c1917", display: "block", marginBottom: 4 }}>100% Pure Percale Cotton</strong>
-                      <span style={{ fontSize: 11, color: "#666", lineHeight: 1.4, display: "block" }}>Ultra-soft 300 Thread Count weave for cool, crisp, all-night comfort.</span>
-                    </div>
-                    <div style={{ background: "#faf8f5", padding: "14px 16px", borderRadius: 6, border: "1px solid #eee8dd" }}>
-                      <strong style={{ fontSize: 12, color: "#1c1917", display: "block", marginBottom: 4 }}>Traditional Handblock Print</strong>
-                      <span style={{ fontSize: 11, color: "#666", lineHeight: 1.4, display: "block" }}>Hand-carved wooden blocks stamped by master artisans in Jaipur.</span>
-                    </div>
-                    <div style={{ background: "#faf8f5", padding: "14px 16px", borderRadius: 6, border: "1px solid #eee8dd" }}>
-                      <strong style={{ fontSize: 12, color: "#1c1917", display: "block", marginBottom: 4 }}>Color Fast &amp; Pre-Shrunk</strong>
-                      <span style={{ fontSize: 11, color: "#666", lineHeight: 1.4, display: "block" }}>Lab-tested to maintain rich colors wash after wash without shrinkage.</span>
-                    </div>
-                    <div style={{ background: "#faf8f5", padding: "14px 16px", borderRadius: 6, border: "1px solid #eee8dd" }}>
-                      <strong style={{ fontSize: 12, color: "#1c1917", display: "block", marginBottom: 4 }}>Sustainable &amp; Skin-Safe</strong>
-                      <span style={{ fontSize: 11, color: "#666", lineHeight: 1.4, display: "block" }}>Non-toxic eco dyes gentle on sensitive skin and safe for all ages.</span>
-                    </div>
+                    {[
+                      ["Printed by artisans", "Each design is stamped by hand with carved wooden blocks."],
+                      ["One of a kind", "Small shifts in colour and alignment are the mark of hand printing, not flaws."],
+                      ["Easy 7-day returns", "Unused pieces in their original packing can be returned with doorstep pickup."],
+                      ["Secure checkout", "Payments go through an encrypted, secure checkout."],
+                    ].map(([t, d]) => (
+                      <div key={t} style={{ background: "#faf8f5", padding: "14px 16px", borderRadius: 6, border: "1px solid #eee8dd" }}>
+                        <strong style={{ fontSize: 12, color: "#1c1917", display: "block", marginBottom: 4 }}>{t}</strong>
+                        <span style={{ fontSize: 11, color: "#666", lineHeight: 1.4, display: "block" }}>{d}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
             </div>
+            {gallery.length > 1 && <div className="pdp-count" aria-hidden="true">{img + 1} / {gallery.length}</div>}
             {gallery.length > 1 && (
               <div className="pdp-dots" aria-hidden="true">
                 {gallery.map((_, i) => <i key={i} className={i === img ? "on" : ""} />)}
@@ -391,13 +469,13 @@ export default function ProductClient({ p }: { p: Product }) {
             </h1>
 
             {/* Rating Row (only once there are reviews) */}
-            {p.reviews > 0 && <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+            {p.reviews > 0 && <button type="button" onClick={toReviews} className="pdp-rating" aria-label={`Rated ${p.rating} out of 5, ${p.reviews} reviews. Read reviews`}>
               <span style={{ color: "#c5a028", fontSize: 14 }}>
                 {"★".repeat(starCount)}{"☆".repeat(5 - starCount)}
               </span>
               <span style={{ fontSize: 13, fontWeight: 700, color: "#1c1917" }}>{p.rating}</span>
-              <span style={{ fontSize: 12, color: "#777" }}>({p.reviews} {p.reviews === 1 ? "review" : "reviews"})</span>
-            </div>}
+              <span style={{ fontSize: 12, color: "#777", textDecoration: "underline", textUnderlineOffset: 3 }}>{p.reviews} {p.reviews === 1 ? "review" : "reviews"}</span>
+            </button>}
 
             {/* Price Row */}
             <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 4 }}>
@@ -409,7 +487,34 @@ export default function ProductClient({ p }: { p: Product }) {
                 </>
               )}
             </div>
-            <div style={{ fontSize: 11, color: "#888", marginBottom: 18 }}>Inclusive of all taxes</div>
+            <div className="pdp-price-note">
+              {p.oldPrice > p.price && <span className="pdp-save">You save ₹{(p.oldPrice - p.price).toLocaleString("en-IN")}</span>}
+              <span>Inclusive of all taxes</span>
+            </div>
+            {p.lowStock && p.badge !== "SOLD OUT" && (
+              <div className="pdp-low">
+                <i aria-hidden="true" />
+                Only {p.lowStock} left in stock
+              </div>
+            )}
+
+            {/* Key specs, before any choice is asked of the shopper */}
+            {gridSpecs.length > 0 && (
+              <div className="pdp-specs">
+                {gridSpecs.map((s) => {
+                  const Icon = SPEC_ICONS[s.key] ?? Layers;
+                  return (
+                    <div key={s.label} className="pdp-spec">
+                      <i className="pdp-spec-ic" aria-hidden="true"><Icon size={15} strokeWidth={1.7} /></i>
+                      <div>
+                        <span>{s.label}</span>
+                        <strong>{s.value}</strong>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
             {/* Select Size */}
             {p.sizes.length > 0 && <div style={{ marginBottom: 20 }}>
@@ -499,11 +604,11 @@ export default function ProductClient({ p }: { p: Product }) {
             </div>
 
             {/* Action Buttons Stack */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
+            <div ref={buyRef} style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
               <button
                 type="button"
                 disabled={p.badge === "SOLD OUT"}
-                onClick={() => { for (let i = 0; i < qty; i++) add(p, size, color); }}
+                onClick={addToCart}
                 style={{
                   width: "100%",
                   background: "#a67c37",
@@ -551,142 +656,76 @@ export default function ProductClient({ p }: { p: Product }) {
               </button>
               <button
                 type="button"
+                onClick={share}
                 style={{ border: 0, background: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, color: "#555", fontSize: 12, padding: 0 }}
               >
-                <Share2 size={15} color="#555" /> Share
+                <Share2 size={15} color="#555" /> {shareMsg || "Share"}
               </button>
             </div>
 
-            {/* Check Delivery Box */}
-            <div style={{ background: "#faf8f5", border: "1px solid #e7e1d6", borderRadius: 6, padding: "16px 18px" }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#1c1917", marginBottom: 8 }}>
-                Check delivery availability
-              </div>
-              <form onSubmit={checkPincode} style={{ display: "flex", gap: 0, marginBottom: 6 }}>
+            {/* One real customer voice next to the buy button */}
+            {topReview && (
+              <figure className="pdp-quote">
+                <div className="pdp-quote-stars" aria-label={`${Math.round(Number(topReview.rating))} out of 5`}>{"★".repeat(Math.round(Number(topReview.rating)))}</div>
+                <blockquote>“{topReview.review.length > 170 ? topReview.review.slice(0, 167).trimEnd() + "…" : topReview.review}”</blockquote>
+                <figcaption>
+                  <span>{topReview.customerName}{topReview.verified ? " · Verified buyer" : ""}</span>
+                  {reviewsList.length > 1 && <button type="button" onClick={toReviews}>Read all {reviewsList.length} reviews</button>}
+                </figcaption>
+              </figure>
+            )}
+
+            {/* Trust row */}
+            <div className="pdp-trust">
+              <div><Lock size={18} strokeWidth={1.6} /><span>Secure Checkout</span></div>
+              <div><RotateCcw size={18} strokeWidth={1.6} /><span>7-Day Easy Returns</span></div>
+              <div><HandHeart size={18} strokeWidth={1.6} /><span>Handcrafted in Jaipur</span></div>
+            </div>
+
+            {/* Delivery timeline + PIN check */}
+            <div className="pdp-delivery">
+              <ol className="pdp-eta" aria-label="Estimated delivery">
+                <li><i><ShoppingBag size={15} /></i><strong>{eta?.ordered ?? "Today"}</strong><span>Ordered</span></li>
+                <li><i><Truck size={15} /></i><strong>{eta?.dispatched ?? "1–2 days"}</strong><span>Dispatched</span></li>
+                <li><i><House size={15} /></i><strong>{eta?.delivered ?? "3–5 days"}</strong><span>Delivered</span></li>
+              </ol>
+              <form onSubmit={checkPincode} className="pdp-pin">
                 <input
                   type="text"
-                  placeholder="Enter pincode"
+                  inputMode="numeric"
+                  placeholder="Enter PIN code"
+                  aria-label="PIN code"
                   maxLength={6}
                   value={pincode}
                   onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))}
-                  style={{ flex: 1, padding: "8px 12px", border: "1px solid #d4cdbf", borderRight: 0, borderRadius: "4px 0 0 4px", fontSize: 12, outline: "none" }}
                 />
-                <button
-                  type="submit"
-                  disabled={checkingPincode}
-                  style={{ background: "#1c1917", color: "#ffffff", border: 0, padding: "8px 16px", fontSize: 11, fontWeight: 800, letterSpacing: "1px", borderRadius: "0 4px 4px 0", cursor: "pointer", opacity: checkingPincode ? 0.7 : 1 }}
-                >
-                  {checkingPincode ? "CHECKING…" : "CHECK"}
-                </button>
+                <button type="submit" disabled={checkingPincode}>{checkingPincode ? "CHECKING…" : "CHECK"}</button>
               </form>
-              <div style={{ fontSize: 11, color: "#777" }}>
-                {pincodeStatus || "Usually delivered in 3-5 days"}
-              </div>
+              {pincodeStatus && <div className="pdp-pin-status">{pincodeStatus}</div>}
             </div>
 
-            {/* Description (after the buy buttons, so they stay above the fold) */}
-            {(() => {
-              if (!p.description) return null;
-              const cleaned = p.description.replace(/\\n/g, "\n");
-              const isHtml = /<[a-z][\s\S]*>/i.test(cleaned);
-              if (isHtml) {
+            {/* Details, under the buy box (content stays in the page for search engines when closed) */}
+            <div className="pdp-acc">
+              {accordionItems.map((item) => {
+                const isOpen = openAccordion === item.title;
                 return (
-                  <div
-                    className="product-description-content text-stone-700 leading-relaxed mb-6"
-                    style={{ fontSize: 13.5, color: "#555", lineHeight: 1.6, margin: "22px 0 0" }}
-                    dangerouslySetInnerHTML={{ __html: cleaned }}
-                  />
+                  <div key={item.title} className="pdp-acc-item">
+                    <button type="button" aria-expanded={isOpen} onClick={() => setOpenAccordion(isOpen ? null : item.title)}>
+                      <span>{item.title}</span>
+                      {isOpen ? <ChevronUp size={16} color="#777" /> : <ChevronDown size={16} color="#777" />}
+                    </button>
+                    <div className="pdp-acc-body" hidden={!isOpen}>{item.content}</div>
+                  </div>
                 );
-              }
-              return (
-                <div style={{ fontSize: 13.5, color: "#555", lineHeight: 1.6, margin: "22px 0 0", whiteSpace: "pre-line" }}>
-                  {cleaned}
-                </div>
-              );
-            })()}
-          </div>
-        </div>
-
-        {/* ── Features Bar ────────────────────────────────────────── */}
-        <div className="pdp-features">
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#faf6f0", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <ShieldCheck size={20} color="#a67c37" />
-            </div>
-            <div>
-              <strong style={{ display: "block", fontSize: 11.5, fontWeight: 800, letterSpacing: "0.5px", textTransform: "uppercase", color: "#1c1917" }}>
-                PREMIUM FABRIC
-              </strong>
-              <span style={{ fontSize: 11, color: "#777" }}>100% Cotton / Soft &amp; breathable</span>
-            </div>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#faf6f0", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <RotateCcw size={20} color="#a67c37" />
-            </div>
-            <div>
-              <strong style={{ display: "block", fontSize: 11.5, fontWeight: 800, letterSpacing: "0.5px", textTransform: "uppercase", color: "#1c1917" }}>
-                EASY RETURNS
-              </strong>
-              <span style={{ fontSize: 11, color: "#777" }}>Hassle free returns within 7 days</span>
-            </div>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#faf6f0", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <Truck size={20} color="#a67c37" />
-            </div>
-            <div>
-              <strong style={{ display: "block", fontSize: 11.5, fontWeight: 800, letterSpacing: "0.5px", textTransform: "uppercase", color: "#1c1917" }}>
-                FREE SHIPPING
-              </strong>
-              <span style={{ fontSize: 11, color: "#777" }}>On orders above ₹999</span>
+              })}
             </div>
           </div>
         </div>
 
-        {/* ── 2-Column Section: Left Accordions + Right Customer Reviews ─────── */}
-        <div className="pdp-grid pdp-lower">
-          {/* Left: Accordions */}
-          <div>
-            {accordionItems.map((item) => {
-              const isOpen = openAccordion === item.title;
-              return (
-                <div key={item.title} style={{ borderBottom: "1px solid #e7e1d6" }}>
-                  <button
-                    type="button"
-                    onClick={() => setOpenAccordion(isOpen ? null : item.title)}
-                    style={{
-                      width: "100%",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      padding: "16px 0",
-                      background: "none",
-                      border: 0,
-                      fontSize: 12,
-                      fontWeight: 800,
-                      letterSpacing: "0.5px",
-                      color: "#1c1917",
-                      cursor: "pointer",
-                      textAlign: "left"
-                    }}
-                  >
-                    <span>{item.title}</span>
-                    {isOpen ? <ChevronUp size={16} color="#777" /> : <ChevronDown size={16} color="#777" />}
-                  </button>
-                  {isOpen && (
-                    <div style={{ paddingBottom: 18, fontSize: 13, color: "#555", lineHeight: 1.6 }}>
-                      {item.content}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+        {story}
 
-          {/* Right: Customer Reviews */}
+        {/* ── Customer Reviews ─────── */}
+        <div className="pdp-lower" id="reviews">
           <div style={{ background: "#ffffff", border: "1px solid #e7e1d6", borderRadius: 8, padding: "28px 28px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
               <h3 style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.5px", textTransform: "uppercase", color: "#1c1917", margin: 0 }}>
@@ -925,6 +964,8 @@ export default function ProductClient({ p }: { p: Product }) {
           </div>
         </div>
 
+        {makers}
+
         {/* ── YOU MAY ALSO LIKE ───────────────────────────── */}
         <section style={{ marginBottom: 40 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
@@ -987,6 +1028,68 @@ export default function ProductClient({ p }: { p: Product }) {
           </Link>
         </div>
       </div>
+
+      {/* Added-to-cart confirmation */}
+      {addedQty > 0 && (
+        <div className="pdp-added-backdrop" onClick={() => setAddedQty(0)}>
+          <div className="pdp-added" role="dialog" aria-modal="true" aria-label="Added to cart" onClick={(e) => e.stopPropagation()}>
+            <div className="pdp-added-head">
+              <span><ShieldCheck size={18} /> Added to your cart</span>
+              <button type="button" aria-label="Close" onClick={() => setAddedQty(0)}><X size={18} /></button>
+            </div>
+            <div className="pdp-added-item">
+              <img src={optimizedImg(gallery[0] || p.images[0], 256)} onError={fallbackToOriginal(gallery[0] || p.images[0])} alt="" />
+              <div>
+                <strong>{p.name}</strong>
+                <span>{[size, color].filter(Boolean).join(" · ")}{size || color ? " · " : ""}Qty {addedQty}</span>
+                <b>₹{(p.price * addedQty).toLocaleString("en-IN")}</b>
+              </div>
+            </div>
+            <div className="pdp-added-total">
+              <span>Cart subtotal ({cartCount} {cartCount === 1 ? "item" : "items"})</span>
+              <strong>₹{subtotal.toLocaleString("en-IN")}</strong>
+            </div>
+            <ShiprocketCheckoutButton label="CHECKOUT NOW" className="btn-buy-now" source="cart" onBeforeStart={() => setAddedQty(0)} />
+            <div className="pdp-added-links">
+              <Link href="/cart">View cart</Link>
+              <button type="button" onClick={() => setAddedQty(0)}>Continue shopping</button>
+            </div>
+            {youMayLike.length > 0 && (
+              <div className="pdp-added-more">
+                <span>Pairs well with</span>
+                <div>
+                  {youMayLike.slice(0, 2).map((x) => (
+                    <Link key={x.slug} href={`/products/${x.slug}`} onClick={() => setAddedQty(0)}>
+                      <img src={optimizedImg(x.images[0], 256)} onError={fallbackToOriginal(x.images[0])} alt="" loading="lazy" />
+                      <em>{x.name}</em>
+                      <b>₹{x.price.toLocaleString("en-IN")}</b>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {p.badge !== "SOLD OUT" && (
+        <div className={`pdp-sticky${showStickyBar ? " on" : ""}`} aria-hidden={!showStickyBar}>
+          <div className="pdp-sticky-price">
+            <strong>₹{p.price.toLocaleString("en-IN")}</strong>
+            {p.oldPrice > p.price && <span>{p.discount}% off</span>}
+          </div>
+          <button type="button" className="pdp-sticky-add" tabIndex={showStickyBar ? 0 : -1} onClick={addToCart}>
+            ADD TO CART
+          </button>
+          <ShiprocketCheckoutButton
+            label="BUY NOW"
+            items={[{ productId: p.slug, qty, size, color }]}
+            source="buy-now"
+            className="pdp-sticky-buy"
+            style={{}}
+          />
+        </div>
+      )}
     </main>
   );
 }

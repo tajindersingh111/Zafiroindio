@@ -2,7 +2,7 @@ import { revalidatePath } from "next/cache";
 import { invalidate } from "@/lib/cache";
 
 /** Collections whose content is shown on the storefront. */
-const STOREFRONT = new Set(["products", "reviews", "collections", "banners", "categories"]);
+const STOREFRONT = new Set(["products", "reviews", "collections", "banners", "categories", "artisans"]);
 
 /**
  * Called after an admin rewrites a collection: storefront data on this server is reloaded on the next
