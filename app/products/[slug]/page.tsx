@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ProductClient from "@/components/ProductClient";
 import ProductViewTracker from "@/components/site/ProductViewTracker";
-import { getProductBySlug } from "@/lib/storefront/catalog";
+import ProductStory from "@/components/product/ProductStory";
+import MeetTheMakers from "@/components/product/MeetTheMakers";
+import { getActiveDbProducts, getProductBySlug } from "@/lib/storefront/catalog";
+import { getArtisans } from "@/lib/storefront/artisans";
+import { productStory } from "@/lib/storefront/description";
 
 // Cached page (ISR): rebuilt in the background at most once a minute, and right after admin edits.
 export const revalidate = 60;
@@ -32,6 +36,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const p = await getProductBySlug(slug);
   if (!p) notFound();
 
+  const [rows, artisans] = await Promise.all([getActiveDbProducts().catch(() => []), getArtisans()]);
+  const raw = rows.find((r: any) => (r.slug || r.id) === p.slug) as any;
+  const story = productStory(raw?.description ?? p.description, raw?.shortDescription ?? "");
+  const handBlock = (p.specs ?? []).some((s) => s.key === "craft" && /hand-block/i.test(s.value));
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -54,7 +63,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       <ProductViewTracker slug={p.slug} />
-      <ProductClient p={p} />
+      <ProductClient
+        p={p}
+        story={<ProductStory story={story} fallbackTitle={handBlock ? "Printed by Hand, Made to Last" : "The Details"} />}
+        makers={<MeetTheMakers artisans={artisans} handBlock={handBlock} />}
+      />
     </>
   );
 }

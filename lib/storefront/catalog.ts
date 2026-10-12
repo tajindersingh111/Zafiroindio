@@ -7,6 +7,7 @@ import { readCollection } from "@/lib/db/store";
 import { cached } from "@/lib/cache";
 import { products as demoProducts, collections as demoCollections, type Product, type Banner } from "@/lib/data";
 import type { Product as DbProduct } from "@/lib/db/types";
+import { productSpecs } from "@/lib/storefront/specs";
 
 const PLACEHOLDER = "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=85";
 /** Storefront data is at most this old on any one server (admin edits also clear it instantly). */
@@ -122,6 +123,8 @@ function toStorefront(p: any, stats: Map<string, { avg: number; n: number }>, ca
     images,
     popularity: popularity.get(p.id) ?? 0,
     createdAt: typeof p.createdAt === "string" ? p.createdAt : undefined,
+    specs: productSpecs(p),
+    lowStock: p.manageStock !== false && Number(p.stock) > 0 && Number(p.stock) <= 5 ? Number(p.stock) : undefined,
   };
 }
 

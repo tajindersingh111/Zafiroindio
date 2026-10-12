@@ -100,6 +100,10 @@ const NAV: NavItem[] = [
     icon: <svg width="16" height="16" style={{ width: "16px", height: "16px", flexShrink: 0 }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>,
   },
   {
+    label: "Artisans", href: "/admin/content/artisans", section: "marketing",
+    icon: <svg width="16" height="16" style={{ width: "16px", height: "16px", flexShrink: 0 }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>,
+  },
+  {
     label: "Returns & Refunds", href: "/admin/returns", section: "orders",
     icon: <svg width="16" height="16" style={{ width: "16px", height: "16px", flexShrink: 0 }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M16 15v-6a4 4 0 00-4-4H4m0 0l4 4m-4-4l4-4m4 12v3a3 3 0 01-3 3H6a3 3 0 01-3-3v-3a3 3 0 013-3h3a3 3 0 013 3z"/></svg>,
   },
@@ -156,7 +160,9 @@ function NavGroup({ item, pathname }: { item: NavItem; pathname: string }) {
   const [open, setOpen] = useState(isChildActive ?? false);
 
   if (!item.children) {
-    const active = item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href ?? "___");
+    // A deeper top-level link (Content Manager → Artisans) takes the highlight from its parent.
+    const deeper = NAV.some((n) => n !== item && n.href && item.href && n.href.startsWith(item.href + "/") && pathname.startsWith(n.href));
+    const active = item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href ?? "___") && !deeper;
     return (
       <Link
         href={item.href ?? "#"}

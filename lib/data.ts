@@ -21,6 +21,10 @@ export type Product = {
   popularity?: number;
   /** When the product was added, for the Newest sort. */
   createdAt?: string;
+  /** Key specifications for the product page (admin-entered, or read from the description). */
+  specs?: { key: string; label: string; value: string }[];
+  /** Units left, only when stock is tracked and 5 or fewer remain (for an honest "only N left"). */
+  lowStock?: number;
 };
 
 export type Banner = {
