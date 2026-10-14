@@ -16,6 +16,7 @@ interface Settings {
   whatsappAccountSid?: string;
   whatsappTemplateName?: string;
   whatsappTemplateLang?: string;
+  whatsappShippedTemplateName?: string;
   whatsappOrderConfirm?: boolean;
   whatsappOrderShipped?: boolean;
   shiprocketCheckoutEnabled?: boolean;
@@ -48,6 +49,7 @@ export default function SettingsPage() {
         whatsappAccountSid: s.whatsappAccountSid ?? "",
         whatsappTemplateName: s.whatsappTemplateName ?? "",
         whatsappTemplateLang: s.whatsappTemplateLang ?? "en",
+        whatsappShippedTemplateName: s.whatsappShippedTemplateName ?? "",
         whatsappOrderConfirm: s.whatsappOrderConfirm !== undefined ? s.whatsappOrderConfirm : true,
         whatsappOrderShipped: s.whatsappOrderShipped !== undefined ? s.whatsappOrderShipped : true,
         shiprocketCheckoutEnabled: s.shiprocketCheckoutEnabled !== undefined ? s.shiprocketCheckoutEnabled : true,
@@ -276,9 +278,20 @@ export default function SettingsPage() {
                       className={inputCls}
                     />
                   </div>
+                  <div className="col-span-3">
+                    <label className="block text-xs font-semibold uppercase tracking-wide text-stone mb-1.5">Shipped Template Name</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. order_shipped"
+                      value={settings.whatsappShippedTemplateName}
+                      onChange={(e) => set("whatsappShippedTemplateName", e.target.value)}
+                      className={inputCls}
+                    />
+                  </div>
                   <p className="col-span-3 text-[11px] leading-relaxed text-stone">
-                    Meta only delivers business-started messages through an approved template. Create a Utility template in WhatsApp Manager
-                    whose body uses {"{{1}}"} = customer name, {"{{2}}"} = order number, {"{{3}}"} = order total.
+                    Meta only delivers business-started messages through an approved template. Create Utility templates in WhatsApp Manager
+                    (same language): the order template&apos;s body uses {"{{1}}"} = customer name, {"{{2}}"} = order number, {"{{3}}"} = order total;
+                    the shipped template&apos;s body uses {"{{1}}"} = customer name, {"{{2}}"} = order number, {"{{3}}"} = tracking link.
                   </p>
                 </div>
               )}

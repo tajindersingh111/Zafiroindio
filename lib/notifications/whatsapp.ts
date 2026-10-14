@@ -13,12 +13,15 @@ type WhatsAppSettings = {
   /** Meta only: approved template; without one Meta only delivers inside a 24h customer-service window. */
   whatsappTemplateName?: string;
   whatsappTemplateLang?: string;
+  /** Meta only: approved "order shipped" template ({{1}} name, {{2}} order number, {{3}} tracking link). */
+  whatsappShippedTemplateName?: string;
   whatsappOrderConfirm?: boolean;
+  whatsappOrderShipped?: boolean;
 };
 
 export interface WhatsAppLogEntry {
   id: string;
-  event: "ORDER_CONFIRMED" | "TEST";
+  event: "ORDER_CONFIRMED" | "ORDER_SHIPPED" | "TEST";
   provider: string;
   to: string;
   orderId?: string;
@@ -29,7 +32,8 @@ export interface WhatsAppLogEntry {
 }
 
 type SendResult = { ok: true } | { ok: false; error: string };
-type Message = { text: string; templateParams: string[] };
+/** `template` is the Meta template to use; without one Meta gets the plain text. */
+type Message = { text: string; template?: string; templateParams: string[] };
 
 const GRAPH_VERSION = process.env.WHATSAPP_GRAPH_VERSION || "v23.0";
 const TIMEOUT_MS = 10_000;
@@ -42,12 +46,14 @@ export function normalizeWhatsAppNumber(raw: string | undefined): string | null 
 }
 
 const rupees = (n: number) => `₹${n.toLocaleString("en-IN")}`;
+const siteUrl = () => process.env.NEXT_PUBLIC_SITE_URL || "https://zafiroindio.com";
+const firstNameOf = (order: Order) => order.customerName?.trim().split(/\s+/)[0] || "there";
 
-function orderMessage(order: Order, storeName: string): Message {
-  const firstName = order.customerName?.trim().split(/\s+/)[0] || "there";
+function orderMessage(order: Order, storeName: string, template?: string): Message {
+  const firstName = firstNameOf(order);
   const items = order.items.map((i) => `• ${i.name} × ${i.quantity}`).join("\n");
   const payment = order.paymentMethod === "cod" ? "Cash on Delivery" : order.paymentStatus === "paid" ? "Paid online" : "Payment pending";
-  const site = process.env.NEXT_PUBLIC_SITE_URL || "https://zafiroindio.com";
+  const site = siteUrl();
   const text = [
     `Hi ${firstName}! 🙏`,
     `Thank you for shopping with ${storeName}. Your order *${order.orderNumber}* is confirmed.`,
@@ -58,7 +64,22 @@ function orderMessage(order: Order, storeName: string): Message {
     "",
     `We'll message you the tracking details as soon as it ships. Track anytime: ${site}/track?q=${encodeURIComponent(order.orderNumber)}`,
   ].join("\n");
-  return { text, templateParams: [firstName, order.orderNumber, rupees(order.total)] };
+  return { text, template, templateParams: [firstName, order.orderNumber, rupees(order.total)] };
+}
+
+function shippedMessage(order: Order, storeName: string, template?: string): Message {
+  const firstName = firstNameOf(order);
+  const trackUrl = order.trackingUrl?.trim() || `${siteUrl()}/track?q=${encodeURIComponent(order.orderNumber)}`;
+  const courier = order.courierName?.trim();
+  const awb = order.trackingNumber?.trim();
+  const text = [
+    `Hi ${firstName}! 📦`,
+    `Good news: your ${storeName} order *${order.orderNumber}* has shipped${courier ? ` with *${courier}*` : ""}.`,
+    "",
+    ...(awb ? [`Tracking number (AWB): *${awb}*`] : []),
+    `Track your parcel: ${trackUrl}`,
+  ].join("\n");
+  return { text, template, templateParams: [firstName, order.orderNumber, trackUrl] };
 }
 
 async function postJson(url: string, init: RequestInit): Promise<SendResult> {
@@ -79,7 +100,7 @@ async function send(s: WhatsAppSettings, to: string, msg: Message): Promise<Send
 
   switch (s.whatsappProvider || "meta") {
     case "meta": {
-      const template = s.whatsappTemplateName?.trim();
+      const template = msg.template?.trim();
       const payload = template
         ? {
             messaging_product: "whatsapp",
@@ -125,22 +146,44 @@ async function log(entry: Omit<WhatsAppLogEntry, "id" | "sentAt">) {
   await upsertDoc<WhatsAppLogEntry>("whatsapp-logs", { id, sentAt, ...entry }).catch((e) => console.error("[whatsapp] log persist failed", e));
 }
 
+/** Sends one order notification to the customer (if its toggle is on) and logs it. Never throws. */
+async function notifyCustomer(
+  event: "ORDER_CONFIRMED" | "ORDER_SHIPPED",
+  order: Order,
+  enabled: (s: WhatsAppSettings) => boolean,
+  build: (s: WhatsAppSettings, storeName: string) => Message
+): Promise<void> {
+  try {
+    const s = (await readSettings<WhatsAppSettings>("settings").catch(() => null)) ?? {};
+    if (!enabled(s) || !s.whatsappToken?.trim() || !s.whatsappPhoneId?.trim()) return;
+
+    const provider = s.whatsappProvider || "meta";
+    const to = normalizeWhatsAppNumber(order.customerPhone || order.shipping?.phone || order.billing?.phone);
+    const base = { event, provider, orderId: order.id, orderNumber: order.orderNumber };
+    if (!to) return log({ ...base, to: order.customerPhone ?? "", status: "SKIPPED", error: "No valid phone number on the order." });
+
+    const result = await send(s, to, build(s, s.storeName?.trim() || "Zafiro Indio"));
+    if (!result.ok) console.error(`[whatsapp] ${event} for order ${order.orderNumber} failed:`, result.error);
+    await log({ ...base, to, status: result.ok ? "SENT" : "FAILED", error: result.ok ? undefined : result.error });
+  } catch (e) {
+    console.error(`[whatsapp] ${event} for order ${order.orderNumber} failed:`, e);
+  }
+}
+
 /**
  * Sends the customer an order-confirmation WhatsApp, if it is switched on in Admin → Settings.
  * Never throws: a WhatsApp failure must not affect the order.
  */
 export async function sendOrderConfirmationWhatsApp(order: Order): Promise<void> {
-  const s = (await readSettings<WhatsAppSettings>("settings").catch(() => null)) ?? {};
-  if (s.whatsappOrderConfirm === false || !s.whatsappToken?.trim() || !s.whatsappPhoneId?.trim()) return;
+  await notifyCustomer("ORDER_CONFIRMED", order, (s) => s.whatsappOrderConfirm !== false, (s, store) => orderMessage(order, store, s.whatsappTemplateName));
+}
 
-  const provider = s.whatsappProvider || "meta";
-  const to = normalizeWhatsAppNumber(order.customerPhone || order.shipping?.phone || order.billing?.phone);
-  const base = { event: "ORDER_CONFIRMED" as const, provider, orderId: order.id, orderNumber: order.orderNumber };
-  if (!to) return log({ ...base, to: order.customerPhone ?? "", status: "SKIPPED", error: "No valid phone number on the order." });
-
-  const result = await send(s, to, orderMessage(order, s.storeName?.trim() || "Zafiro Indio"));
-  if (!result.ok) console.error(`[whatsapp] order ${order.orderNumber} failed:`, result.error);
-  await log({ ...base, to, status: result.ok ? "SENT" : "FAILED", error: result.ok ? undefined : result.error });
+/**
+ * Sends the customer an "order shipped" WhatsApp (courier, AWB, tracking link), if it is switched on
+ * in Admin → Settings. Never throws.
+ */
+export async function sendOrderShippedWhatsApp(order: Order): Promise<void> {
+  await notifyCustomer("ORDER_SHIPPED", order, (s) => s.whatsappOrderShipped !== false, (s, store) => shippedMessage(order, store, s.whatsappShippedTemplateName));
 }
 
 /** Admin → Settings "Send test message": uses the saved settings, reports the provider's answer. */
@@ -151,6 +194,7 @@ export async function sendTestWhatsApp(rawTo: string): Promise<SendResult> {
   const storeName = s.storeName?.trim() || "Zafiro Indio";
   const result = await send(s, to, {
     text: `This is a test message from ${storeName}. WhatsApp order notifications are working ✅`,
+    template: s.whatsappTemplateName,
     templateParams: ["Test", "TEST-0001", rupees(0)],
   });
   await log({ event: "TEST", provider: s.whatsappProvider || "meta", to, status: result.ok ? "SENT" : "FAILED", error: result.ok ? undefined : result.error });
