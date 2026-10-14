@@ -97,7 +97,7 @@ export default function ProductCard({ p }: { p: Product }) {
               {p.badge}
             </span>
           )}
-          <span className="px-2 py-0.5 text-[8.5px] font-mono tracking-wider uppercase bg-[#12192c]/85 text-[#c5a028] border border-[#c5a028]/30 rounded-xs backdrop-blur-md flex items-center gap-1 shadow-xs">
+          <span className="hidden sm:flex px-2 py-0.5 text-[8.5px] font-mono tracking-wider uppercase bg-[#12192c]/85 text-[#c5a028] border border-[#c5a028]/30 rounded-xs backdrop-blur-md items-center gap-1 shadow-xs">
             <Sparkles size={10} className="text-[#c5a028]" /> Jaipur Handblock
           </span>
         </div>
@@ -164,22 +164,22 @@ export default function ProductCard({ p }: { p: Product }) {
       </div>
 
       {/* Card Metadata */}
-      <div className="p-4 flex-1 flex flex-col justify-between">
+      <div className="p-3 sm:p-4 flex-1 flex flex-col justify-between">
         <div>
-          <span className="text-[9.5px] font-mono uppercase tracking-widest text-[#c5a028] font-bold block mb-1">
+          <span className="text-[9px] sm:text-[9.5px] font-mono uppercase tracking-wider sm:tracking-widest text-[#c5a028] font-bold block mb-1 truncate">
             {p.fabric || "100% Pure Cotton"}
           </span>
-          <Link 
-            href={`/products/${p.slug}`} 
-            className="text-sm font-serif font-bold text-[#12192c] hover:text-[#c5a028] transition-colors line-clamp-1 block mb-2"
+          <Link
+            href={`/products/${p.slug}`}
+            className="text-[13px] sm:text-sm leading-snug font-serif font-bold text-[#12192c] hover:text-[#c5a028] transition-colors line-clamp-2 mb-2"
           >
             {p.name}
           </Link>
         </div>
 
         <div>
-          <div className="flex items-baseline gap-2 mb-1.5">
-            <span className="text-base font-bold text-[#12192c]">
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-1.5">
+            <span className="text-[15px] sm:text-base font-bold text-[#12192c]">
               ₹{p.price.toLocaleString("en-IN")}
             </span>
             {p.oldPrice > p.price && (
@@ -205,7 +205,7 @@ export default function ProductCard({ p }: { p: Product }) {
                 <span className="text-[11px] text-slate-400 uppercase tracking-wider">New</span>
               )}
             </div>
-            <span className="text-[10px] font-mono text-slate-400 uppercase">
+            <span className="hidden sm:inline text-[10px] font-mono text-slate-400 uppercase">
               Jaipur Craft
             </span>
           </div>

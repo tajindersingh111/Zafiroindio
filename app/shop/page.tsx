@@ -153,7 +153,7 @@ function ShopContent() {
 
   return (
     <main style={{ background: "#faf8f5", minHeight: "100vh", paddingBottom: 80 }}>
-      <div className="container" style={{ maxWidth: 1280, margin: "0 auto", padding: "0 20px" }}>
+      <div className="container" style={{ maxWidth: 1280, margin: "0 auto" }}>
         {/* Breadcrumb */}
         <nav style={{ fontSize: 12, color: "#888", padding: "20px 0 14px", display: "flex", gap: 6 }}>
           <Link href="/" style={{ color: "#888", textDecoration: "none" }}>Home</Link>

@@ -13,6 +13,9 @@ interface Settings {
   whatsappProvider?: string;
   whatsappToken?: string;
   whatsappPhoneId?: string;
+  whatsappAccountSid?: string;
+  whatsappTemplateName?: string;
+  whatsappTemplateLang?: string;
   whatsappOrderConfirm?: boolean;
   whatsappOrderShipped?: boolean;
   shiprocketCheckoutEnabled?: boolean;
@@ -25,6 +28,8 @@ export default function SettingsPage() {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [testPhone, setTestPhone] = useState("");
+  const [testing, setTesting] = useState(false);
 
   useEffect(() => {
     fetch("/api/admin/settings").then((r) => r.json()).then((d) => {
@@ -40,6 +45,9 @@ export default function SettingsPage() {
         whatsappProvider: s.whatsappProvider ?? "meta",
         whatsappToken: s.whatsappToken ?? "",
         whatsappPhoneId: s.whatsappPhoneId ?? "",
+        whatsappAccountSid: s.whatsappAccountSid ?? "",
+        whatsappTemplateName: s.whatsappTemplateName ?? "",
+        whatsappTemplateLang: s.whatsappTemplateLang ?? "en",
         whatsappOrderConfirm: s.whatsappOrderConfirm !== undefined ? s.whatsappOrderConfirm : true,
         whatsappOrderShipped: s.whatsappOrderShipped !== undefined ? s.whatsappOrderShipped : true,
         shiprocketCheckoutEnabled: s.shiprocketCheckoutEnabled !== undefined ? s.shiprocketCheckoutEnabled : true,
@@ -69,7 +77,22 @@ export default function SettingsPage() {
     setSaving(false);
   }
 
+  async function sendTestWhatsApp() {
+    setTesting(true);
+    try {
+      const res = await fetch("/api/admin/settings/whatsapp-test", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone: testPhone }) });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) addToast("Test message sent. Check WhatsApp.");
+      else addToast(data.error || "Test message failed.", "error");
+    } catch {
+      addToast("Test message failed.", "error");
+    } finally {
+      setTesting(false);
+    }
+  }
+
   if (loading || !settings) return <LoadingSpinner />;
+  const provider = settings.whatsappProvider || "meta";
 
   return (
     <PageShell>
@@ -193,10 +216,12 @@ export default function SettingsPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wide text-stone mb-1.5">Phone Number ID</label>
+                <label className="block text-xs font-semibold uppercase tracking-wide text-stone mb-1.5">
+                  {provider === "twilio" ? "Sender WhatsApp Number" : provider === "greenapi" ? "idInstance" : "Phone Number ID"}
+                </label>
                 <input
                   type="text"
-                  placeholder="e.g. 10928374928"
+                  placeholder={provider === "twilio" ? "e.g. +14155238886" : provider === "greenapi" ? "e.g. 1101000001" : "e.g. 10928374928"}
                   value={settings.whatsappPhoneId}
                   onChange={(e) => set("whatsappPhoneId", e.target.value)}
                   className={inputCls}
@@ -204,7 +229,9 @@ export default function SettingsPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wide text-stone mb-1.5">System Access Token</label>
+                <label className="block text-xs font-semibold uppercase tracking-wide text-stone mb-1.5">
+                  {provider === "twilio" ? "Auth Token" : provider === "greenapi" ? "apiTokenInstance" : "System Access Token"}
+                </label>
                 <input
                   type="password"
                   placeholder="••••••••••••••••••••••••••••"
@@ -213,6 +240,48 @@ export default function SettingsPage() {
                   className={inputCls}
                 />
               </div>
+
+              {provider === "twilio" && (
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wide text-stone mb-1.5">Account SID</label>
+                  <input
+                    type="text"
+                    placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                    value={settings.whatsappAccountSid}
+                    onChange={(e) => set("whatsappAccountSid", e.target.value)}
+                    className={inputCls}
+                  />
+                </div>
+              )}
+
+              {provider === "meta" && (
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="col-span-2">
+                    <label className="block text-xs font-semibold uppercase tracking-wide text-stone mb-1.5">Order Template Name</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. order_confirmation"
+                      value={settings.whatsappTemplateName}
+                      onChange={(e) => set("whatsappTemplateName", e.target.value)}
+                      className={inputCls}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wide text-stone mb-1.5">Language</label>
+                    <input
+                      type="text"
+                      placeholder="en"
+                      value={settings.whatsappTemplateLang}
+                      onChange={(e) => set("whatsappTemplateLang", e.target.value)}
+                      className={inputCls}
+                    />
+                  </div>
+                  <p className="col-span-3 text-[11px] leading-relaxed text-stone">
+                    Meta only delivers business-started messages through an approved template. Create a Utility template in WhatsApp Manager
+                    whose body uses {"{{1}}"} = customer name, {"{{2}}"} = order number, {"{{3}}"} = order total.
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="space-y-4">
@@ -238,6 +307,22 @@ export default function SettingsPage() {
                   className="rounded-sm border-stone/30 text-indigo focus:ring-indigo/40"
                 />
                 <label htmlFor="shipped-trigger" className="text-xs font-semibold uppercase text-ink">Order Shipped (with Tracking Link)</label>
+              </div>
+
+              <div className="pt-4 border-t border-stone/20">
+                <p className="text-xs font-semibold uppercase tracking-wider text-stone mb-1.5">Send a test message</p>
+                <p className="text-[11px] text-stone mb-2">Save settings first, then send a test to your own number.</p>
+                <div className="flex gap-2">
+                  <input
+                    type="tel"
+                    inputMode="tel"
+                    placeholder="e.g. 98765 43210"
+                    value={testPhone}
+                    onChange={(e) => setTestPhone(e.target.value)}
+                    className={inputCls}
+                  />
+                  <Btn onClick={sendTestWhatsApp} disabled={testing || !testPhone.trim()}>{testing ? "Sending…" : "Send"}</Btn>
+                </div>
               </div>
             </div>
           </div>

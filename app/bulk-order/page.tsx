@@ -151,7 +151,7 @@ export default function BulkOrderPage() {
       </section>
 
       {/* Main Content: Form + Features */}
-      <div className="container" style={{ maxWidth: 1100, margin: "-30px auto 0", padding: "0 20px", position: "relative", zIndex: 3 }}>
+      <div className="container" style={{ maxWidth: 1100, margin: "-30px auto 0", position: "relative", zIndex: 3 }}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 420px", gap: 36, alignItems: "start" }}>
           
           {/* Left: Interactive Form Box */}

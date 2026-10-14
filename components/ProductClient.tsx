@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Heart, Share2, Minus, Plus, ChevronDown, ChevronUp, Truck, RotateCcw, Search, ShoppingCart, Gift, ShieldCheck, X, Layers, Hash, Stamp, Ruler, Package, Leaf, Droplets, Lock, HandHeart, ShoppingBag, House, type LucideIcon } from "lucide-react";
+import { Heart, Share2, Minus, Plus, ChevronDown, ChevronUp, RotateCcw, Search, ShoppingCart, Gift, ShieldCheck, X, Layers, Hash, Stamp, Ruler, Package, Leaf, Droplets, Lock, HandHeart, type LucideIcon } from "lucide-react";
 import ProductCard from "./ProductCard";
 import type { Product } from "@/lib/data";
 import { useCatalog } from "@/lib/storefront/useCatalog";
@@ -85,27 +85,6 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
     { title: "SHIPPING INFORMATION", content: "Orders are dispatched within 1–2 business days. Delivery across India in 3–5 business days, depending on your location." },
     { title: "RETURNS & EXCHANGE", content: "Easy 7-day returns on unused, unwashed items in original packaging. Pickup from your doorstep." },
   ];
-
-  // Delivery estimate, computed in the browser (the page itself is cached, so "today" can't be baked in).
-  const [eta, setEta] = useState<{ ordered: string; dispatched: string; delivered: string } | null>(null);
-  useEffect(() => {
-    const addBusinessDays = (from: Date, n: number) => {
-      const d = new Date(from);
-      while (n > 0) {
-        d.setDate(d.getDate() + 1);
-        if (d.getDay() !== 0) n--;
-      }
-      return d;
-    };
-    const fmt = (d: Date) => d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
-    const range = (a: Date, b: Date) => (a.getMonth() === b.getMonth() ? `${a.getDate()}–${fmt(b)}` : `${fmt(a)} – ${fmt(b)}`);
-    const now = new Date();
-    setEta({
-      ordered: fmt(now),
-      dispatched: range(addBusinessDays(now, 1), addBusinessDays(now, 2)),
-      delivered: range(addBusinessDays(now, 3), addBusinessDays(now, 5)),
-    });
-  }, []);
 
   // Phones: a slim add-to-cart bar once the main button has scrolled away.
   const buyRef = useRef<HTMLDivElement>(null);
@@ -304,7 +283,7 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
         </div>
       )}
 
-      <div className="container" style={{ maxWidth: 1240, margin: "0 auto", padding: "0 20px" }}>
+      <div className="container" style={{ maxWidth: 1240, margin: "0 auto" }}>
         {/* Breadcrumb */}
         <nav className="pdp-crumbs" aria-label="Breadcrumb">
           <Link href="/">Home</Link>
@@ -455,18 +434,7 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
 
           {/* Right: Product Details & Controls (Sticky) */}
           <div className="pdp-info">
-            <h1
-              className="serif"
-              style={{
-                fontSize: 32,
-                fontWeight: 500,
-                color: "#1c1917",
-                margin: "0 0 10px",
-                letterSpacing: "-0.5px"
-              }}
-            >
-              {p.name}
-            </h1>
+            <h1 className="serif pdp-title">{p.name}</h1>
 
             {/* Rating Row (only once there are reviews) */}
             {p.reviews > 0 && <button type="button" onClick={toReviews} className="pdp-rating" aria-label={`Rated ${p.rating} out of 5, ${p.reviews} reviews. Read reviews`}>
@@ -526,7 +494,7 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
                   Size Guide
                 </Link>
               </div>
-              <div style={{ display: "flex", gap: 10 }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
                 {p.sizes.map((s) => (
                   <button
                     key={s}
@@ -554,7 +522,7 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "1px", textTransform: "uppercase", color: "#1c1917", marginBottom: 10 }}>
                 SELECT COLOR: <span style={{ fontWeight: 600, color: "#a67c37", textTransform: "none" }}>{color}</span>
               </div>
-              <div style={{ display: "flex", gap: 10 }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
                 {p.colors.map((c, i) => (
                   <button
                     key={c}
@@ -682,13 +650,8 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
               <div><HandHeart size={18} strokeWidth={1.6} /><span>Handcrafted in Jaipur</span></div>
             </div>
 
-            {/* Delivery timeline + PIN check */}
+            {/* PIN check */}
             <div className="pdp-delivery">
-              <ol className="pdp-eta" aria-label="Estimated delivery">
-                <li><i><ShoppingBag size={15} /></i><strong>{eta?.ordered ?? "Today"}</strong><span>Ordered</span></li>
-                <li><i><Truck size={15} /></i><strong>{eta?.dispatched ?? "1–2 days"}</strong><span>Dispatched</span></li>
-                <li><i><House size={15} /></i><strong>{eta?.delivered ?? "3–5 days"}</strong><span>Delivered</span></li>
-              </ol>
               <form onSubmit={checkPincode} className="pdp-pin">
                 <input
                   type="text"
@@ -726,7 +689,7 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
 
         {/* ── Customer Reviews ─────── */}
         <div className="pdp-lower" id="reviews">
-          <div style={{ background: "#ffffff", border: "1px solid #e7e1d6", borderRadius: 8, padding: "28px 28px" }}>
+          <div className="pdp-reviews-card">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
               <h3 style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.5px", textTransform: "uppercase", color: "#1c1917", margin: 0 }}>
                 CUSTOMER REVIEWS
@@ -985,19 +948,9 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
         </section>
 
         {/* ── PROMO COUPON BANNER ───────────────────────────── */}
-        <div
-          style={{
-            background: "#faf5ed",
-            border: "1px solid #e7dfd2",
-            borderRadius: 8,
-            padding: "24px 32px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between"
-          }}
-        >
+        <div className="pdp-promo">
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#ffffff", border: "1px solid #e2d7c5", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ width: 48, height: 48, flexShrink: 0, borderRadius: "50%", background: "#ffffff", border: "1px solid #e2d7c5", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <Gift size={24} color="#a67c37" />
             </div>
             <div>
@@ -1021,7 +974,8 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
               letterSpacing: "1px",
               textTransform: "uppercase",
               borderRadius: 4,
-              textDecoration: "none"
+              textDecoration: "none",
+              textAlign: "center"
             }}
           >
             SHOP NOW
