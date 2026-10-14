@@ -7,6 +7,7 @@ import { shiprocketCheckoutClient } from "@/lib/shiprocket-checkout/client";
 import { completeCheckoutSession, findCheckoutSessionBySrOrder, type CheckoutSession } from "@/lib/orders/checkout-session";
 import { createOrderFromCheckout, normalizeCheckoutWebhook, type NormalizedCheckoutOrder } from "@/lib/orders/service";
 import { onOrderConfirmed } from "@/lib/shipping/provider";
+import { sendOrderConfirmationWhatsApp } from "@/lib/notifications/whatsapp";
 import type { Order } from "@/lib/db/types";
 
 export type ConfirmResult =
@@ -44,8 +45,9 @@ export async function confirmShiprocketOrder(n: NormalizedCheckoutOrder, eventId
     }).catch((e) => console.error("Audit log failed:", e));
     await generateInvoiceForOrder(order).catch((e) => console.error("Invoice generation failed:", e));
     await sendTransactionalEmail(order.paymentStatus === "paid" ? "PAYMENT_SUCCESS" : "ORDER_CREATED", order).catch((e) => console.error("Order email failed:", e));
-    // Send it to ShipMozo after the response, so Shiprocket's webhook / the shopper never wait on it.
+    // Send it to ShipMozo and WhatsApp the customer after the response, so Shiprocket's webhook / the shopper never wait on it.
     after(() => onOrderConfirmed(order));
+    after(() => sendOrderConfirmationWhatsApp(order));
   }
   return { status: "confirmed", order, created };
 }

@@ -55,7 +55,7 @@ function TrackContent() {
 
   return (
     <main style={{ background: "#faf8f5", minHeight: "85vh", padding: "40px 0 80px" }}>
-      <div className="container" style={{ maxWidth: 880, margin: "0 auto", padding: "0 20px" }}>
+      <div className="container" style={{ maxWidth: 880, margin: "0 auto" }}>
         
         {/* Breadcrumb */}
         <nav style={{ fontSize: 12, color: "#888", marginBottom: 20, display: "flex", gap: 6 }}>
