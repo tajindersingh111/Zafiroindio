@@ -167,8 +167,8 @@ export default async function Home() {
         <div className="value">
           <span className="valueIcon"><RotateCcw size={18} /></span>
           <div>
-            <strong>7-Day Easy Returns</strong>
-            <span>Hassle-free return policy.</span>
+            <strong>7-Day Exchange</strong>
+            <span>Damaged items returned. <Link href="/return-policy" className="rich-link">Policy</Link></span>
           </div>
         </div>
         <div className="value">

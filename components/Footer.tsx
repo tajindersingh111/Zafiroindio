@@ -120,20 +120,20 @@ export default function Footer() {
             {/* Customer Care */}
             <div>
               <h4>Customer Care</h4>
-              <Link href="/about">FAQs</Link>
-              <Link href="/about">Shipping &amp; Delivery</Link>
-              <Link href="/about">Returns &amp; Exchanges</Link>
-              <Link href="/about">Size Guide</Link>
+              <Link href="/account">My Orders</Link>
               <Link href="/track">Track My Order</Link>
+              <Link href="/return-policy">Returns &amp; Exchanges</Link>
+              <Link href="/account">Request a Return / Exchange</Link>
+              <Link href="/bulk-order">Bulk Orders</Link>
             </div>
 
             {/* About */}
             <div>
               <h4>About Us</h4>
-              <Link href="/about">Our Story</Link>
+              <Link href="/about#story">Our Story</Link>
               <Link href="/about">Our Values</Link>
               <Link href="/about">Sustainability</Link>
-              <Link href="/about">Contact Us</Link>
+              <a href={`mailto:${CONTACT.email}`}>Contact Us</a>
             </div>
 
             {/* Contact */}
@@ -153,7 +153,7 @@ export default function Footer() {
               <span className="dot">•</span>
               <Link href="/about">Terms &amp; Conditions</Link>
               <span className="dot">•</span>
-              <Link href="/about">Shipping Policy</Link>
+              <Link href="/return-policy">Return &amp; Refund Policy</Link>
             </div>
           </div>
         </div>

@@ -11,7 +11,9 @@ export type EmailEventType =
   | "ORDER_DELIVERED"
   | "ORDER_CANCELLED"
   | "REFUND_COMPLETED"
-  | "RETURN_REQUESTED";
+  | "RETURN_REQUESTED"
+  | "RETURN_APPROVED"
+  | "RETURN_REJECTED";
 
 export interface EmailLogEntry {
   id: string;
@@ -29,7 +31,7 @@ export interface EmailLogEntry {
 export async function sendTransactionalEmail(
   eventType: EmailEventType,
   order: Partial<Order> & { id: string; orderNumber: string; customerEmail: string; customerName: string; total: number },
-  extraDetails?: { trackingNumber?: string; trackingUrl?: string; refundAmount?: number; invoiceNumber?: string }
+  extraDetails?: { trackingNumber?: string; trackingUrl?: string; refundAmount?: number; invoiceNumber?: string; requestKind?: "return" | "exchange"; note?: string }
 ): Promise<{ success: boolean; logId: string }> {
   const now = new Date().toISOString();
   const logId = `eml-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
@@ -87,7 +89,17 @@ export async function sendTransactionalEmail(
     case "RETURN_REQUESTED":
       subject = `Return Request Received — ${order.orderNumber} | Zafiro Indio`;
       headline = "Return Request Received";
-      bodyMessage = `We have received your return request for order ${order.orderNumber}.`;
+      bodyMessage = `We have received your ${extraDetails?.requestKind || "return"} request for order ${order.orderNumber}. Our team will review your unboxing video and get back to you.`;
+      break;
+    case "RETURN_APPROVED":
+      subject = `${extraDetails?.requestKind === "exchange" ? "Exchange" : "Return"} Request Approved — ${order.orderNumber} | Zafiro Indio`;
+      headline = `Your ${extraDetails?.requestKind || "return"} request is approved`;
+      bodyMessage = `We have approved your ${extraDetails?.requestKind || "return"} request for order ${order.orderNumber}. Our team will contact you with the next steps.${extraDetails?.note ? ` Note: ${extraDetails.note}` : ""}`;
+      break;
+    case "RETURN_REJECTED":
+      subject = `Update on your ${extraDetails?.requestKind || "return"} request — ${order.orderNumber} | Zafiro Indio`;
+      headline = "We could not accept your request";
+      bodyMessage = `Sorry, your ${extraDetails?.requestKind || "return"} request for order ${order.orderNumber} could not be accepted.${extraDetails?.note ? ` Reason: ${extraDetails.note}` : ""} Please see our return and exchange policy or reply to this email if you have questions.`;
       break;
   }
 

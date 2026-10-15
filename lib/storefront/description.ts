@@ -28,7 +28,8 @@ function decode(s: string): string {
 const stripLead = (s: string) => s.replace(/^[\s•*\-•\p{Extended_Pictographic}️‍]+/u, "").trim();
 
 function toHighlight(line: string): Highlight {
-  const colon = line.match(/^([^:]{2,32}):\s*(.+)$/);
+  // `(?!\/\/)`: "https://…" is a link, not a "https" label.
+  const colon = line.match(/^([^:]{2,32}):(?!\/\/)\s*(.+)$/);
   if (colon) return { label: colon[1].trim(), text: colon[2].trim() };
   const dash = line.match(/^(.{3,48}?)\s+[–—-]\s+(.+)$/);
   if (dash) return { label: dash[1].trim(), text: dash[2].trim() };
@@ -43,6 +44,11 @@ export function parseDescription(html: string): StoryParts {
       .replace(/<h\d[^>]*>([\s\S]*?)<\/h\d>/gi, "\n## $1\n")
       .replace(/<li[^>]*>/gi, "\n• ")
       .replace(/<br\s*\/?>|<\/(li|p|div|ul|ol)>/gi, "\n")
+      // Links survive as [[label|url]] markers; components/RichText turns them back into anchors.
+      .replace(/<a\b[^>]*\bhref\s*=\s*["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi, (_, href: string, label: string) => {
+        const text = label.replace(/<[^>]+>/g, "").trim();
+        return text ? `[[${text.replace(/[|\]]/g, " ")}|${href}]]` : href;
+      })
       .replace(/<[^>]+>/g, "")
   );
 
