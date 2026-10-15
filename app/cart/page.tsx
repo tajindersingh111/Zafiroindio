@@ -86,7 +86,7 @@ export default function Cart() {
               <div className="trust-row" style={{ marginTop: 22 }}>
                 {[
                   { icon: <Truck size={16} />, title: "Free shipping", sub: `On orders above ₹${FREE_SHIPPING_FROM}` },
-                  { icon: <RotateCcw size={16} />, title: "Easy returns", sub: "Within 7 days of delivery" },
+                  { icon: <RotateCcw size={16} />, title: "7-day exchange", sub: "Unboxing video required" },
                   { icon: <ShieldCheck size={16} />, title: "Secure payment", sub: "UPI, cards, netbanking & COD" },
                 ].map((b) => (
                   <div key={b.title} className="lux-card" style={{ display: "flex", gap: 10, padding: "14px 14px" }}>

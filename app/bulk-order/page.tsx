@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ShieldCheck, Truck, Sparkles, Send, CheckCircle2, Building2, User, Mail, Phone, Layers, Award } from "lucide-react";
+import { useStoreContact, waLink } from "@/components/useStoreContact";
 
 const CATEGORIES = [
   "Bedsheets & Sheet Sets",
@@ -18,6 +19,7 @@ const CATEGORIES = [
 const QUANTITY_PRESETS = ["25 - 50 Pcs", "50 - 100 Pcs", "100 - 500 Pcs", "500+ Pcs"];
 
 export default function BulkOrderPage() {
+  const storeContact = useStoreContact();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -530,7 +532,7 @@ export default function BulkOrderPage() {
                 Speak directly with our Wholesale Director on WhatsApp for urgent queries and instant physical fabric samples.
               </p>
               <a
-                href="https://wa.me/919876543210?text=Hi%20Zafiro%20Team,%20I%20am%20interested%20in%20Bulk%20Wholesale%20Orders."
+                href={waLink(storeContact, "Hi Zafiro Team, I am interested in Bulk Wholesale Orders.") || `mailto:${storeContact?.email || "hello@zafiroindio.com"}?subject=Bulk%20order%20enquiry`}
                 target="_blank"
                 rel="noreferrer"
                 style={{

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Package, Truck, FileText, RotateCcw, Heart, ShieldCheck } from "lucide-react";
 import { useStore } from "@/components/StoreProvider";
 import { img } from "@/lib/img";
+import ReturnRequestForm from "@/components/ReturnRequestForm";
 
 type Lookup = {
   order: { orderNumber: string; status: string; customerFirstName: string; customerCity: string; orderDate: string; total: number; paymentMethod: string; items: { name: string; qty: number; price: number; image?: string }[] };
@@ -48,11 +49,11 @@ export default function AccountPage() {
   }
 
   async function submitAction() {
-    if (!data || !action) return;
+    if (!data || action !== "cancel") return;
     setLoading(true);
     setError("");
     try {
-      const url = action === "cancel" ? `/api/orders/${encodeURIComponent(data.order.orderNumber)}/cancel` : "/api/returns";
+      const url = `/api/orders/${encodeURIComponent(data.order.orderNumber)}/cancel`;
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -60,7 +61,7 @@ export default function AccountPage() {
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json.error || "Request failed.");
-      const msg = action === "cancel" ? "Your order has been cancelled. Any prepaid amount will be refunded to the original payment method." : "Your return request has been received. Our team will contact you shortly.";
+      const msg = "Your order has been cancelled. Any prepaid amount will be refunded to the original payment method.";
       setAction(null);
       setReason("");
       await find();
@@ -81,7 +82,7 @@ export default function AccountPage() {
           <span className="eyebrow">My orders</span>
           <h1 className="serif" style={{ fontSize: "clamp(34px,5vw,52px)", margin: "10px 0 0" }}>Find Your Order</h1>
           <div className="ornament"><i /></div>
-          <p style={{ color: "var(--ink-soft)", margin: 0 }}>Enter your order number and the phone or email you ordered with. Track, download your invoice, cancel or request a return.</p>
+          <p style={{ color: "var(--ink-soft)", margin: 0 }}>Enter your order number and the phone or email you ordered with. Track, download your invoice, cancel, or request a return / exchange.</p>
         </div>
 
         <form onSubmit={find} className="lux-card" style={{ padding: 24, display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", alignItems: "end" }}>
@@ -139,17 +140,30 @@ export default function AccountPage() {
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 20 }}>
               <a className="btn outline" href={invoiceHref} target="_blank" rel="noopener noreferrer"><FileText size={14} /> Invoice</a>
               {CANCELLABLE.has(data.order.status) && <button className="btn outline" onClick={() => setAction("cancel")}><Package size={14} /> Cancel order</button>}
-              {data.order.status === "delivered" && <button className="btn outline" onClick={() => setAction("return")}><RotateCcw size={14} /> Request return</button>}
+              {data.order.status === "delivered" && <button className="btn outline" onClick={() => setAction("return")}><RotateCcw size={14} /> Return / Exchange</button>}
             </div>
 
-            {action && (
+            {action === "return" && (
+              <ReturnRequestForm
+                orderNumber={data.order.orderNumber}
+                contact={contact}
+                items={data.order.items}
+                onCancel={() => setAction(null)}
+                onDone={async (msg) => {
+                  setAction(null);
+                  await find();
+                  setNotice(msg);
+                }}
+              />
+            )}
+            {action === "cancel" && (
               <div style={{ marginTop: 18, borderTop: "1px solid var(--line)", paddingTop: 18 }}>
                 <label style={{ fontSize: 12, fontWeight: 700 }}>
-                  {action === "cancel" ? "Reason for cancelling (optional)" : "Reason for return"}
-                  <textarea className="lux-input" rows={3} value={reason} onChange={(e) => setReason(e.target.value)} required={action === "return"} style={{ marginTop: 6 }} />
+                  Reason for cancelling (optional)
+                  <textarea className="lux-input" rows={3} value={reason} onChange={(e) => setReason(e.target.value)} style={{ marginTop: 6 }} />
                 </label>
                 <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
-                  <button className="btn indigo" disabled={loading || (action === "return" && !reason.trim())} onClick={submitAction}>Confirm {action === "cancel" ? "cancellation" : "return request"}</button>
+                  <button className="btn indigo" disabled={loading} onClick={submitAction}>Confirm cancellation</button>
                   <button className="btn outline" onClick={() => setAction(null)}>Never mind</button>
                 </div>
               </div>

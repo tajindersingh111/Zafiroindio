@@ -52,6 +52,11 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
     }
   };
   const toReviews = () => document.getElementById("reviews")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  // Sizes live in the specifications list below the buy box.
+  const openSizeGuide = () => {
+    setOpenAccordion("SPECIFICATIONS");
+    requestAnimationFrame(() => document.getElementById("pdp-details")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  };
   const wished = wishlist.includes(p.slug);
 
   const starCount = Math.round(p.rating || 0);
@@ -83,7 +88,15 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
         }]
       : []),
     { title: "SHIPPING INFORMATION", content: "Orders are dispatched within 1–2 business days. Delivery across India in 3–5 business days, depending on your location." },
-    { title: "RETURNS & EXCHANGE", content: "Easy 7-day returns on unused, unwashed items in original packaging. Pickup from your doorstep." },
+    {
+      title: "RETURNS & EXCHANGE",
+      content: (
+        <>
+          Damaged products can be returned; everything else is exchange only, within 7 days of delivery. An unboxing video
+          is mandatory for every request. <Link href="/return-policy" className="rich-link">Read the full policy</Link>
+        </>
+      ),
+    },
   ];
 
   // Phones: a slim add-to-cart bar once the main button has scrolled away.
@@ -412,7 +425,7 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
                     {[
                       ["Printed by artisans", "Each design is stamped by hand with carved wooden blocks."],
                       ["One of a kind", "Small shifts in colour and alignment are the mark of hand printing, not flaws."],
-                      ["Easy 7-day returns", "Unused pieces in their original packing can be returned with doorstep pickup."],
+                      ["7-day exchange", "Exchange within 7 days of delivery; damaged pieces are returned. Keep an unboxing video."],
                       ["Secure checkout", "Payments go through an encrypted, secure checkout."],
                     ].map(([t, d]) => (
                       <div key={t} style={{ background: "#faf8f5", padding: "14px 16px", borderRadius: 6, border: "1px solid #eee8dd" }}>
@@ -490,9 +503,11 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
                 <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: "1px", textTransform: "uppercase", color: "#1c1917" }}>
                   SELECT SIZE
                 </span>
-                <Link href="/about" style={{ fontSize: 11, color: "#777", textDecoration: "underline" }}>
-                  Size Guide
-                </Link>
+                {specs.length > 0 && (
+                  <button type="button" onClick={openSizeGuide} style={{ fontSize: 11, color: "#777", textDecoration: "underline", background: "none", border: 0, padding: 0, cursor: "pointer" }}>
+                    Size Guide
+                  </button>
+                )}
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
                 {p.sizes.map((s) => (
@@ -646,7 +661,7 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
             {/* Trust row */}
             <div className="pdp-trust">
               <div><Lock size={18} strokeWidth={1.6} /><span>Secure Checkout</span></div>
-              <div><RotateCcw size={18} strokeWidth={1.6} /><span>7-Day Easy Returns</span></div>
+              <Link href="/return-policy"><RotateCcw size={18} strokeWidth={1.6} /><span>7-Day Exchange</span></Link>
               <div><HandHeart size={18} strokeWidth={1.6} /><span>Handcrafted in Jaipur</span></div>
             </div>
 
@@ -668,7 +683,7 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
             </div>
 
             {/* Details, under the buy box (content stays in the page for search engines when closed) */}
-            <div className="pdp-acc">
+            <div className="pdp-acc" id="pdp-details">
               {accordionItems.map((item) => {
                 const isOpen = openAccordion === item.title;
                 return (

@@ -1,4 +1,5 @@
 import type { StoryParts } from "@/lib/storefront/description";
+import RichText from "@/components/RichText";
 
 /**
  * The product description, laid out as an editorial "story": title and opening on the left,
@@ -16,7 +17,7 @@ export default function ProductStory({ story, fallbackTitle }: { story: StoryPar
         <p className="eyebrow">The Story</p>
         <h2 id="pdp-story-title" className="serif">{story.title || fallbackTitle}</h2>
         {story.intro.map((p, i) => (
-          <p key={i} className={i === 0 ? "pdp-story-lede" : "pdp-story-p"}>{p}</p>
+          <p key={i} className={i === 0 ? "pdp-story-lede" : "pdp-story-p"}><RichText text={p} /></p>
         ))}
         <div className="pdp-story-seal" aria-hidden="true">
           <span>Zafiro</span>
@@ -37,7 +38,7 @@ export default function ProductStory({ story, fallbackTitle }: { story: StoryPar
                       <span className="pdp-story-num serif">{String(starts[gi] + i + 1).padStart(2, "0")}</span>
                       <div>
                         {h.label && <strong>{h.label}</strong>}
-                        <p>{h.text}</p>
+                        <p><RichText text={h.text} /></p>
                       </div>
                     </li>
                   );
@@ -51,7 +52,7 @@ export default function ProductStory({ story, fallbackTitle }: { story: StoryPar
       {story.closing.length > 0 && (
         <div className="pdp-story-closing">
           {story.closing.map((b, i) =>
-            b.kind === "heading" ? <h3 key={i} className="serif">{b.text}</h3> : <p key={i}>{b.text}</p>
+            b.kind === "heading" ? <h3 key={i} className="serif"><RichText text={b.text} /></h3> : <p key={i}><RichText text={b.text} /></p>
           )}
         </div>
       )}

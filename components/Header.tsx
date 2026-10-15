@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Search, UserRound, Heart, ShoppingBag, Menu, X, PackageCheck } from "lucide-react";
+import { Search, UserRound, Heart, ShoppingBag, Menu, X, PackageCheck, Truck, RotateCcw } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useStore } from "./StoreProvider";
 import BulkOrderModal from "./BulkOrderModal";
@@ -14,7 +14,7 @@ export default function Header() {
   const [announcements, setAnnouncements] = useState<string[]>([
     "Hand-block printed by artisans in Jaipur",
     "100% pure cotton",
-    "Easy returns within 7 days"
+    "Easy 7-day exchanges"
   ]);
   const { cartCount, wishlist } = useStore();
   // Phones show one announcement at a time (CSS hides the rest); rotate through them.
@@ -131,7 +131,7 @@ export default function Header() {
             <button
               type="button"
               onClick={() => setBulkModalOpen(true)}
-              className="iconbtn"
+              className="iconbtn desktopOnly"
               title="Bulk Order Inquiry"
               aria-label="Bulk Order Inquiry"
               style={{
@@ -147,7 +147,7 @@ export default function Header() {
             <Link className="iconbtn" href="/search" aria-label="Search">
               <Search size={20} />
             </Link>
-            <Link className="iconbtn" href="/account" aria-label="Account">
+            <Link className="iconbtn desktopOnly" href="/account" aria-label="Account">
               <UserRound size={20} />
             </Link>
             <Link className="iconbtn" href="/wishlist" aria-label="Wishlist" style={{ position: "relative" }}>
@@ -209,13 +209,17 @@ export default function Header() {
               <Link key={l.href} href={l.href}>{l.label}</Link>
             )
           ))}
-          <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid var(--line)", display: "flex", gap: 14 }}>
-            <Link href="/account" style={{ fontSize: 12, color: "var(--muted)", display: "flex", alignItems: "center", gap: 6, border: "none", padding: 0, textTransform: "none", letterSpacing: 0 }}>
-              <UserRound size={16} /> Account
-            </Link>
-            <Link href="/wishlist" style={{ fontSize: 12, color: "var(--muted)", display: "flex", alignItems: "center", gap: 6, border: "none", padding: 0, textTransform: "none", letterSpacing: 0 }}>
-              <Heart size={16} /> Wishlist {wishlist.length > 0 && `(${wishlist.length})`}
-            </Link>
+          <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid var(--line)", display: "flex", flexWrap: "wrap", gap: "12px 18px" }}>
+            {[
+              { href: "/account", label: "My orders", Icon: UserRound },
+              { href: "/wishlist", label: `Wishlist${wishlist.length > 0 ? ` (${wishlist.length})` : ""}`, Icon: Heart },
+              { href: "/track", label: "Track order", Icon: Truck },
+              { href: "/return-policy", label: "Returns & exchange", Icon: RotateCcw },
+            ].map(({ href, label, Icon }) => (
+              <Link key={href} href={href} style={{ fontSize: 12, color: "var(--muted)", display: "flex", alignItems: "center", gap: 6, border: "none", padding: 0, textTransform: "none", letterSpacing: 0 }}>
+                <Icon size={16} /> {label}
+              </Link>
+            ))}
           </div>
         </div>
       </div>

@@ -482,6 +482,14 @@ export interface ReturnRecord {
   reason: string;
   status: "RETURN_REQUESTED" | "RETURN_APPROVED" | "RETURN_REJECTED" | "RECEIVED" | "COMPLETED";
   refundAmount: number;
+  /** "return" = damaged product (refund / replacement); "exchange" = every other case. Older records have none. */
+  kind?: "return" | "exchange";
+  /** Order items the request is about (names as on the order). */
+  items?: string[];
+  /** Unboxing video in the `return-videos` collection (served to staff by /api/admin/returns/[id]/video). */
+  video?: { id: string; mime: string; size: number; name?: string };
+  decidedBy?: string;
+  decidedAt?: string;
   adminNotes?: string;
   requestedDate: string;
   approvedDate?: string;

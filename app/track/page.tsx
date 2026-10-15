@@ -3,7 +3,9 @@
 import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Truck, Search, CheckCircle2, MapPin, PhoneCall, AlertCircle, RefreshCw } from "lucide-react";
+import { Truck, Search, CheckCircle2, MapPin, PhoneCall, AlertCircle, RefreshCw, RotateCcw } from "lucide-react";
+import ReturnRequestForm from "@/components/ReturnRequestForm";
+import { useStoreContact, waLink } from "@/components/useStoreContact";
 
 function TrackContent() {
   const searchParams = useSearchParams();
@@ -15,11 +17,16 @@ function TrackContent() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [trackingData, setTrackingData] = useState<any>(null);
+  const [showReturn, setShowReturn] = useState(false);
+  const [returnNotice, setReturnNotice] = useState("");
+  const storeContact = useStoreContact();
 
   const fetchTracking = async (queryStr: string, contactStr: string = contact) => {
     if (!queryStr.trim() || !contactStr.trim()) return;
     setLoading(true);
     setErrorMsg(null);
+    setShowReturn(false);
+    setReturnNotice("");
 
     try {
       const res = await fetch("/api/shipments/track", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ q: queryStr.trim(), contact: contactStr.trim() }) });
@@ -269,13 +276,42 @@ function TrackContent() {
               </div>
             )}
 
+            {/* Return / exchange (delivered orders) */}
+            {trackingData.order?.status === "delivered" && (
+              <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid #f0eae1" }}>
+                {returnNotice ? (
+                  <p role="status" style={{ margin: 0, fontSize: 13.5, color: "#2e7d32", fontWeight: 600 }}>{returnNotice}</p>
+                ) : showReturn ? (
+                  <ReturnRequestForm
+                    orderNumber={trackingData.order.orderNumber}
+                    contact={contact}
+                    items={trackingData.order.items || []}
+                    onCancel={() => setShowReturn(false)}
+                    onDone={(msg) => {
+                      setShowReturn(false);
+                      setReturnNotice(msg);
+                    }}
+                  />
+                ) : (
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+                    <span style={{ fontSize: 12.5, color: "#666" }}>
+                      Damaged item or need a different size? <Link href="/return-policy" className="rich-link">Return &amp; exchange policy</Link>
+                    </span>
+                    <button type="button" className="btn outline" onClick={() => setShowReturn(true)}>
+                      <RotateCcw size={14} /> Return / Exchange
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Support Footer Row */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 28, paddingTop: 20, borderTop: "1px solid #f0eae1", flexWrap: "wrap", gap: 12 }}>
               <div style={{ fontSize: 12, color: "#666" }}>
                 Need help with your shipment? Contact support 10 AM - 7 PM IST.
               </div>
               <a
-                href="https://wa.me/919876543210?text=Hi%20Zafiro%20Support%2C%20I%20need%20help%20tracking%20my%20shipment"
+                href={waLink(storeContact, "Hi Zafiro Support, I need help tracking my shipment") || `mailto:${storeContact?.email || "hello@zafiroindio.com"}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
@@ -291,7 +327,7 @@ function TrackContent() {
                   textDecoration: "none"
                 }}
               >
-                <PhoneCall size={14} /> WhatsApp Support
+                <PhoneCall size={14} /> {storeContact?.whatsapp ? "WhatsApp Support" : "Email Support"}
               </a>
             </div>
           </div>

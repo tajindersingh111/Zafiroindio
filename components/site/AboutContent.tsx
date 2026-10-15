@@ -54,7 +54,7 @@ const marqueeItems = [
   "AZO-Free Dyes",
   "500 Year Old Craft",
   "Free Shipping ₹999+",
-  "7-Day Easy Returns",
+  "7-Day Exchange",
   "12,000+ Happy Homes",
   "Fair Trade Certified",
   "Made in Rajasthan",
