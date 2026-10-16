@@ -1,3 +1,14 @@
+export type ProductVariation = {
+  id: string;
+  sku: string;
+  price: number;
+  salePrice?: number;
+  stock: number;
+  stockStatus: string;
+  weight?: number;
+  attributes: { name: string; value: string }[];
+};
+
 export type Product = {
   slug: string;
   name: string;
@@ -25,6 +36,8 @@ export type Product = {
   specs?: { key: string; label: string; value: string }[];
   /** Units left, only when stock is tracked and 5 or fewer remain (for an honest "only N left"). */
   lowStock?: number;
+  /** Variations for variable products — each has its own price, stock, SKU and attribute combo. */
+  variations?: ProductVariation[];
 };
 
 export type Banner = {

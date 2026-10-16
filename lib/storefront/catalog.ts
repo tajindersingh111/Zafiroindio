@@ -103,6 +103,52 @@ function toStorefront(p: any, stats: Map<string, { avg: number; n: number }>, ca
   else if (tags.includes("bestseller") || topSellers.has(p.id)) badge = "BESTSELLER";
   else if (tags.includes("new")) badge = "NEW";
 
+  // Case-insensitive attribute lookup so "Size", "size", "SIZE" all work.
+  const attrs: Record<string, string[]> = p.attributes ?? {};
+  const attrKey = (name: string) => Object.keys(attrs).find((k) => k.toLowerCase() === name.toLowerCase());
+  const sizeKey = attrKey("size");
+  const colorKey = attrKey("color");
+
+  let sizes = (sizeKey ? attrs[sizeKey] : undefined) || [];
+  let colors = (colorKey ? attrs[colorKey] : undefined) || [];
+
+  if (Array.isArray(p.variations) && p.variations.length > 0) {
+    if (sizes.length === 0) {
+      const extractedSizes = new Set<string>();
+      for (const v of p.variations) {
+        if (Array.isArray(v.attributes)) {
+          for (const a of v.attributes) {
+            if (a?.name && a.name.toLowerCase().includes("size") && a.value) {
+              extractedSizes.add(String(a.value));
+            }
+          }
+        } else if (typeof v.attributes === "object" && v.attributes !== null) {
+          for (const [k, val] of Object.entries(v.attributes)) {
+            if (k.toLowerCase().includes("size") && val) extractedSizes.add(String(val));
+          }
+        }
+      }
+      if (extractedSizes.size > 0) sizes = Array.from(extractedSizes);
+    }
+    if (colors.length === 0) {
+      const extractedColors = new Set<string>();
+      for (const v of p.variations) {
+        if (Array.isArray(v.attributes)) {
+          for (const a of v.attributes) {
+            if (a?.name && a.name.toLowerCase().includes("color") && a.value) {
+              extractedColors.add(String(a.value));
+            }
+          }
+        } else if (typeof v.attributes === "object" && v.attributes !== null) {
+          for (const [k, val] of Object.entries(v.attributes)) {
+            if (k.toLowerCase().includes("color") && val) extractedColors.add(String(val));
+          }
+        }
+      }
+      if (extractedColors.size > 0) colors = Array.from(extractedColors);
+    }
+  }
+
   return {
     slug: p.slug || p.id,
     name: p.name,
@@ -117,14 +163,15 @@ function toStorefront(p: any, stats: Map<string, { avg: number; n: number }>, ca
     categoryName: cats.get(p.categoryId)?.name ?? (p.categoryName ? cleanName(String(p.categoryName)) : undefined),
     categorySlug: cats.get(p.categoryId)?.slug ?? (p.categoryName ? slugify(cleanName(String(p.categoryName))) : undefined),
     collections: Array.isArray(p.collections) ? p.collections : undefined,
-    colors: p.attributes?.Color || [],
-    sizes: p.attributes?.Size || [],
+    colors,
+    sizes,
     description: p.description || p.shortDescription || "",
     images,
     popularity: popularity.get(p.id) ?? 0,
     createdAt: typeof p.createdAt === "string" ? p.createdAt : undefined,
     specs: productSpecs(p),
     lowStock: p.manageStock !== false && Number(p.stock) > 0 && Number(p.stock) <= 5 ? Number(p.stock) : undefined,
+    variations: Array.isArray(p.variations) && p.variations.length > 0 ? p.variations : undefined,
   };
 }
 
