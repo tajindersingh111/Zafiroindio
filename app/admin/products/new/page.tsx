@@ -163,7 +163,10 @@ export default function ProductFormPage({ params }: { params: Promise<{ id: stri
     const attrKeys = Object.keys(form.attributes).filter(
       (k) => form.attributes[k].length > 0
     );
-    if (!attrKeys.length) return;
+    if (!attrKeys.length) {
+      addToast("Please select at least one value for each attribute before generating variations.", "error");
+      return;
+    }
     const combos: { name: string; value: string }[][] = [];
     function recurse(depth: number, current: { name: string; value: string }[]) {
       if (depth === attrKeys.length) { combos.push([...current]); return; }
@@ -182,6 +185,7 @@ export default function ProductFormPage({ params }: { params: Promise<{ id: stri
       attributes: combo,
     }));
     setForm((prev) => ({ ...prev, variations }));
+    addToast(`${variations.length} variation(s) generated successfully!`);
   }
 
   async function handleSave() {
@@ -619,9 +623,27 @@ export default function ProductFormPage({ params }: { params: Promise<{ id: stri
                 );
               })}
 
-              {Object.keys(form.attributes).length > 0 && (
-                <Btn size="sm" variant="secondary" onClick={generateVariations}>Generate Variations</Btn>
-              )}
+              {Object.keys(form.attributes).length > 0 && (() => {
+                const totalSelected = Object.values(form.attributes).reduce((s, v) => s + v.length, 0);
+                return (
+                  <div className="flex items-center gap-3">
+                    <Btn
+                      size="sm"
+                      variant="secondary"
+                      onClick={generateVariations}
+                      disabled={totalSelected === 0}
+                    >
+                      Generate Variations
+                    </Btn>
+                    {totalSelected === 0 && (
+                      <span className="text-xs text-stone">Select values above (checkboxes) first</span>
+                    )}
+                    {totalSelected > 0 && (
+                      <span className="text-xs text-stone">{totalSelected} value(s) selected</span>
+                    )}
+                  </div>
+                );
+              })()}
 
               {form.variations.length > 0 && (
                 <div className="mt-4">
