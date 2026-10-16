@@ -159,7 +159,10 @@ export default function ProductFormPage({ params }: { params: Promise<{ id: stri
   }
 
   function generateVariations() {
-    const attrKeys = Object.keys(form.attributes);
+    // Only use attributes that have at least one value selected
+    const attrKeys = Object.keys(form.attributes).filter(
+      (k) => form.attributes[k].length > 0
+    );
     if (!attrKeys.length) return;
     const combos: { name: string; value: string }[][] = [];
     function recurse(depth: number, current: { name: string; value: string }[]) {
