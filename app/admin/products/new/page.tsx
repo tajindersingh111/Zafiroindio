@@ -70,6 +70,8 @@ export default function ProductFormPage({ params }: { params: Promise<{ id: stri
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [activeAttr, setActiveAttr] = useState("");
+  const [customAttrName, setCustomAttrName] = useState("");
+  const [newValueInput, setNewValueInput] = useState<Record<string, string>>({});
 
   useEffect(() => {
     Promise.all([
@@ -94,7 +96,7 @@ export default function ProductFormPage({ params }: { params: Promise<{ id: stri
             setForm({
               name: p.name || "",
               slug: p.slug || "",
-              type: p.type || "simple",
+              type: p.type || (Array.isArray(p.variations) && p.variations.length > 0 ? "variable" : "simple"),
               status: p.status || "draft",
               description: p.description || "",
               shortDescription: p.shortDescription || "",
@@ -178,13 +180,13 @@ export default function ProductFormPage({ params }: { params: Promise<{ id: stri
     recurse(0, []);
     const variations: Variation[] = combos.map((combo) => ({
       id: uuidv4(),
-      sku: `${form.sku}-${combo.map((a) => a.value.slice(0, 3).toUpperCase()).join("-")}`,
+      sku: `${form.sku || "PROD"}-${combo.map((a) => (a.value || "").slice(0, 3).toUpperCase()).join("-")}`,
       price: form.price,
       stock: 0,
       stockStatus: "out_of_stock",
       attributes: combo,
     }));
-    setForm((prev) => ({ ...prev, variations }));
+    setForm((prev) => ({ ...prev, type: "variable", variations }));
     addToast(`${variations.length} variation(s) generated successfully!`);
   }
 
@@ -579,13 +581,13 @@ export default function ProductFormPage({ params }: { params: Promise<{ id: stri
             </div>
           </SectionCard>
 
-          {/* Attributes & Variations (Variable products) */}
-          {form.type === "variable" && (
+          {/* Attributes & Variations (Variable products or any product with attributes/variations) */}
+          {(form.type === "variable" || form.variations.length > 0 || Object.keys(form.attributes).length > 0) && (
             <SectionCard title="Attributes & Variations">
-              {/* Add attribute */}
-              <div className="flex gap-2 mb-4">
+              {/* Add attribute dropdown + custom attribute name */}
+              <div className="flex flex-col sm:flex-row gap-2 mb-4">
                 <select value={activeAttr} onChange={(e) => setActiveAttr(e.target.value)} className={`${selectCls} flex-1`}>
-                  <option value="">Select an attribute to add…</option>
+                  <option value="">Select an existing attribute…</option>
                   {allAttrs.filter((a) => !form.attributes[a.name]).map((a) => (
                     <option key={a.id} value={a.name}>{a.name}</option>
                   ))}
@@ -593,19 +595,50 @@ export default function ProductFormPage({ params }: { params: Promise<{ id: stri
                 <Btn size="sm" variant="secondary" onClick={() => {
                   if (activeAttr) { addAttributeValues(activeAttr, []); setActiveAttr(""); }
                 }}>Add</Btn>
+
+                <div className="flex gap-2 flex-1">
+                  <input
+                    type="text"
+                    value={customAttrName}
+                    onChange={(e) => setCustomAttrName(e.target.value)}
+                    placeholder="Or type custom attribute name..."
+                    className="w-full px-3 py-1.5 border border-stone/30 rounded-sm bg-paper text-sm text-ink focus:outline-none focus:ring-1 focus:ring-indigo/40"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        const trimmed = customAttrName.trim();
+                        if (trimmed && !form.attributes[trimmed]) {
+                          addAttributeValues(trimmed, []);
+                          setCustomAttrName("");
+                        }
+                      }
+                    }}
+                  />
+                  <Btn size="sm" variant="secondary" onClick={() => {
+                    const trimmed = customAttrName.trim();
+                    if (trimmed && !form.attributes[trimmed]) {
+                      addAttributeValues(trimmed, []);
+                      setCustomAttrName("");
+                    }
+                  }}>Add Custom</Btn>
+                </div>
               </div>
 
               {Object.entries(form.attributes).map(([attrName, vals]) => {
-                const attrDef = allAttrs.find((a) => a.name === attrName);
+                const attrDef = allAttrs.find((a) => a.name.toLowerCase() === attrName.toLowerCase());
+                // Combine predefined values with any selected/custom values for this attribute
+                const availableValues = Array.from(new Set([...(attrDef?.values || []), ...(vals || [])]));
+
                 return (
-                  <div key={attrName} className="border border-stone/20 rounded-sm p-4 mb-3">
+                  <div key={attrName} className="border border-stone/20 rounded-sm p-4 mb-3 bg-stone/5">
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-sm font-semibold text-ink">{attrName}</span>
                       <button onClick={() => removeAttribute(attrName)} className="text-xs text-madder hover:underline">Remove</button>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      {attrDef?.values.map((v) => (
-                        <label key={v} className="flex items-center gap-1.5 text-sm cursor-pointer">
+
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {availableValues.map((v) => (
+                        <label key={v} className="flex items-center gap-1.5 text-xs bg-paper border border-stone/20 px-2.5 py-1 rounded-sm cursor-pointer hover:border-indigo/50">
                           <input
                             type="checkbox"
                             checked={vals.includes(v)}
@@ -619,6 +652,40 @@ export default function ProductFormPage({ params }: { params: Promise<{ id: stri
                         </label>
                       ))}
                     </div>
+
+                    {/* Quick add custom value to this attribute */}
+                    <div className="flex items-center gap-2 pt-2 border-t border-stone/10">
+                      <input
+                        type="text"
+                        placeholder={`+ Add value to ${attrName} (e.g. XL, Red)...`}
+                        value={newValueInput[attrName] || ""}
+                        onChange={(e) => setNewValueInput((prev) => ({ ...prev, [attrName]: e.target.value }))}
+                        className="px-2 py-1 border border-stone/30 rounded-sm bg-paper text-xs text-ink focus:outline-none focus:ring-1 focus:ring-indigo/40 w-56"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            const val = (newValueInput[attrName] || "").trim();
+                            if (val && !vals.includes(val)) {
+                              addAttributeValues(attrName, [...vals, val]);
+                              setNewValueInput((prev) => ({ ...prev, [attrName]: "" }));
+                            }
+                          }
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const val = (newValueInput[attrName] || "").trim();
+                          if (val && !vals.includes(val)) {
+                            addAttributeValues(attrName, [...vals, val]);
+                            setNewValueInput((prev) => ({ ...prev, [attrName]: "" }));
+                          }
+                        }}
+                        className="px-2.5 py-1 bg-paper border border-stone/30 rounded-sm text-xs font-medium text-ink hover:bg-stone/10"
+                      >
+                        Add Value
+                      </button>
+                    </div>
                   </div>
                 );
               })}
@@ -626,7 +693,7 @@ export default function ProductFormPage({ params }: { params: Promise<{ id: stri
               {Object.keys(form.attributes).length > 0 && (() => {
                 const totalSelected = Object.values(form.attributes).reduce((s, v) => s + v.length, 0);
                 return (
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-3 mt-4 pt-3 border-t border-stone/20">
                     <Btn
                       size="sm"
                       variant="secondary"
@@ -635,64 +702,118 @@ export default function ProductFormPage({ params }: { params: Promise<{ id: stri
                     >
                       Generate Variations
                     </Btn>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newVar: Variation = {
+                          id: uuidv4(),
+                          sku: `${form.sku || "PROD"}-VAR-${form.variations.length + 1}`,
+                          price: form.price,
+                          stock: 0,
+                          stockStatus: "out_of_stock",
+                          attributes: [{ name: "Variant", value: `Option ${form.variations.length + 1}` }],
+                        };
+                        setForm((prev) => ({ ...prev, type: "variable", variations: [...prev.variations, newVar] }));
+                      }}
+                      className="text-xs text-indigo hover:underline flex items-center gap-1 font-medium"
+                    >
+                      + Add Single Variation Manually
+                    </button>
                     {totalSelected === 0 && (
-                      <span className="text-xs text-stone">Select values above (checkboxes) first</span>
+                      <span className="text-xs text-stone">Select attribute values above (checkboxes) to generate combinations</span>
                     )}
                     {totalSelected > 0 && (
-                      <span className="text-xs text-stone">{totalSelected} value(s) selected</span>
+                      <span className="text-xs text-stone font-medium">{totalSelected} value(s) selected</span>
                     )}
                   </div>
                 );
               })()}
 
               {form.variations.length > 0 && (
-                <div className="mt-4">
-                  <p className="text-xs text-stone mb-2 uppercase tracking-wide font-semibold">{form.variations.length} variations</p>
+                <div className="mt-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-xs text-stone uppercase tracking-wide font-semibold">{form.variations.length} variations active</p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (confirm("Are you sure you want to clear all variations?")) {
+                          set("variations", []);
+                        }
+                      }}
+                      className="text-xs text-madder hover:underline"
+                    >
+                      Clear All Variations
+                    </button>
+                  </div>
                   <div className="space-y-3">
-                    {form.variations.map((v, i) => (
-                      <div key={v.id} className="border border-stone/20 rounded-sm p-3 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                        <div>
-                          <p className="text-[10px] text-stone uppercase tracking-wide mb-1">Variant</p>
-                          <p className="font-medium text-ink">{v.attributes.map((a) => a.value).join(" / ")}</p>
+                    {form.variations.map((v, i) => {
+                      const variantLabel = Array.isArray(v.attributes)
+                        ? v.attributes.map((a) => (typeof a === "string" ? a : a?.value || a?.name || JSON.stringify(a))).filter(Boolean).join(" / ")
+                        : typeof v.attributes === "object" && v.attributes !== null
+                          ? Object.entries(v.attributes).map(([k, val]) => `${k}: ${val}`).join(" / ")
+                          : `Variant ${i + 1}`;
+
+                      return (
+                        <div key={v.id || i} className="border border-stone/20 rounded-sm p-3 grid grid-cols-2 md:grid-cols-5 gap-3 text-sm items-center bg-paper shadow-xs">
+                          <div>
+                            <p className="text-[10px] text-stone uppercase tracking-wide mb-1 font-semibold">Variant</p>
+                            <p className="font-semibold text-ink text-xs">{variantLabel || `Variant ${i + 1}`}</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-stone uppercase tracking-wide mb-1">SKU</p>
+                            <input
+                              value={v.sku || ""}
+                              onChange={(e) => {
+                                const vars = [...form.variations];
+                                vars[i] = { ...vars[i], sku: e.target.value };
+                                set("variations", vars);
+                              }}
+                              className="w-full px-2 py-1 border border-stone/30 rounded-sm bg-paper text-xs focus:outline-none focus:ring-1 focus:ring-madder/40"
+                            />
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-stone uppercase tracking-wide mb-1">Price (₹)</p>
+                            <input
+                              type="number"
+                              value={v.price ?? form.price}
+                              onChange={(e) => {
+                                const vars = [...form.variations];
+                                vars[i] = { ...vars[i], price: Number(e.target.value) };
+                                set("variations", vars);
+                              }}
+                              className="w-full px-2 py-1 border border-stone/30 rounded-sm bg-paper text-xs focus:outline-none focus:ring-1 focus:ring-madder/40"
+                            />
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-stone uppercase tracking-wide mb-1">Stock</p>
+                            <input
+                              type="number"
+                              value={v.stock ?? 0}
+                              onChange={(e) => {
+                                const vars = [...form.variations];
+                                const stockVal = Number(e.target.value);
+                                vars[i] = { ...vars[i], stock: stockVal, stockStatus: stockVal > 0 ? "in_stock" : "out_of_stock" };
+                                set("variations", vars);
+                              }}
+                              className="w-full px-2 py-1 border border-stone/30 rounded-sm bg-paper text-xs focus:outline-none focus:ring-1 focus:ring-madder/40"
+                            />
+                          </div>
+                          <div className="flex justify-end items-center">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const vars = form.variations.filter((_, idx) => idx !== i);
+                                set("variations", vars);
+                              }}
+                              className="text-xs text-madder hover:underline px-2 py-1 border border-madder/20 rounded-sm hover:bg-madder/5"
+                              title="Delete this variation"
+                            >
+                              Delete
+                            </button>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-[10px] text-stone uppercase tracking-wide mb-1">SKU</p>
-                          <input
-                            value={v.sku}
-                            onChange={(e) => {
-                              const vars = [...form.variations];
-                              vars[i] = { ...vars[i], sku: e.target.value };
-                              set("variations", vars);
-                            }}
-                            className="w-full px-2 py-1 border border-stone/30 rounded-sm bg-paper text-xs focus:outline-none focus:ring-1 focus:ring-madder/40"
-                          />
-                        </div>
-                        <div>
-                          <p className="text-[10px] text-stone uppercase tracking-wide mb-1">Price (₹)</p>
-                          <input
-                            type="number" value={v.price}
-                            onChange={(e) => {
-                              const vars = [...form.variations];
-                              vars[i] = { ...vars[i], price: Number(e.target.value) };
-                              set("variations", vars);
-                            }}
-                            className="w-full px-2 py-1 border border-stone/30 rounded-sm bg-paper text-xs focus:outline-none focus:ring-1 focus:ring-madder/40"
-                          />
-                        </div>
-                        <div>
-                          <p className="text-[10px] text-stone uppercase tracking-wide mb-1">Stock</p>
-                          <input
-                            type="number" value={v.stock}
-                            onChange={(e) => {
-                              const vars = [...form.variations];
-                              vars[i] = { ...vars[i], stock: Number(e.target.value), stockStatus: Number(e.target.value) > 0 ? "in_stock" : "out_of_stock" };
-                              set("variations", vars);
-                            }}
-                            className="w-full px-2 py-1 border border-stone/30 rounded-sm bg-paper text-xs focus:outline-none focus:ring-1 focus:ring-madder/40"
-                          />
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}

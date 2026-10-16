@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Heart, Share2, Minus, Plus, ChevronDown, ChevronUp, RotateCcw, Search, ShoppingCart, Gift, ShieldCheck, X, Layers, Hash, Stamp, Ruler, Package, Leaf, Droplets, Lock, HandHeart, type LucideIcon } from "lucide-react";
 import ProductCard from "./ProductCard";
@@ -24,8 +24,102 @@ const SPEC_ICONS: Record<string, LucideIcon> = {
 export default function ProductClient({ p, story, makers }: { p: Product; story?: React.ReactNode; makers?: React.ReactNode }) {
   const [img, setImg] = useState(0);
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
-  const [size, setSize] = useState(p.sizes[1] || p.sizes[0] || "");
-  const [color, setColor] = useState(p.colors[0] || "");
+
+  // Extract all variation attributes safely across variations
+  const variationAttributeMap = useMemo(() => {
+    if (!p.variations || !Array.isArray(p.variations) || p.variations.length === 0) return {};
+    const map: Record<string, string[]> = {};
+    for (const v of p.variations) {
+      if (Array.isArray(v.attributes)) {
+        for (const a of v.attributes) {
+          if (a?.name && a?.value) {
+            const k = a.name.trim();
+            const val = String(a.value).trim();
+            if (!map[k]) map[k] = [];
+            if (!map[k].includes(val)) map[k].push(val);
+          }
+        }
+      } else if (typeof v.attributes === "object" && v.attributes !== null) {
+        for (const [k, val] of Object.entries(v.attributes)) {
+          if (k && val) {
+            const key = k.trim();
+            const strVal = String(val).trim();
+            if (!map[key]) map[key] = [];
+            if (!map[key].includes(strVal)) map[key].push(strVal);
+          }
+        }
+      }
+    }
+    return map;
+  }, [p.variations]);
+
+  const sizeKey = useMemo(() => Object.keys(variationAttributeMap).find((k) => k.toLowerCase().includes("size")), [variationAttributeMap]);
+  const colorKey = useMemo(() => Object.keys(variationAttributeMap).find((k) => k.toLowerCase().includes("color")), [variationAttributeMap]);
+
+  const allSizes = useMemo(() => {
+    if (p.sizes && p.sizes.length > 0) return p.sizes;
+    if (sizeKey && variationAttributeMap[sizeKey]?.length > 0) return variationAttributeMap[sizeKey];
+    return [];
+  }, [p.sizes, sizeKey, variationAttributeMap]);
+
+  const allColors = useMemo(() => {
+    if (p.colors && p.colors.length > 0) return p.colors;
+    if (colorKey && variationAttributeMap[colorKey]?.length > 0) return variationAttributeMap[colorKey];
+    return [];
+  }, [p.colors, colorKey, variationAttributeMap]);
+
+  // Other custom attributes that are neither size nor color
+  const otherAttributes = useMemo(() => {
+    return Object.entries(variationAttributeMap).filter(([k]) => {
+      const lower = k.toLowerCase();
+      return !lower.includes("size") && !lower.includes("color");
+    });
+  }, [variationAttributeMap]);
+
+  const [size, setSize] = useState(() => (allSizes[1] || allSizes[0] || ""));
+  const [color, setColor] = useState(() => (allColors[0] || ""));
+  const [selectedCustomAttrs, setSelectedCustomAttrs] = useState<Record<string, string>>(() => {
+    const init: Record<string, string> = {};
+    for (const [k, vals] of otherAttributes) {
+      if (vals.length > 0) init[k] = vals[0];
+    }
+    return init;
+  });
+
+  // Find matching variation based on size, color, and selected custom attributes
+  const matchingVariation = useMemo(() => {
+    if (!p.variations || !Array.isArray(p.variations) || p.variations.length === 0) return null;
+    return (
+      p.variations.find((v) => {
+        if (!v.attributes) return false;
+        if (Array.isArray(v.attributes)) {
+          return v.attributes.every((a) => {
+            const nameLower = (a.name || "").toLowerCase();
+            if (nameLower.includes("size") && size) return a.value?.toLowerCase() === size.toLowerCase();
+            if (nameLower.includes("color") && color) return a.value?.toLowerCase() === color.toLowerCase();
+            if (selectedCustomAttrs[a.name]) return a.value?.toLowerCase() === selectedCustomAttrs[a.name].toLowerCase();
+            return true;
+          });
+        } else if (typeof v.attributes === "object" && v.attributes !== null) {
+          return Object.entries(v.attributes).every(([k, val]) => {
+            const nameLower = k.toLowerCase();
+            if (nameLower.includes("size") && size) return String(val).toLowerCase() === size.toLowerCase();
+            if (nameLower.includes("color") && color) return String(val).toLowerCase() === color.toLowerCase();
+            if (selectedCustomAttrs[k]) return String(val).toLowerCase() === selectedCustomAttrs[k].toLowerCase();
+            return true;
+          });
+        }
+        return false;
+      }) || p.variations[0]
+    );
+  }, [p.variations, size, color, selectedCustomAttrs]);
+
+  const currentPrice = matchingVariation ? (matchingVariation.salePrice || matchingVariation.price || p.price) : p.price;
+  const currentOldPrice = matchingVariation ? (matchingVariation.salePrice ? matchingVariation.price : (p.oldPrice || p.price)) : p.oldPrice;
+  const currentDiscount = currentOldPrice > currentPrice ? Math.round(((currentOldPrice - currentPrice) / currentOldPrice) * 100) : 0;
+  const isOutOfStock = matchingVariation ? (matchingVariation.stockStatus === "out_of_stock" || matchingVariation.stock <= 0) : (p.badge === "SOLD OUT");
+  const lowStockCount = matchingVariation ? (matchingVariation.stock > 0 && matchingVariation.stock <= 5 ? matchingVariation.stock : undefined) : p.lowStock;
+
   const [qty, setQtyLocal] = useState(1);
   const [pincode, setPincode] = useState("");
   const [pincodeStatus, setPincodeStatus] = useState<string | null>(null);
@@ -35,7 +129,8 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
   const [addedQty, setAddedQty] = useState(0);
   const [shareMsg, setShareMsg] = useState("");
   const addToCart = () => {
-    for (let i = 0; i < qty; i++) add(p, size, color);
+    const productToAdd = matchingVariation ? { ...p, price: currentPrice, oldPrice: currentOldPrice } : p;
+    for (let i = 0; i < qty; i++) add(productToAdd, size, color);
     setAddedQty(qty);
   };
   const share = async () => {
@@ -460,22 +555,34 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
 
             {/* Price Row */}
             <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 4 }}>
-              <span style={{ fontSize: 24, fontWeight: 800, color: "#1c1917" }}>₹{p.price.toLocaleString("en-IN")}</span>
-              {p.oldPrice > p.price && (
+              <span style={{ fontSize: 24, fontWeight: 800, color: "#1c1917" }}>₹{currentPrice.toLocaleString("en-IN")}</span>
+              {currentOldPrice > currentPrice && (
                 <>
-                  <span style={{ fontSize: 14, color: "#888", textDecoration: "line-through" }}>₹{p.oldPrice.toLocaleString("en-IN")}</span>
-                  <span style={{ fontSize: 12, fontWeight: 800, color: "#c83232" }}>{p.discount}% OFF</span>
+                  <span style={{ fontSize: 14, color: "#888", textDecoration: "line-through" }}>₹{currentOldPrice.toLocaleString("en-IN")}</span>
+                  {currentDiscount > 0 && (
+                    <span style={{ fontSize: 12, fontWeight: 800, color: "#c83232" }}>{currentDiscount}% OFF</span>
+                  )}
                 </>
               )}
             </div>
             <div className="pdp-price-note">
-              {p.oldPrice > p.price && <span className="pdp-save">You save ₹{(p.oldPrice - p.price).toLocaleString("en-IN")}</span>}
+              {currentOldPrice > currentPrice && <span className="pdp-save">You save ₹{(currentOldPrice - currentPrice).toLocaleString("en-IN")}</span>}
               <span>Inclusive of all taxes</span>
             </div>
-            {p.lowStock && p.badge !== "SOLD OUT" && (
+            {isOutOfStock ? (
+              <div style={{ color: "#c83232", fontSize: 12, fontWeight: 700, margin: "6px 0 10px" }}>
+                Currently Out of Stock
+              </div>
+            ) : lowStockCount ? (
               <div className="pdp-low">
                 <i aria-hidden="true" />
-                Only {p.lowStock} left in stock
+                Only {lowStockCount} left in stock
+              </div>
+            ) : null}
+
+            {matchingVariation?.sku && (
+              <div style={{ fontSize: 11, color: "#888", margin: "4px 0 12px" }}>
+                SKU: <span style={{ fontWeight: 600, color: "#444" }}>{matchingVariation.sku}</span>
               </div>
             )}
 
@@ -498,7 +605,7 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
             )}
 
             {/* Select Size */}
-            {p.sizes.length > 0 && <div style={{ marginBottom: 20 }}>
+            {allSizes.length > 0 && <div style={{ marginBottom: 20 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
                 <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: "1px", textTransform: "uppercase", color: "#1c1917" }}>
                   SELECT SIZE
@@ -510,7 +617,7 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
                 )}
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-                {p.sizes.map((s) => (
+                {allSizes.map((s) => (
                   <button
                     key={s}
                     type="button"
@@ -533,12 +640,12 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
             </div>}
 
             {/* Select Color */}
-            {p.colors.length > 0 && <div style={{ marginBottom: 20 }}>
+            {allColors.length > 0 && <div style={{ marginBottom: 20 }}>
               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "1px", textTransform: "uppercase", color: "#1c1917", marginBottom: 10 }}>
                 SELECT COLOR: <span style={{ fontWeight: 600, color: "#a67c37", textTransform: "none" }}>{color}</span>
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-                {p.colors.map((c, i) => (
+                {allColors.map((c, i) => (
                   <button
                     key={c}
                     type="button"
@@ -559,6 +666,79 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
                 ))}
               </div>
             </div>}
+
+            {/* Custom Attributes (e.g. Pack, Fabric, Type) */}
+            {otherAttributes.map(([attrName, vals]) => (
+              <div key={attrName} style={{ marginBottom: 20 }}>
+                <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "1px", textTransform: "uppercase", color: "#1c1917", marginBottom: 10 }}>
+                  SELECT {attrName.toUpperCase()}: <span style={{ fontWeight: 600, color: "#a67c37", textTransform: "none" }}>{selectedCustomAttrs[attrName] || vals[0]}</span>
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+                  {vals.map((v) => {
+                    const active = (selectedCustomAttrs[attrName] || vals[0]) === v;
+                    return (
+                      <button
+                        key={v}
+                        type="button"
+                        onClick={() => setSelectedCustomAttrs((prev) => ({ ...prev, [attrName]: v }))}
+                        style={{
+                          padding: "8px 18px",
+                          fontSize: 12,
+                          fontWeight: 600,
+                          border: active ? "1.5px solid #1c1917" : "1px solid #d4cdbf",
+                          background: active ? "#faf6f0" : "#ffffff",
+                          color: "#1c1917",
+                          borderRadius: 4,
+                          cursor: "pointer",
+                        }}
+                      >
+                        {v}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+
+            {/* Fallback Variation Selector if no individual attributes detected */}
+            {allSizes.length === 0 && allColors.length === 0 && otherAttributes.length === 0 && p.variations && p.variations.length > 0 && (
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "1px", textTransform: "uppercase", color: "#1c1917", marginBottom: 10 }}>
+                  SELECT OPTION
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+                  {p.variations.map((v, i) => {
+                    const label = Array.isArray(v.attributes)
+                      ? v.attributes.map((a) => a.value).filter(Boolean).join(" / ")
+                      : v.sku || `Option ${i + 1}`;
+                    const active = matchingVariation?.id === v.id;
+                    return (
+                      <button
+                        key={v.id || i}
+                        type="button"
+                        onClick={() => {
+                          if (Array.isArray(v.attributes) && v.attributes[0]) {
+                            setSize(v.attributes[0].value);
+                          }
+                        }}
+                        style={{
+                          padding: "8px 18px",
+                          fontSize: 12,
+                          fontWeight: 600,
+                          border: active ? "1.5px solid #1c1917" : "1px solid #d4cdbf",
+                          background: active ? "#faf6f0" : "#ffffff",
+                          color: "#1c1917",
+                          borderRadius: 4,
+                          cursor: "pointer",
+                        }}
+                      >
+                        {label || `Option ${i + 1}`} — ₹{(v.salePrice || v.price).toLocaleString("en-IN")}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Quantity */}
             <div style={{ marginBottom: 24 }}>
@@ -590,11 +770,11 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
             <div ref={buyRef} style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
               <button
                 type="button"
-                disabled={p.badge === "SOLD OUT"}
+                disabled={isOutOfStock}
                 onClick={addToCart}
                 style={{
                   width: "100%",
-                  background: "#a67c37",
+                  background: isOutOfStock ? "#a8a29e" : "#a67c37",
                   color: "#ffffff",
                   border: 0,
                   padding: "15px 20px",
@@ -603,20 +783,20 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
                   letterSpacing: "1px",
                   textTransform: "uppercase",
                   borderRadius: 4,
-                  cursor: "pointer",
+                  cursor: isOutOfStock ? "not-allowed" : "pointer",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   gap: 8,
                   transition: "background 0.2s ease"
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "#8e682c")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "#a67c37")}
+                onMouseEnter={(e) => { if (!isOutOfStock) e.currentTarget.style.background = "#8e682c"; }}
+                onMouseLeave={(e) => { if (!isOutOfStock) e.currentTarget.style.background = "#a67c37"; }}
               >
-                <ShoppingCart size={16} /> {p.badge === "SOLD OUT" ? "SOLD OUT" : "ADD TO CART"}
+                <ShoppingCart size={16} /> {isOutOfStock ? "OUT OF STOCK" : "ADD TO CART"}
               </button>
 
-              {p.badge !== "SOLD OUT" && (
+              {!isOutOfStock && (
                 // One tap to Shiprocket's checkout for just this item; the cart is left as it is.
                 <ShiprocketCheckoutButton
                   label="BUY IT NOW"
