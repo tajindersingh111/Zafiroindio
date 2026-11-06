@@ -3,6 +3,8 @@ import { getInvoiceByOrderId, getAllInvoices } from "@/lib/db/invoices";
 import { readCollection } from "@/lib/db/store";
 import { getAuthSession } from "@/lib/auth/rbac";
 import { getCheckoutSession } from "@/lib/orders/checkout-session";
+import { getPaymentSession } from "@/lib/checkout/session";
+import { getCustomerSession } from "@/lib/auth/customer";
 import { orderMatchesContact } from "@/lib/orders/contact";
 import { rateLimit } from "@/lib/security/rate-limit";
 import type { Order } from "@/lib/db/types";
@@ -33,9 +35,19 @@ export async function GET(
   if (!allowed) {
     const ref = request.nextUrl.searchParams.get("ref");
     if (ref) {
+      // Shiprocket checkout, or our own Razorpay / COD checkout — both issue a 192-bit ref.
       const cs = await getCheckoutSession(ref);
       if (cs && cs.orderId === order.id) allowed = true;
+      if (!allowed) {
+        const ps = await getPaymentSession(ref);
+        if (ps && ps.orderId === order.id) allowed = true;
+      }
     }
+  }
+  if (!allowed) {
+    // A signed-in shopper may always download the invoice for their own order.
+    const signedIn = await getCustomerSession();
+    if (signedIn && order.customerId && signedIn.customer.id === order.customerId) allowed = true;
   }
   if (!allowed) {
     const contact = request.nextUrl.searchParams.get("contact");

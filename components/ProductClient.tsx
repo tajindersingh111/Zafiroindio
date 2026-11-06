@@ -7,7 +7,7 @@ import ProductCard from "./ProductCard";
 import type { Product } from "@/lib/data";
 import { useCatalog } from "@/lib/storefront/useCatalog";
 import { useStore } from "./StoreProvider";
-import ShiprocketCheckoutButton from "./ShiprocketCheckoutButton";
+import CheckoutButton from "./CheckoutButton";
 import { img as optimizedImg, imgSrcSet, fallbackToOriginal } from "@/lib/img";
 
 const SPEC_ICONS: Record<string, LucideIcon> = {
@@ -797,8 +797,8 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
               </button>
 
               {!isOutOfStock && (
-                // One tap to Shiprocket's checkout for just this item; the cart is left as it is.
-                <ShiprocketCheckoutButton
+                // One tap to checkout for just this item; the cart is left as it is.
+                <CheckoutButton
                   label="BUY IT NOW"
                   items={[{ productId: p.slug, qty, size, color }]}
                   source="buy-now"
@@ -1198,7 +1198,7 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
               <span>Cart subtotal ({cartCount} {cartCount === 1 ? "item" : "items"})</span>
               <strong>₹{subtotal.toLocaleString("en-IN")}</strong>
             </div>
-            <ShiprocketCheckoutButton label="CHECKOUT NOW" className="btn-buy-now" source="cart" onBeforeStart={() => setAddedQty(0)} />
+            <CheckoutButton label="CHECKOUT NOW" className="btn-buy-now" source="cart" onBeforeStart={() => setAddedQty(0)} />
             <div className="pdp-added-links">
               <Link href="/cart">View cart</Link>
               <button type="button" onClick={() => setAddedQty(0)}>Continue shopping</button>
@@ -1230,7 +1230,7 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
           <button type="button" className="pdp-sticky-add" tabIndex={showStickyBar ? 0 : -1} onClick={addToCart}>
             ADD TO CART
           </button>
-          <ShiprocketCheckoutButton
+          <CheckoutButton
             label="BUY NOW"
             items={[{ productId: p.slug, qty, size, color }]}
             source="buy-now"

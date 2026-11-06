@@ -30,6 +30,11 @@ export interface PricingResult {
   items: PricedLine[];
   subtotal: number;
   savings: number;
+  /**
+   * The product records the lines were priced from, keyed by product id. Checkout needs them for
+   * the per-product shipping / COD flags without loading the catalogue a second time.
+   */
+  productsById: Map<string, Product>;
 }
 
 export class CartError extends Error {
@@ -107,5 +112,10 @@ export async function priceCart(inputItems: PricingInputItem[]): Promise<Pricing
 
   const subtotal = lines.reduce((s, l) => s + l.total, 0);
   const savings = lines.reduce((s, l) => s + (l.mrp - l.price) * l.quantity, 0);
-  return { items: lines, subtotal, savings };
+  const productsById = new Map<string, Product>();
+  for (const line of lines) {
+    const product = byKey.get(line.productId);
+    if (product) productsById.set(product.id, product);
+  }
+  return { items: lines, subtotal, savings, productsById };
 }

@@ -14,6 +14,12 @@ type Store={
   toggleWish: (slug: string) => void;
   cartCount: number;
   subtotal: number;
+  /**
+   * False until the cart has been read back from localStorage. Anything that acts on an empty cart
+   * (checkout redirecting to /cart, for instance) must wait for this, or it fires on the first
+   * render when the cart only *looks* empty.
+   */
+  cartReady: boolean;
 };
 
 const C = createContext<Store | null>(null);
@@ -99,8 +105,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
    clearCart,
    toggleWish,
    cartCount:cart.reduce((a,x)=>a+x.qty,0),
-   subtotal:cart.reduce((a,x)=>a+x.product.price*x.qty,0)
- }),[cart,wishlist]);
+   subtotal:cart.reduce((a,x)=>a+x.product.price*x.qty,0),
+   cartReady:isLoaded
+ }),[cart,wishlist,isLoaded]);
 
  return <C.Provider value={value}>{children}</C.Provider>
 }

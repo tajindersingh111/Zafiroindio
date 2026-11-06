@@ -1,17 +1,48 @@
 "use client";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { X, Heart, Minus, Plus, Truck, ShieldCheck, RotateCcw } from "lucide-react";
 import { useStore } from "@/components/StoreProvider";
-import ShiprocketCheckoutButton from "@/components/ShiprocketCheckoutButton";
+import CheckoutButton from "@/components/CheckoutButton";
 import SmartRecommendations from "@/components/site/SmartRecommendations";
 import { img, fallbackToOriginal } from "@/lib/img";
 
-const FREE_SHIPPING_FROM = 999;
+/** Shown until the server answers, and if it cannot be reached. */
+const FREE_SHIPPING_FALLBACK = 2000;
 
 export default function Cart() {
-  const { cart, wishlist, subtotal, setQty, remove, toggleWish } = useStore();
+  const { cart, wishlist, subtotal, setQty, remove, toggleWish, cartReady } = useStore();
   const count = cart.reduce((a, x) => a + x.qty, 0);
-  const remaining = Math.max(0, FREE_SHIPPING_FROM - subtotal);
+
+  // Shipping, the free-shipping bar and the total now come from the same server calculation the
+  // checkout uses, so the cart cannot promise free shipping the checkout then charges for.
+  const [quote, setQuote] = useState<{ shippingCost: number; isFreeShipping: boolean; freeShippingThreshold: number; freeShippingRemaining: number; total: number } | null>(null);
+
+  const items = useMemo(
+    () => cart.map((x) => ({ productId: x.product.slug, qty: x.qty, size: x.size, color: x.color })),
+    [cart]
+  );
+
+  useEffect(() => {
+    if (!cartReady || !items.length) {
+      setQuote(null);
+      return;
+    }
+    const controller = new AbortController();
+    fetch("/api/checkout/quote", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ items, paymentMethod: "razorpay" }),
+      signal: controller.signal,
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => data?.quote && setQuote(data.quote))
+      .catch(() => {});
+    return () => controller.abort();
+  }, [cartReady, items]);
+
+  const freeShippingFrom = quote?.freeShippingThreshold ?? FREE_SHIPPING_FALLBACK;
+  const remaining = quote ? quote.freeShippingRemaining : Math.max(0, freeShippingFrom - subtotal);
 
   return (
     <main className="blockprint-bg">
@@ -43,7 +74,7 @@ export default function Cart() {
                   </strong>
                 )}
                 <div className="progress" style={{ marginTop: 10, marginBottom: 0 }}>
-                  <span style={{ width: `${Math.min(100, (subtotal / FREE_SHIPPING_FROM) * 100)}%` }} />
+                  <span style={{ width: `${Math.min(100, (subtotal / freeShippingFrom) * 100)}%` }} />
                 </div>
               </div>
 
@@ -85,7 +116,7 @@ export default function Cart() {
 
               <div className="trust-row" style={{ marginTop: 22 }}>
                 {[
-                  { icon: <Truck size={16} />, title: "Free shipping", sub: `On orders above ₹${FREE_SHIPPING_FROM}` },
+                  { icon: <Truck size={16} />, title: "Free shipping", sub: `On orders above ₹${freeShippingFrom.toLocaleString("en-IN")}` },
                   { icon: <RotateCcw size={16} />, title: "7-day exchange", sub: "Unboxing video required" },
                   { icon: <ShieldCheck size={16} />, title: "Secure payment", sub: "UPI, cards, netbanking & COD" },
                 ].map((b) => (
@@ -108,16 +139,22 @@ export default function Cart() {
               </div>
               <div className="summaryLine">
                 <span style={{ color: "var(--muted)" }}>Shipping</span>
-                <span style={{ color: "var(--muted)", fontSize: 12.5 }}>Calculated at checkout</span>
+                {quote ? (
+                  <span style={{ color: quote.isFreeShipping ? "var(--success)" : undefined }}>
+                    {quote.isFreeShipping || !quote.shippingCost ? "Free" : `₹${quote.shippingCost.toLocaleString("en-IN")}`}
+                  </span>
+                ) : (
+                  <span style={{ color: "var(--muted)", fontSize: 12.5 }}>Calculated at checkout</span>
+                )}
               </div>
               <div className="summaryLine" style={{ fontWeight: 700, fontSize: 18, marginTop: 8, paddingTop: 14, borderTop: "1px solid var(--line)" }}>
                 <span>Estimated total</span>
-                <span>₹{subtotal.toLocaleString("en-IN")}</span>
+                <span>₹{(quote?.total ?? subtotal).toLocaleString("en-IN")}</span>
               </div>
               <p style={{ fontSize: 12, color: "var(--muted)", margin: "10px 0 18px" }}>
-                Coupon codes, delivery address and payment are handled on the next secure step. Final prices are confirmed there.
+                Coupon codes, delivery address and payment are handled on the next secure step.
               </p>
-              <ShiprocketCheckoutButton />
+              <CheckoutButton />
               <Link href="/shop" style={{ display: "block", textAlign: "center", fontSize: 12, color: "var(--muted)", marginTop: 14, textDecoration: "underline" }}>
                 Continue shopping
               </Link>

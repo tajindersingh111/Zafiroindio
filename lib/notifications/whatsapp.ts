@@ -15,13 +15,19 @@ type WhatsAppSettings = {
   whatsappTemplateLang?: string;
   /** Meta only: approved "order shipped" template ({{1}} name, {{2}} order number, {{3}} tracking link). */
   whatsappShippedTemplateName?: string;
+  /**
+   * Meta only: approved template in the **authentication** category, used for login OTPs.
+   * Authentication templates are the only way Meta will deliver a code outside a 24h support
+   * window, so without this name OTP login over WhatsApp is switched off.
+   */
+  whatsappOtpTemplateName?: string;
   whatsappOrderConfirm?: boolean;
   whatsappOrderShipped?: boolean;
 };
 
 export interface WhatsAppLogEntry {
   id: string;
-  event: "ORDER_CONFIRMED" | "ORDER_SHIPPED" | "TEST";
+  event: "ORDER_CONFIRMED" | "ORDER_SHIPPED" | "TEST" | "LOGIN_OTP";
   provider: string;
   to: string;
   orderId?: string;
@@ -32,8 +38,11 @@ export interface WhatsAppLogEntry {
 }
 
 type SendResult = { ok: true } | { ok: false; error: string };
-/** `template` is the Meta template to use; without one Meta gets the plain text. */
-type Message = { text: string; template?: string; templateParams: string[] };
+/**
+ * `template` is the Meta template to use; without one Meta gets the plain text.
+ * `otpCode` switches the Meta payload to the authentication-template shape (see send()).
+ */
+type Message = { text: string; template?: string; templateParams: string[]; otpCode?: string };
 
 const GRAPH_VERSION = process.env.WHATSAPP_GRAPH_VERSION || "v23.0";
 const TIMEOUT_MS = 10_000;
@@ -101,15 +110,26 @@ async function send(s: WhatsAppSettings, to: string, msg: Message): Promise<Send
   switch (s.whatsappProvider || "meta") {
     case "meta": {
       const template = msg.template?.trim();
+      // Authentication templates carry the code in the body AND in the copy-code button, which
+      // Meta requires to be addressed as sub_type "url" at index "0" when sending (the button is
+      // declared as type OTP at creation time, but WhatsApp stores it as a URL button).
+      const components = msg.otpCode
+        ? [
+            { type: "body", parameters: [{ type: "text", text: msg.otpCode }] },
+            { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: msg.otpCode }] },
+          ]
+        : [{ type: "body", parameters: msg.templateParams.map((text) => ({ type: "text", text })) }];
+
       const payload = template
         ? {
             messaging_product: "whatsapp",
+            recipient_type: "individual",
             to,
             type: "template",
             template: {
               name: template,
               language: { code: s.whatsappTemplateLang?.trim() || "en" },
-              components: [{ type: "body", parameters: msg.templateParams.map((text) => ({ type: "text", text })) }],
+              components,
             },
           }
         : { messaging_product: "whatsapp", to, type: "text", text: { body: msg.text, preview_url: false } };
@@ -184,6 +204,41 @@ export async function sendOrderConfirmationWhatsApp(order: Order): Promise<void>
  */
 export async function sendOrderShippedWhatsApp(order: Order): Promise<void> {
   await notifyCustomer("ORDER_SHIPPED", order, (s) => s.whatsappOrderShipped !== false, (s, store) => shippedMessage(order, store, s.whatsappShippedTemplateName));
+}
+
+/**
+ * Sends a login OTP over WhatsApp. Returns the provider's answer so the sign-in route can tell the
+ * shopper that delivery failed instead of leaving them waiting for a code that never arrives.
+ *
+ * The code is never written to the WhatsApp log — only the number it went to.
+ */
+export async function sendLoginOtpWhatsApp(rawTo: string, code: string): Promise<SendResult> {
+  const s = (await readSettings<WhatsAppSettings>("settings").catch(() => null)) ?? {};
+  const to = normalizeWhatsAppNumber(rawTo);
+  if (!to) return { ok: false, error: "Enter a valid mobile number." };
+  if (!s.whatsappToken?.trim() || !s.whatsappPhoneId?.trim()) {
+    return { ok: false, error: "WhatsApp is not configured in Admin → Settings." };
+  }
+
+  const provider = s.whatsappProvider || "meta";
+  const otpTemplate = s.whatsappOtpTemplateName?.trim();
+  if (provider === "meta" && !otpTemplate) {
+    // Meta will not deliver a plain text message to someone who has not written to us in the last
+    // 24 hours, so sending one here would silently fail for almost every shopper.
+    return { ok: false, error: "No WhatsApp OTP template configured. Add an approved authentication template in Admin → Settings." };
+  }
+
+  const storeName = s.storeName?.trim() || "Zafiro Indio";
+  const result = await send(s, to, {
+    text: `${code} is your ${storeName} verification code. It expires in 5 minutes. Do not share it with anyone.`,
+    template: otpTemplate,
+    templateParams: [code],
+    otpCode: code,
+  });
+
+  if (!result.ok) console.error("[whatsapp] login OTP failed:", result.error);
+  await log({ event: "LOGIN_OTP", provider, to, status: result.ok ? "SENT" : "FAILED", error: result.ok ? undefined : result.error });
+  return result;
 }
 
 /** Admin → Settings "Send test message": uses the saved settings, reports the provider's answer. */

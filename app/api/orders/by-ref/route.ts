@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCheckoutSession, linkShiprocketOrder } from "@/lib/orders/checkout-session";
 import { confirmLookedUpOrder, lookupShiprocketOrder, orderBelongsToSession } from "@/lib/orders/confirm";
 import { isCheckoutConfigured } from "@/lib/shiprocket-checkout/client";
+import { getPaymentSession } from "@/lib/checkout/session";
+import { confirmByRazorpayLookup } from "@/lib/checkout/confirm";
+import { isRazorpayConfigured } from "@/lib/payments/razorpay";
 import { getDoc } from "@/lib/db/store";
 import { publicOrderView } from "@/lib/orders/contact";
 import { rateLimit } from "@/lib/security/rate-limit";
@@ -36,6 +39,28 @@ export async function GET(request: NextRequest) {
   const sp = request.nextUrl.searchParams;
   const ref = sp.get("ref") || "";
   const oid = (sp.get("oid") || "").trim().slice(0, 80);
+
+  // Our own checkout (Razorpay / COD) issues refs of the same shape; try it first.
+  const payment = await getPaymentSession(ref);
+  if (payment) {
+    if (payment.orderId) {
+      const order = await getDoc<Order>("orders", payment.orderId);
+      if (order) return ready(order, ref);
+    }
+    if (payment.status === "failed") return NextResponse.json({ status: "failed" }, { headers: NO_STORE });
+
+    // Paid but the handshake never reached us: ask Razorpay, at most once every few seconds.
+    const now = Date.now();
+    if (payment.razorpayOrderId && isRazorpayConfigured() && now - (lastLookup.get(ref) ?? 0) >= LOOKUP_EVERY_MS) {
+      lastLookup.set(ref, now);
+      if (lastLookup.size > 10_000) lastLookup.clear();
+      const result = await confirmByRazorpayLookup(payment);
+      if (result.status === "confirmed") return ready(result.order, ref);
+      if (result.status === "failed") return NextResponse.json({ status: "failed" }, { headers: NO_STORE });
+    }
+    return NextResponse.json({ status: "pending" }, { headers: NO_STORE });
+  }
+
   const session = await getCheckoutSession(ref);
   if (!session) return NextResponse.json({ error: "Order not found." }, { status: 404, headers: NO_STORE });
 
