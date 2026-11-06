@@ -17,6 +17,7 @@ interface Settings {
   whatsappTemplateName?: string;
   whatsappTemplateLang?: string;
   whatsappShippedTemplateName?: string;
+  whatsappOtpTemplateName?: string;
   whatsappOrderConfirm?: boolean;
   whatsappOrderShipped?: boolean;
   shiprocketCheckoutEnabled?: boolean;
@@ -50,6 +51,7 @@ export default function SettingsPage() {
         whatsappTemplateName: s.whatsappTemplateName ?? "",
         whatsappTemplateLang: s.whatsappTemplateLang ?? "en",
         whatsappShippedTemplateName: s.whatsappShippedTemplateName ?? "",
+        whatsappOtpTemplateName: s.whatsappOtpTemplateName ?? "",
         whatsappOrderConfirm: s.whatsappOrderConfirm !== undefined ? s.whatsappOrderConfirm : true,
         whatsappOrderShipped: s.whatsappOrderShipped !== undefined ? s.whatsappOrderShipped : true,
         shiprocketCheckoutEnabled: s.shiprocketCheckoutEnabled !== undefined ? s.shiprocketCheckoutEnabled : true,
@@ -288,10 +290,25 @@ export default function SettingsPage() {
                       className={inputCls}
                     />
                   </div>
+                  <div className="col-span-3">
+                    <label className="block text-xs font-semibold uppercase tracking-wide text-stone mb-1.5">Login OTP Template Name</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. login_code"
+                      value={settings.whatsappOtpTemplateName}
+                      onChange={(e) => set("whatsappOtpTemplateName", e.target.value)}
+                      className={inputCls}
+                    />
+                  </div>
                   <p className="col-span-3 text-[11px] leading-relaxed text-stone">
                     Meta only delivers business-started messages through an approved template. Create Utility templates in WhatsApp Manager
                     (same language): the order template&apos;s body uses {"{{1}}"} = customer name, {"{{2}}"} = order number, {"{{3}}"} = order total;
                     the shipped template&apos;s body uses {"{{1}}"} = customer name, {"{{2}}"} = order number, {"{{3}}"} = tracking link.
+                  </p>
+                  <p className="col-span-3 text-[11px] leading-relaxed text-stone">
+                    <strong>Login OTP</strong> is different: it must be an <strong>Authentication</strong>-category template with a
+                    &ldquo;Copy code&rdquo; button (body parameter = the code). Without this name, customers cannot sign in over WhatsApp —
+                    Meta will not deliver a plain text code. Each OTP is billed by Meta at the authentication rate.
                   </p>
                 </div>
               )}

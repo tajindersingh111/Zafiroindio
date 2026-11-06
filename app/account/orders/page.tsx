@@ -3,21 +3,24 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Package, ArrowRight } from "lucide-react";
-import type { Order } from "@/lib/db/types";
+import type { MyOrder } from "@/lib/account/orders";
 
 export default function CustomerOrdersPage() {
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<MyOrder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
+  // The signed-in shopper's own orders. This used to call /api/admin/orders, which is staff-only:
+  // it returned 401 for every shopper (so this page was always empty) and would have shown an
+  // admin every customer's orders.
   useEffect(() => {
-    fetch("/api/admin/orders?pageSize=50")
-      .then(res => res.json())
-      .then(data => {
-        if (data.orders) {
-          setOrders(data.orders);
-        }
+    fetch("/api/account/orders?limit=50", { cache: "no-store" })
+      .then(async (res) => {
+        if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || "We could not load your orders.");
+        return res.json();
       })
-      .catch(() => {})
+      .then((data) => setOrders(data.orders ?? []))
+      .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false));
   }, []);
 
@@ -58,6 +61,11 @@ export default function CustomerOrdersPage() {
 
         {loading ? (
           <div style={{ textAlign: "center", padding: "60px 0", color: "var(--muted)" }}>Loading your orders…</div>
+        ) : error ? (
+          <div role="alert" style={{ background: "var(--paper)", border: "1px solid var(--line)", borderRadius: 16, padding: 40, textAlign: "center" }}>
+            <p style={{ color: "var(--danger)", fontSize: 13.5, marginBottom: 16 }}>{error}</p>
+            <Link href="/login?next=/account/orders" className="btn gold">Sign in</Link>
+          </div>
         ) : orders.length === 0 ? (
           <div style={{ background: "var(--paper)", border: "1px solid var(--line)", borderRadius: 16, padding: 48, textAlign: "center" }}>
             <Package size={40} style={{ color: "var(--gold-dark)", marginBottom: 12 }} />

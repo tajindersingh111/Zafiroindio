@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Package, Truck, FileText, RotateCcw, Heart, ShieldCheck } from "lucide-react";
 import { useStore } from "@/components/StoreProvider";
+import { useAuth } from "@/components/AuthProvider";
 import { img } from "@/lib/img";
 import ReturnRequestForm from "@/components/ReturnRequestForm";
 
@@ -19,6 +20,7 @@ const label = (s: string) => s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUp
 
 export default function AccountPage() {
   const { wishlist } = useStore();
+  const { customer, loading: authLoading, signOut } = useAuth();
   const [orderNo, setOrderNo] = useState("");
   const [contact, setContact] = useState("");
   const [loading, setLoading] = useState(false);
@@ -78,6 +80,37 @@ export default function AccountPage() {
   return (
     <main className="blockprint-bg">
       <div className="container section" style={{ maxWidth: 860 }}>
+        {/* Signed in: go straight to the full order history instead of looking a single order up. */}
+        {!authLoading && customer && (
+          <div className="lux-card" style={{ padding: "20px 22px", marginBottom: 28, display: "flex", flexWrap: "wrap", gap: 14, alignItems: "center", justifyContent: "space-between" }}>
+            <div>
+              <p className="eyebrow" style={{ marginBottom: 4 }}>Signed in</p>
+              <h2 className="serif" style={{ fontSize: 24, margin: 0 }}>{customer.name}</h2>
+              <p style={{ color: "var(--muted)", fontSize: 12.5, margin: "4px 0 0" }}>
+                +91 {customer.phone}
+                {customer.totalOrders ? ` · ${customer.totalOrders} order${customer.totalOrders === 1 ? "" : "s"}` : ""}
+              </p>
+            </div>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <Link className="btn gold" href="/account/orders" style={{ fontSize: 11.5, padding: "10px 18px" }}>
+                <Package size={14} /> My orders
+              </Link>
+              <button type="button" className="btn" onClick={() => void signOut()} style={{ fontSize: 11.5, padding: "10px 18px" }}>
+                Sign out
+              </button>
+            </div>
+          </div>
+        )}
+
+        {!authLoading && !customer && (
+          <div className="lux-card" style={{ padding: "16px 20px", marginBottom: 28, display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", justifyContent: "space-between" }}>
+            <span style={{ fontSize: 13.5 }}>Sign in with your mobile number to see every order in one place.</span>
+            <Link className="btn gold" href="/login?next=/account/orders" style={{ fontSize: 11.5, padding: "10px 18px" }}>
+              Sign in with WhatsApp
+            </Link>
+          </div>
+        )}
+
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <span className="eyebrow">My orders</span>
           <h1 className="serif" style={{ fontSize: "clamp(34px,5vw,52px)", margin: "10px 0 0" }}>Find Your Order</h1>

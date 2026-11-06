@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { Search, UserRound, Heart, ShoppingBag, Menu, X, PackageCheck, Truck, RotateCcw } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useStore } from "./StoreProvider";
+import { useAuth } from "./AuthProvider";
 import BulkOrderModal from "./BulkOrderModal";
 
 export default function Header() {
@@ -17,6 +18,7 @@ export default function Header() {
     "Easy 7-day exchanges"
   ]);
   const { cartCount, wishlist } = useStore();
+  const { customer } = useAuth();
   // Phones show one announcement at a time (CSS hides the rest); rotate through them.
   const [annIdx, setAnnIdx] = useState(0);
   useEffect(() => {
@@ -147,8 +149,20 @@ export default function Header() {
             <Link className="iconbtn" href="/search" aria-label="Search">
               <Search size={20} />
             </Link>
-            <Link className="iconbtn desktopOnly" href="/account" aria-label="Account">
+            <Link
+              className="iconbtn desktopOnly"
+              href={customer ? "/account/orders" : "/login"}
+              aria-label={customer ? `Account — signed in as ${customer.name}` : "Sign in"}
+              title={customer ? customer.name : "Sign in"}
+              style={{ position: "relative" }}
+            >
               <UserRound size={20} />
+              {customer && (
+                <span
+                  aria-hidden="true"
+                  style={{ position: "absolute", right: 4, bottom: 4, width: 7, height: 7, borderRadius: "50%", background: "var(--success)", border: "1.5px solid var(--paper)" }}
+                />
+              )}
             </Link>
             <Link className="iconbtn" href="/wishlist" aria-label="Wishlist" style={{ position: "relative" }}>
               <Heart size={20} />
@@ -211,7 +225,9 @@ export default function Header() {
           ))}
           <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid var(--line)", display: "flex", flexWrap: "wrap", gap: "12px 18px" }}>
             {[
-              { href: "/account", label: "My orders", Icon: UserRound },
+              customer
+                ? { href: "/account/orders", label: "My orders", Icon: UserRound }
+                : { href: "/login", label: "Sign in", Icon: UserRound },
               { href: "/wishlist", label: `Wishlist${wishlist.length > 0 ? ` (${wishlist.length})` : ""}`, Icon: Heart },
               { href: "/track", label: "Track order", Icon: Truck },
               { href: "/return-policy", label: "Returns & exchange", Icon: RotateCcw },

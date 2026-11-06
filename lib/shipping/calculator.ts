@@ -1,3 +1,4 @@
+import { sellingPrice } from "@/lib/price-rules";
 import type { Product, StoreSettings } from "@/lib/db/types";
 
 export interface ShippingCalculationResult {
@@ -31,7 +32,9 @@ export function calculateShippingAndCodFee(params: {
 
   for (const item of items) {
     const product = productsMap.get(item.productId);
-    const itemPrice = product?.salePrice ?? product?.price ?? item.price;
+    // One definition of "what does this cost" (lib/price-rules.ts). Reading salePrice directly here
+    // used to disagree with it for the imported products whose sale price is above the regular one.
+    const itemPrice = product ? sellingPrice(product) || item.price : item.price;
     subtotal += itemPrice * item.quantity;
 
     if (product) {

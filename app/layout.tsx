@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WelcomeDiscountModal from "@/components/WelcomeDiscountModal";
 import { StoreProvider } from "@/components/StoreProvider";
+import { AuthProvider } from "@/components/AuthProvider";
 
 export const metadata: Metadata = {
   title: { default: "Zafiro Indio | Handblock Cotton Bedsheets from Jaipur", template: "%s | Zafiro Indio" },
@@ -23,12 +24,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
       </head>
       <body>
-        <StoreProvider>
-          <Header />
-          {children}
-          <Footer />
-          <WelcomeDiscountModal />
-        </StoreProvider>
+        <AuthProvider>
+          <StoreProvider>
+            <Header />
+            {children}
+            <Footer />
+            <WelcomeDiscountModal />
+          </StoreProvider>
+        </AuthProvider>
       </body>
     </html>
   );

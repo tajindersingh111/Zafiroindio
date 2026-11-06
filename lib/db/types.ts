@@ -193,6 +193,9 @@ export interface Order {
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
   transactionId?: string;
+  /** Razorpay references, kept for reconciliation and for refunding through the gateway. */
+  razorpayOrderId?: string;
+  razorpayPaymentId?: string;
   notes: OrderNote[];
   trackingNumber?: string;
   courierName?: string;
@@ -465,9 +468,16 @@ export interface RefundRecord {
   orderNumber: string;
   amount: number;
   reason: string;
-  status: "REFUND_PENDING" | "REFUNDED" | "REFUND_FAILED";
+  /**
+   * REFUND_PROCESSING is held only while a gateway call is in flight — it is what stops a second
+   * click refunding twice. Anything else means no money is moving right now.
+   */
+  status: "REFUND_PENDING" | "REFUND_PROCESSING" | "REFUNDED" | "REFUND_FAILED";
   gatewayRefundId?: string;
   processedBy?: string;
+  /** Set when the refund was pushed through a gateway rather than paid out by hand. */
+  gateway?: "razorpay";
+  failureReason?: string;
   createdAt: string;
   updatedAt: string;
 }

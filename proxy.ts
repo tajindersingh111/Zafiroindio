@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { parseSessionString, SESSION_COOKIE_NAME } from "@/lib/auth/token";
+import { parseCustomerSession, CUSTOMER_COOKIE_NAME } from "@/lib/auth/customer-token";
 import { canAccessSection, sectionForPath } from "@/lib/auth/access";
 
 /**
@@ -10,6 +11,17 @@ import { canAccessSection, sectionForPath } from "@/lib/auth/access";
  */
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Shopper pages that need a login. Optimistic only (signature + expiry): the API routes behind
+  // them re-check the session against the database via lib/auth/customer.ts.
+  if (pathname.startsWith("/account/")) {
+    if (parseCustomerSession(request.cookies.get(CUSTOMER_COOKIE_NAME)?.value)) return NextResponse.next();
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("next", pathname);
+    const response = NextResponse.redirect(loginUrl);
+    if (request.cookies.has(CUSTOMER_COOKIE_NAME)) response.cookies.delete(CUSTOMER_COOKIE_NAME);
+    return response;
+  }
 
   // Shiprocket's checkout SDK (Shopify flavour) probes Shopify JSON endpoints on every product page
   // (/products/<slug>.js|.json, /cart.js|.json). We are not Shopify: answer instantly instead of
@@ -51,5 +63,6 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*", "/products/:slug([^/]+\\.(?:js|json))", "/cart.js", "/cart.json"],
+  // "/account/:path+" (not :path*) so the signed-out order lookup at /account itself stays public.
+  matcher: ["/admin/:path*", "/api/admin/:path*", "/account/:path+", "/products/:slug([^/]+\\.(?:js|json))", "/cart.js", "/cart.json"],
 };

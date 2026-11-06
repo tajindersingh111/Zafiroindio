@@ -811,7 +811,9 @@ h1 { line-height: 1.08; }
 /* ── Checkout loading spinner ─────────────────────────────── */
 .spinner { width: 14px; height: 14px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; display: inline-block; animation: zi-spin .7s linear infinite; }
 @keyframes zi-spin { to { transform: rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 2s; } }
+/* Spins an icon in place (login / checkout buttons), reusing the same keyframes. */
+.spin { animation: zi-spin .7s linear infinite; }
+@media (prefers-reduced-motion: reduce) { .spinner, .spin { animation-duration: 2s; } }
 
 /* ── Product page: Buy it now + related grid ──────────────── */
 .btn-buy-now { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; background: #1c1917; color: #fff; border: 0; padding: 15px 20px; font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; border-radius: 4px; cursor: pointer; transition: background .2s ease, transform .2s ease; }

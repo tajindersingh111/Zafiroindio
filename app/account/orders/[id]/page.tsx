@@ -1,30 +1,36 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, useCallback, use } from "react";
 import Link from "next/link";
 import { CheckCircle2, Clock, Truck, Package, Download, XCircle, RotateCcw, ShieldCheck, ArrowLeft } from "lucide-react";
-import type { Order } from "@/lib/db/types";
+import type { MyOrder } from "@/lib/account/orders";
 
 export default function CustomerOrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const [order, setOrder] = useState<Order | null>(null);
+  const [order, setOrder] = useState<MyOrder | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionMessage, setActionMessage] = useState("");
   const [returnReason, setReturnReason] = useState("");
   const [showReturnModal, setShowReturnModal] = useState(false);
 
-  useEffect(() => {
-    fetch("/api/admin/orders?pageSize=100")
-      .then(res => res.json())
-      .then(data => {
-        if (data.orders) {
-          const found = data.orders.find((o: Order) => o.id === id || o.orderNumber === id);
-          if (found) setOrder(found);
-        }
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+  // The shopper's own orders. This used to read /api/admin/orders, which is staff-only.
+  const loadOrder = useCallback(async () => {
+    try {
+      const res = await fetch("/api/account/orders?limit=100", { cache: "no-store" });
+      if (!res.ok) return;
+      const data = await res.json();
+      const found = (data.orders as MyOrder[] | undefined)?.find((o) => o.id === id || o.orderNumber === id);
+      if (found) setOrder(found);
+    } catch {
+      // Leaves the "order not found" view in place.
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
+
+  useEffect(() => {
+    void loadOrder();
+  }, [loadOrder]);
 
   const handleCancelOrder = async () => {
     if (!order) return;
@@ -38,8 +44,8 @@ export default function CustomerOrderDetailPage({ params }: { params: Promise<{ 
       });
       const data = await res.json();
       if (res.ok) {
-        setActionMessage("Order cancelled successfully.");
-        setOrder(data.order);
+        setActionMessage("Order cancelled. Any prepaid amount will be refunded to the original payment method.");
+        await loadOrder();
       } else {
         alert(data.error || "Failed to cancel order.");
       }
@@ -60,7 +66,7 @@ export default function CustomerOrderDetailPage({ params }: { params: Promise<{ 
       if (res.ok) {
         setActionMessage("Return request submitted successfully.");
         setShowReturnModal(false);
-        setOrder(data.order);
+        await loadOrder();
       } else {
         alert(data.error || "Failed to submit return request.");
       }

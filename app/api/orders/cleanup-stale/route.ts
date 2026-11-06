@@ -24,12 +24,26 @@ export async function POST(request: NextRequest) {
   const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
   const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-  const [sessions, links, limits, events] = await Promise.all([
+  const [sessions, links, payments, paymentLinks, otps, limits, events] = await Promise.all([
     prisma.document.deleteMany({ where: { collection: "checkout-sessions", createdAt: { lt: dayAgo }, data: { path: ["status"], equals: "pending" } } }),
     prisma.document.deleteMany({ where: { collection: "checkout-sessions-by-sr", createdAt: { lt: monthAgo } } }),
+    // Our own checkout: abandoned payments (nothing was charged, no order exists) and their index.
+    prisma.document.deleteMany({ where: { collection: "payment-sessions", createdAt: { lt: dayAgo }, data: { path: ["status"], equals: "pending" } } }),
+    prisma.document.deleteMany({ where: { collection: "payment-sessions-by-rzp", createdAt: { lt: monthAgo } } }),
+    // Spent / expired login codes.
+    prisma.document.deleteMany({ where: { collection: "otp-requests", createdAt: { lt: dayAgo } } }),
     prisma.rateLimit.deleteMany({ where: { resetAt: { lt: new Date() } } }),
     prisma.webhookEvent.deleteMany({ where: { createdAt: { lt: monthAgo } } }),
   ]);
 
-  return NextResponse.json({ success: true, prunedCheckoutSessions: sessions.count, prunedSessionLinks: links.count, prunedRateLimits: limits.count, prunedWebhookEvents: events.count });
+  return NextResponse.json({
+    success: true,
+    prunedCheckoutSessions: sessions.count,
+    prunedSessionLinks: links.count,
+    prunedPaymentSessions: payments.count,
+    prunedPaymentLinks: paymentLinks.count,
+    prunedOtpRequests: otps.count,
+    prunedRateLimits: limits.count,
+    prunedWebhookEvents: events.count,
+  });
 }
