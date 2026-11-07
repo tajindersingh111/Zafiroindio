@@ -11,30 +11,46 @@ customer data sitting in git history and missing production secrets — not the 
 
 ## Blockers (fix before launch)
 
-### 1. Customer data is in git history on GitHub — HIGHEST PRIORITY
+### 1. Customer data was in git history, on a PUBLIC repository — PARTLY DONE
 
-`data/` and `scratch/` were committed before `.gitignore` excluded them, and they are still in the
-history of `https://github.com/tajindersingh111/Zafiroindio.git`:
+`data/` and `scratch/` were committed before `.gitignore` excluded them. On 2026-11-07 the GitHub
+API reported `"visibility": "public"` for `https://github.com/tajindersingh111/Zafiroindio.git`, so
+this was not a theoretical risk — it was readable by anyone.
 
-| Path | Contents | First seen in |
-|---|---|---|
-| `data/*.json` | 469 customers, 356 orders, admin bcrypt password hashes, coupons, settings | `aaa0bbd`, `2f4c95b`, `0c51744` |
-| `scratch/` | ~41 MB SQL dump of the live database | `43a6ca3` (first commit), `0c51744` |
+| Path | Contents |
+|---|---|
+| `data/*.json` | 29 files: 469 customers, 356 orders, admin bcrypt password hashes, invoices, e-mail logs, OTP requests, coupons, settings |
+| `scratch/` | ~41 MB SQL dump of the live database, plus copies of customers / orders / products JSON |
+| commit `aaa0bbd` message | a Shiprocket integration key in plain text |
 
-The files are untracked now (`git rm --cached`), so new commits don't ship them — but anyone who can
-read the repository can still `git log` them out.
+**Done (local history only)**
 
-**Actions**
+History has been rewritten with `git filter-repo`: `data/` and `scratch/` are gone from all 58
+commits on all three branches, and the integration key is redacted from that commit message. The
+repository shrank from 23 MB to 7.1 MB. The working-copy `data/` and `scratch/` folders are
+untouched on disk — they are gitignored, so nothing was lost locally.
 
-1. Confirm whether the GitHub repository is public. If it is, or ever was, treat all of it as leaked.
-2. Purge the paths from history and force-push:
+A full pre-rewrite backup is at `zafiro-indio-BACKUP-<timestamp>/full-history.bundle`
+(`git bundle verify` passes, all refs captured). Restore with
+`git clone full-history.bundle restored-repo`. **Keep it until the force-push is verified, then
+delete it — it still contains all the customer data.**
+
+**Still to do**
+
+1. **Force-push the rewritten history.** Until this runs, the remote still has everything:
    ```bash
-   git filter-repo --path data --path scratch --invert-paths
+   git push --force origin main feat/razorpay-checkout-whatsapp-otp fastrr-checkout
    ```
-   Then tell anyone with a clone to re-clone (old clones still hold the data).
-3. Change every admin password — the hashes are exposed, so they are brute-forceable offline.
-4. Rotate every credential listed in `SECURITY_TODO.md` (database password, Shiprocket Checkout key
-   and secret, Fast2SMS, Razorpay, ShipMozo). `SECURITY_TODO.md` says this was never done.
+2. **Make the repository private** — Settings → Danger Zone → Change visibility.
+3. **A force-push does not erase it from GitHub.** Old commits stay reachable by SHA through
+   GitHub's cache, and forks and existing clones keep their copies. After pushing, ask GitHub
+   Support to purge the cached views, and check the repository's Forks tab.
+4. **Change every admin password.** The bcrypt hashes were public and can be cracked offline. This
+   matters more than the history rewrite.
+5. **Rotate every credential** in `SECURITY_TODO.md`: database password, Shiprocket Checkout key and
+   secret (including the redacted integration key — redacting the message does not un-leak it),
+   Fast2SMS, Razorpay, ShipMozo.
+6. Tell anyone with a clone to re-clone; their old clone still has the data.
 
 ### 2. `SESSION_SECRET` is not set
 

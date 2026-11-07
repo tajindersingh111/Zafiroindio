@@ -50,7 +50,16 @@ If this repository is hosted publicly or shared with third parties, consider scr
 
 ---
 
-## Customer data in git (found 2026-10-08)
+## Git history rewritten 2026-11-07
+
+`data/` and `scratch/` have been purged from all commits with `git filter-repo`, and the Shiprocket
+integration key is redacted from the `aaa0bbd` commit message. This is **local only until the
+force-push runs** — see blocker 1 in `PRODUCTION_READINESS.md` for the remaining steps, which
+include making the repository private, asking GitHub Support to purge cached views, and changing
+every admin password. The repository was confirmed **public** on 2026-11-07, so treat everything
+listed below as leaked and rotate it.
+
+## Customer data in git (found 2026-10-08, purged 2026-11-07)
 
 `data/*.json` (469 customers, 356 orders, admin password hashes) and `scratch/` (a 41 MB SQL dump) were
 committed before `.gitignore` excluded them. They are now untracked (`git rm --cached`; the files stay on
