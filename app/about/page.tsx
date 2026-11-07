@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import AboutContent from "@/components/site/AboutContent";
+import { getFounders } from "@/lib/storefront/founders";
 
 const BASE_URL = "https://zafiroindio.com";
 
@@ -42,8 +43,6 @@ const localBusinessJsonLd = {
   },
   geo: { "@type": "GeoCoordinates", latitude: 26.9124, longitude: 75.7873 },
   areaServed: { "@type": "Country", name: "India" },
-  foundingDate: "2020",
-  numberOfEmployees: { "@type": "QuantitativeValue", value: 15 },
   knowsAbout: ["hand block printing", "cotton bedsheets", "Rajasthani textiles", "home decor"],
   sameAs: [],
 };
@@ -57,7 +56,9 @@ const breadcrumbJsonLd = {
   ],
 };
 
-export default function About() {
+/** Founders come from Admin -> Content -> Founders; read on the server so they are in the HTML. */
+export default async function About() {
+  const founders = await getFounders();
   return (
     <>
       <script
@@ -68,7 +69,7 @@ export default function About() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
-      <AboutContent />
+      <AboutContent founders={founders} />
     </>
   );
 }

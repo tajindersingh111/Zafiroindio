@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, ShieldCheck, Award, Star, Quote, Gem, HandHeart, Sprout, Flame, Globe, CheckCircle2, Heart, Sparkles, Package } from "lucide-react";
+import { ArrowRight, ShieldCheck, Quote, Gem, HandHeart, Sprout, Flame, Globe, CheckCircle2, Heart, Sparkles, Package, PenTool, Factory, Headphones } from "lucide-react";
+import type { Founder } from "@/lib/storefront/founders";
 
 /* ─────────────────────────────────────────────
    INTERSECTION OBSERVER HOOK
@@ -52,57 +53,43 @@ const marqueeItems = [
   "Hand Block Printed",
   "Jaipur Artisans",
   "AZO-Free Dyes",
-  "500 Year Old Craft",
-  "Free Shipping ₹999+",
+  "Our Own Manufacturing",
   "7-Day Exchange",
-  "12,000+ Happy Homes",
-  "Fair Trade Certified",
   "Made in Rajasthan",
+  "Designed In-House",
 ];
 
 const stats = [
-  { value: 5, suffix: "+", label: "Years of Craft", sub: "Est. 2020" },
-  { value: 172, suffix: "+", label: "Unique Designs", sub: "Hand-crafted" },
-  { value: 12000, suffix: "+", label: "Happy Customers", sub: "Across India" },
-  { value: 40, suffix: "+", label: "Artisan Partners", sub: "In Jaipur" },
+  { value: 30, suffix: "+", label: "Years in Textiles", sub: "Our founder's experience" },
+  { value: 5, suffix: "", label: "Years of Our Own Unit", sub: "Manufacturing in-house" },
+  { value: 100, suffix: "%", label: "Cotton", sub: "No synthetic blends" },
+  { value: 7, suffix: "-Day", label: "Exchange Window", sub: "Unboxing video required" },
 ];
 
 const timeline = [
   {
-    year: "2019",
-    title: "The Idea",
-    desc: "Aryan Kapoor returns to Jaipur after 3 years in Mumbai's corporate textile world. He visits the block-printing workshops of Sanganer and sees a dying craft that the world doesn't know about.",
+    year: "30 Years",
+    title: "Learning the Cloth",
+    desc: "Neelu Singh spends three decades inside the textile industry — weave, dye, print, finish. Long enough to judge a fabric by hand before the eye catches up.",
+    icon: "🧵",
+  },
+  {
+    year: "The Dream",
+    title: "A Name of Her Own",
+    desc: "All that knowledge had gone into beautiful things carrying somebody else's label. The idea she kept returning to was a brand that was entirely hers.",
     icon: "💡",
   },
   {
-    year: "2020",
-    title: "Zafiro is Born",
-    desc: "January 2020. A 200 sq ft studio in Sanganer. 6 designs. One Karigar family. Aryan packs every order himself. Then the pandemic hits — but online orders keep coming.",
-    icon: "🌱",
+    year: "5 Years Ago",
+    title: "Our Own Floor",
+    desc: "Zafiro Indio starts its own manufacturing. Quality stops being something to hope for from a supplier and becomes a decision made in-house.",
+    icon: "🏭",
   },
   {
-    year: "2021",
-    title: "Growing the Family",
-    desc: "Word-of-mouth explodes. Zafiro onboards 12 new artisan partners. The team grows to 6 people. First 1,000 orders shipped.",
-    icon: "🤝",
-  },
-  {
-    year: "2022",
-    title: "40+ Artisan Partners",
-    desc: "Zafiro launches the Fair Karigar Initiative — guaranteeing above-market pay, safe working conditions, and advance payments to all artisan partners.",
-    icon: "⭐",
-  },
-  {
-    year: "2023",
-    title: "12,000+ Homes",
-    desc: "Zafiro crosses 12,000 orders. Pan-India delivery. New collections: Luxury, Everyday Comfort, and Limited Edition Festive ranges.",
+    year: "Today",
+    title: "Under One Roof",
+    desc: "Supported by JHB Industries, fabric is chosen, printed and finished under her own eye — design, production and customer care in one place.",
     icon: "🏠",
-  },
-  {
-    year: "2024",
-    title: "What's Next",
-    desc: "A new children's bedding line, artisan story QR codes on every product, and a Lookbook editorial featuring real Zafiro homes across India.",
-    icon: "🚀",
   },
 ];
 
@@ -116,19 +103,41 @@ const craftSteps = [
 ];
 
 const values = [
-  { Icon: Sprout, color: "#2d6a4f", bg: "#f0faf5", title: "Sustainable by Design", desc: "AZO-free dyes. Natural long-staple cotton. Zero synthetic fibres. Every choice made with the planet — and your skin — in mind." },
-  { Icon: HandHeart, color: "#9b2335", bg: "#fff5f6", title: "12 Pairs of Hands", desc: "From cotton weaving to block carving, printing, sun-drying, washing, and checking — each bedsheet passes through at least 12 artisans." },
-  { Icon: Award, color: "#b5860d", bg: "#fffbf0", title: "Fair Trade Always", desc: "30% above market rate for Karigars. Timely payments. Safe spaces. No shortcuts — because beautiful textiles come from dignified work." },
-  { Icon: ShieldCheck, color: "#1d4ed8", bg: "#f0f4ff", title: "Quality You Can Feel", desc: "Every bedsheet tested for weave density, print alignment, colour fastness, and dimensional accuracy. If it doesn't pass, it doesn't ship." },
-  { Icon: Globe, color: "#6d28d9", bg: "#f5f0ff", title: "India to Every Bedroom", desc: "Delivery across all 700+ districts. Free shipping above ₹999. No retail markup — direct from Jaipur studio to your doorstep." },
-  { Icon: Flame, color: "#c2410c", bg: "#fff7f0", title: "Archiving Heritage", desc: "Block printing is 500+ years old. We're not just selling bedsheets — we're preserving a living art form for the generations to come." },
+  { Icon: Sprout, color: "#2d6a4f", bg: "#f0faf5", title: "Sustainable by Design", desc: "AZO-free dyes and pure cotton, with no synthetic fibres. Every choice made with the planet — and your skin — in mind." },
+  { Icon: HandHeart, color: "#9b2335", bg: "#fff5f6", title: "Made by Hand", desc: "Block carving, printing, drying, washing and checking are done by people, not machines. That is what makes each piece slightly its own." },
+  { Icon: Factory, color: "#b5860d", bg: "#fffbf0", title: "Our Own Floor", desc: "We run our own manufacturing rather than outsourcing it, so quality is a decision we make instead of one we hope a supplier makes for us." },
+  { Icon: ShieldCheck, color: "#1d4ed8", bg: "#f0f4ff", title: "Quality You Can Feel", desc: "Every piece is checked for weave, print alignment, colour fastness and finish. If it doesn't pass, it doesn't ship." },
+  { Icon: Globe, color: "#6d28d9", bg: "#f5f0ff", title: "India to Every Bedroom", desc: "Delivered across India, direct from our own unit — no retail markup in between." },
+  { Icon: Flame, color: "#c2410c", bg: "#fff7f0", title: "Keeping the Craft Alive", desc: "Hand block printing is centuries old. Making it a working trade, not a museum piece, is part of why we do this." },
 ];
 
-const reviews = [
-  { text: "The block prints are absolutely stunning and the cotton is impossibly soft. I've been sleeping better since I got my Zafiro bedsheet.", name: "Priya S.", city: "Mumbai", rating: 5 },
-  { text: "Finally a brand honest about where their products come from. The Botanical Bloom is gorgeous — knowing real Jaipur artisans made it makes it even better.", name: "Arjun M.", city: "Bengaluru", rating: 5 },
-  { text: "Bought as a housewarming gift and the recipient was absolutely floored by the quality and packaging. Ordering for myself next!", name: "Kavya R.", city: "Delhi", rating: 5 },
+const pillars = [
+  {
+    num: "01",
+    Icon: PenTool,
+    color: "#9b2335",
+    bg: "#fff5f6",
+    title: "Design & Innovation",
+    desc: "Every product starts as a drawing, not a purchase order. Inspired by global trends and the way people actually live, each collection is made to balance elegance, comfort and use.",
+  },
+  {
+    num: "02",
+    Icon: Factory,
+    color: "#b5860d",
+    bg: "#fffbf0",
+    title: "Craftsmanship & Production",
+    desc: "Our own unit, supported by JHB Industries, is where fabric is selected, printed and finished. Owning the floor is why quality is decided rather than hoped for.",
+  },
+  {
+    num: "03",
+    Icon: Headphones,
+    color: "#1d4ed8",
+    bg: "#f0f4ff",
+    title: "Customer Experience",
+    desc: "The parcel is the last thing we make. Easy ordering, honest answers and service that holds up after the sale — the part of the product you cannot photograph.",
+  },
 ];
+
 
 /* ─────────────────────────────────────────────
    REVEAL WRAPPER
@@ -153,7 +162,9 @@ function Reveal({ children, delay = 0, className = "" }: { children: React.React
 /* ─────────────────────────────────────────────
    MAIN COMPONENT
 ───────────────────────────────────────────── */
-export default function AboutContent() {
+export default function AboutContent({ founders = [] }: { founders?: Founder[] }) {
+  // The first founder fronts the story block; the rest appear in the founders grid below it.
+  const lead = founders[0];
   return (
     <main style={{ background: "#faf8f5", minHeight: "100vh", overflowX: "hidden" }}>
 
@@ -200,7 +211,7 @@ export default function AboutContent() {
           </div>
 
           <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "3.5px", textTransform: "uppercase", color: "#c5a028", marginBottom: 20 }}>
-            Jaipur · Rajasthan · Est. 2020
+            Jaipur · Rajasthan · Handblock Textiles
           </p>
 
           <h1
@@ -279,70 +290,152 @@ export default function AboutContent() {
       {/* ══════════════════════════════════════
           4. FOUNDER STORY
       ══════════════════════════════════════ */}
-      <section id="story" style={{ padding: "100px 20px", background: "#faf8f5" }}>
-        <div className="container" style={{ maxWidth: 1160, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
+      <section id="story" style={{ padding: "100px 20px 88px", background: "#faf8f5" }}>
+        <div className="container about-split" style={{ maxWidth: 1160 }}>
 
-          {/* Image Side */}
+          {/* Portrait side */}
           <Reveal>
-            <div style={{ position: "relative" }}>
-              {/* Gold border offset */}
-              <div style={{ position: "absolute", top: -16, left: -16, right: 16, bottom: 16, border: "1.5px solid rgba(197,160,40,0.4)", borderRadius: 8, pointerEvents: "none" }} />
+            <figure className="about-portrait">
+              <span className="about-portrait-frame" aria-hidden />
               <img
-                src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=85"
-                alt="Zafiro Indio founder visiting artisan workshop in Sanganer, Jaipur"
-                style={{ width: "100%", aspectRatio: "4/5", objectFit: "cover", borderRadius: 8, display: "block", position: "relative" }}
+                src={lead?.photo ?? "/editorial/neelu.jpg"}
+                alt={lead ? `${lead.name}, ${lead.role} of Zafiro Indio` : "Founder of Zafiro Indio"}
+                loading="lazy"
+                decoding="async"
+                className="about-portrait-img"
               />
-              {/* Floating quote card */}
-              <div style={{ position: "absolute", bottom: 32, right: -32, background: "linear-gradient(135deg, #0f0d0b, #1e1408)", color: "#f5ede0", padding: "22px 24px", borderRadius: 8, maxWidth: 220, boxShadow: "0 20px 50px rgba(0,0,0,0.28)", border: "1px solid rgba(197,160,40,0.2)", backdropFilter: "blur(4px)" }}>
+              <figcaption className="about-quote-card">
                 <Quote size={18} color="#c5a028" style={{ marginBottom: 10 }} />
-                <p style={{ margin: 0, fontSize: 12.5, lineHeight: 1.65, fontStyle: "italic", color: "#d4c9b0" }}>
-                  "I grew up watching my nani fold bedsheets with the care of folding a sari. That memory is what Zafiro is built on."
+                <p style={{ margin: 0, fontSize: 12.5, lineHeight: 1.7, fontStyle: "italic", color: "#d4c9b0" }}>
+                  &ldquo;Thirty years have been spent understanding every thread and design of the fabric. I always had a
+                  dream: to create a brand that was completely my own.&rdquo;
                 </p>
-                <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid rgba(197,160,40,0.2)" }}>
-                  <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: "#c5a028" }}>Aryan Kapoor</p>
-                  <p style={{ margin: 0, fontSize: 10, color: "rgba(212,200,176,0.6)", fontWeight: 500 }}>Founder, Zafiro Indio</p>
-                </div>
-              </div>
-            </div>
+                <span style={{ display: "block", marginTop: 12, paddingTop: 10, borderTop: "1px solid rgba(197,160,40,0.2)" }}>
+                  <span style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#c5a028" }}>{lead?.name ?? "Neelu Singh"}</span>
+                  <span style={{ display: "block", fontSize: 10, color: "rgba(212,200,176,0.6)", fontWeight: 500 }}>
+                    {lead?.role ?? "Founder"}, Zafiro Indio
+                  </span>
+                </span>
+              </figcaption>
+            </figure>
           </Reveal>
 
-          {/* Story Side */}
+          {/* Story side */}
           <Reveal delay={150}>
-            <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "2.5px", textTransform: "uppercase", color: "#a67c37", marginBottom: 16 }}>
-              The Founder's Story
-            </p>
-            <h2 className="serif" style={{ fontSize: 40, fontWeight: 500, color: "#1c1917", margin: "0 0 12px", lineHeight: 1.15 }}>
-              From a Jaipur Rooftop<br />to Every Indian Bedroom
+            <p className="about-eyebrow">The Founder&rsquo;s Story</p>
+            <h2 className="serif about-h2">
+              Thirty Years of Thread.<br />One Name of Her Own.
             </h2>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 30 }}>
-              <div style={{ height: 2, width: 40, background: "linear-gradient(to right, #c5a028, transparent)" }} />
-              <div style={{ height: 2, width: 90, background: "#eae4d9" }} />
+              <span style={{ height: 2, width: 40, background: "linear-gradient(to right, #c5a028, transparent)" }} />
+              <span style={{ height: 2, width: 90, background: "#eae4d9" }} />
             </div>
 
-            <p style={{ fontSize: 15.5, lineHeight: 1.95, color: "#44403c", marginBottom: 20 }}>
-              Growing up in Jaipur's old city, <strong style={{ color: "#1c1917" }}>Aryan Kapoor</strong> spent summers on the terrace watching neighbours hang freshly block-printed fabrics to dry in the afternoon sun — a ritual as old as the city itself. The colours, the patterns, the smell of natural dye in the Rajasthan heat. He didn't realise yet that it was extraordinary craft.
+            <p className="about-body">
+              Zafiro Indio began with <strong>Neelu Singh</strong> and three decades spent inside the textile industry
+              &mdash; long enough to know a fabric by hand before the eye catches up. The weight of a weave, how a dye will
+              settle, whether a design will hold its line across the width of the cloth. Thirty years of reading thread.
             </p>
-            <p style={{ fontSize: 15.5, lineHeight: 1.95, color: "#44403c", marginBottom: 20 }}>
-              After studying textile design in Ahmedabad and three years in Mumbai's corporate home furnishing world, Aryan returned to Jaipur in 2019 with one question burning in him: <em style={{ color: "#1c1917", fontStyle: "italic" }}>"Why is the world's finest block-print cotton sitting in a godown — while people in Delhi buy machine-printed polyester for twice the price?"</em>
+            <p className="about-body">
+              For most of those years, that knowledge went into beautiful things that carried somebody else&rsquo;s label.
+              The dream she kept returning to was a simpler one: a brand that was entirely her own, where the standard was
+              hers to set and hers to answer for.
             </p>
-            <p style={{ fontSize: 15.5, lineHeight: 1.95, color: "#44403c", marginBottom: 32 }}>
-              January 2020. A 200 sq ft studio in Sanganer. Six designs. One Karigar family. Aryan packed every order himself. Then the pandemic hit — and the orders kept coming. Today, Zafiro works with 40+ artisan partners, ships pan-India, and has delivered over 12,000 bedsheets — each one carrying a piece of Jaipur's living heritage.
+            <p className="about-body">
+              Five years ago that dream took a concrete shape: she started her own manufacturing. It is the decision that
+              changed what the brand could promise. Precision and quality stopped being something to hope for from a
+              supplier and became something decided in-house, at every stage, by the person whose name is on the label.
+            </p>
+            <p className="about-body" style={{ marginBottom: 32 }}>
+              With the support of <strong>JHB Industries</strong>, that unit is where fabric is chosen, printed and
+              finished under her own eye. It is an unglamorous answer to a simple question &mdash; how do you make sure
+              every piece is right? &mdash; and it is the reason Zafiro Indio is a brand rather than an idea.
             </p>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
+            <ul className="about-points">
               {[
-                "Founded in Sanganer — Jaipur's 500-year-old block-print capital",
-                "Textile design graduate — craft-first, not commerce-first",
-                "Direct-to-artisan model — zero middlemen, transparent pricing",
-                "Fair Karigar Initiative — 30% above market pay for all partners",
+                "Thirty years in textiles before the first Zafiro Indio label",
+                "Own manufacturing for five years — quality decided in-house, not outsourced",
+                "Production supported by JHB Industries, from fabric selection to finishing",
+                "Design, production and customer care under one roof",
               ].map((point) => (
-                <div key={point} style={{ display: "flex", alignItems: "flex-start", gap: 11 }}>
-                  <CheckCircle2 size={16} color="#c5a028" style={{ marginTop: 3, flexShrink: 0 }} />
-                  <span style={{ fontSize: 14, color: "#57534e", lineHeight: 1.6 }}>{point}</span>
-                </div>
+                <li key={point}>
+                  <CheckCircle2 size={16} color="#c5a028" aria-hidden />
+                  <span>{point}</span>
+                </li>
+              ))}
+            </ul>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════
+          4b. THE FOUNDERS  (Admin → Content → Founders)
+      ══════════════════════════════════════ */}
+      {founders.length > 0 && (
+        <section style={{ padding: "0 20px 96px", background: "#faf8f5" }}>
+          <div className="container" style={{ maxWidth: 1060 }}>
+            <Reveal>
+              <div style={{ textAlign: "center", marginBottom: 46 }}>
+                <p className="about-eyebrow" style={{ textAlign: "center" }}>Our Founder</p>
+                <h2 className="serif about-h2-sm">The Name Behind the Label</h2>
+              </div>
+            </Reveal>
+
+            <div className="about-founders">
+              {founders.map((f, i) => (
+                <Reveal key={f.id} delay={i * 120}>
+                  <article className="about-founder-card">
+                    <img
+                      src={f.photo}
+                      alt={`${f.name}, ${f.role} of Zafiro Indio`}
+                      loading="lazy"
+                      decoding="async"
+                      className="about-founder-img"
+                    />
+                    <div className="about-founder-body">
+                      <h3 className="serif">{f.name}</h3>
+                      <p className="about-founder-role">{f.role}</p>
+                      {f.title && <p className="about-founder-title">{f.title}</p>}
+                      <p className="about-founder-blurb">{f.blurb}</p>
+                    </div>
+                  </article>
+                </Reveal>
               ))}
             </div>
+          </div>
+        </section>
+      )}
+
+      {/* ══════════════════════════════════════
+          4c. HOW WE WORK
+      ══════════════════════════════════════ */}
+      <section style={{ padding: "90px 20px", background: "#fff", borderTop: "1px solid #eae4d9" }}>
+        <div className="container" style={{ maxWidth: 1060 }}>
+          <Reveal>
+            <div style={{ textAlign: "center", marginBottom: 50 }}>
+              <p className="about-eyebrow" style={{ textAlign: "center" }}>How We Work</p>
+              <h2 className="serif about-h2-sm">Three Things We Refuse to Rush</h2>
+              <p style={{ fontSize: 15, color: "#78716c", lineHeight: 1.8, maxWidth: 560, margin: "14px auto 0" }}>
+                Design, production, and the person who opens the parcel. Everything we do sits under one of these three.
+              </p>
+            </div>
           </Reveal>
+
+          <div className="about-pillars">
+            {pillars.map((p, i) => (
+              <Reveal key={p.title} delay={i * 110}>
+                <div className="about-pillar">
+                  <span className="about-pillar-num">{p.num}</span>
+                  <span className="about-pillar-icon" style={{ background: p.bg, color: p.color }}>
+                    <p.Icon size={20} />
+                  </span>
+                  <h3>{p.title}</h3>
+                  <p>{p.desc}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -354,7 +447,7 @@ export default function AboutContent() {
           <Reveal>
             <div style={{ textAlign: "center", marginBottom: 64 }}>
               <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "2.5px", textTransform: "uppercase", color: "#a67c37", marginBottom: 14 }}>Our Journey</p>
-              <h2 className="serif" style={{ fontSize: 38, fontWeight: 500, color: "#1c1917" }}>The Zafiro Story, Year by Year</h2>
+              <h2 className="serif" style={{ fontSize: 38, fontWeight: 500, color: "#1c1917" }}>How Zafiro Indio Came to Be</h2>
             </div>
           </Reveal>
 
@@ -481,49 +574,6 @@ export default function AboutContent() {
           </div>
         </div>
       </section>
-
-      {/* ══════════════════════════════════════
-          8. REVIEWS
-      ══════════════════════════════════════ */}
-      <section style={{ background: "#faf8f5", borderTop: "1px solid #eae4d9", padding: "88px 20px" }}>
-        <div className="container" style={{ maxWidth: 1160 }}>
-          <Reveal>
-            <div style={{ textAlign: "center", marginBottom: 52 }}>
-              <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "2.5px", textTransform: "uppercase", color: "#a67c37", marginBottom: 14 }}>Loved By Customers</p>
-              <h2 className="serif" style={{ fontSize: 36, fontWeight: 500, color: "#1c1917" }}>12,000+ Homes. One Story.</h2>
-            </div>
-          </Reveal>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 22 }}>
-            {reviews.map((r, i) => (
-              <Reveal key={r.name} delay={i * 100}>
-                <div
-                  style={{ background: "#fff", border: "1px solid #e7e1d6", borderRadius: 10, padding: "30px 28px", boxShadow: "0 2px 12px rgba(0,0,0,0.03)", transition: "transform 0.2s ease, box-shadow 0.2s ease", cursor: "default" }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-4px)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 12px 32px rgba(0,0,0,0.08)"; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 2px 12px rgba(0,0,0,0.03)"; }}
-                >
-                  <div style={{ display: "flex", gap: 3, marginBottom: 18 }}>
-                    {[...Array(r.rating)].map((_, i) => <Star key={i} size={14} fill="#c5a028" color="#c5a028" />)}
-                  </div>
-                  <p className="serif" style={{ fontSize: 15.5, color: "#1c1917", lineHeight: 1.72, margin: "0 0 20px", fontStyle: "italic" }}>
-                    "{r.text}"
-                  </p>
-                  <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
-                    <div style={{ width: 38, height: 38, borderRadius: "50%", background: "linear-gradient(135deg, #c5a028, #e8c547)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 800, color: "#1c1917", flexShrink: 0 }}>
-                      {r.name[0]}
-                    </div>
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: "#1c1917" }}>{r.name}</div>
-                      <div style={{ fontSize: 11, color: "#a8a09a" }}>{r.city} · Verified Purchase</div>
-                    </div>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ══════════════════════════════════════
           9. FINAL CTA
       ══════════════════════════════════════ */}
@@ -572,16 +622,182 @@ export default function AboutContent() {
           from { transform: translateX(0); }
           to   { transform: translateX(-33.333%); }
         }
+        /* ── About page layout ──────────────────────────────
+           Real classes with real breakpoints. The grids used to be collapsed by matching on the
+           serialised inline style ([style*="grid-template-columns: 1fr 1fr"]), which silently
+           stops working the moment a style is reordered or a space changes. */
+        .about-split {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 80px;
+          align-items: center;
+        }
+
+        .about-eyebrow {
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 2.5px;
+          text-transform: uppercase;
+          color: #a67c37;
+          margin: 0 0 16px;
+        }
+        .about-h2 {
+          font-size: clamp(28px, 4.2vw, 40px);
+          font-weight: 500;
+          color: #1c1917;
+          margin: 0 0 12px;
+          line-height: 1.15;
+        }
+        .about-h2-sm {
+          font-size: clamp(25px, 3.4vw, 34px);
+          font-weight: 500;
+          color: #1c1917;
+          margin: 0;
+          line-height: 1.2;
+        }
+        .about-body {
+          font-size: 15.5px;
+          line-height: 1.95;
+          color: #44403c;
+          margin: 0 0 20px;
+        }
+        .about-body strong { color: #1c1917; font-weight: 600; }
+
+        .about-points { list-style: none; margin: 0; padding: 0; display: grid; gap: 13px; }
+        .about-points li { display: flex; align-items: flex-start; gap: 11px; }
+        .about-points li svg { margin-top: 3px; flex-shrink: 0; }
+        .about-points span { font-size: 14px; color: #57534e; line-height: 1.6; }
+
+        /* Portrait with the offset gold frame and the floating quote card. */
+        .about-portrait { position: relative; margin: 0; }
+        .about-portrait-frame {
+          position: absolute;
+          inset: -16px 16px 16px -16px;
+          border: 1.5px solid rgba(197, 160, 40, 0.4);
+          border-radius: 8px;
+          pointer-events: none;
+        }
+        .about-portrait-img {
+          width: 100%;
+          aspect-ratio: 4 / 5;
+          object-fit: cover;
+          border-radius: 8px;
+          display: block;
+          position: relative;
+        }
+        .about-quote-card {
+          position: absolute;
+          bottom: 32px;
+          right: -32px;
+          max-width: 230px;
+          background: linear-gradient(135deg, #0f0d0b, #1e1408);
+          color: #f5ede0;
+          padding: 22px 24px;
+          border-radius: 8px;
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.28);
+          border: 1px solid rgba(197, 160, 40, 0.2);
+        }
+
+        /* Founder cards (Admin → Content → Founders). */
+        .about-founders {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          gap: 28px;
+        }
+        .about-founder-card {
+          background: #fff;
+          border: 1px solid #eae4d9;
+          border-radius: 10px;
+          overflow: hidden;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .about-founder-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 18px 40px rgba(28, 25, 23, 0.1);
+        }
+        .about-founder-img {
+          width: 100%;
+          aspect-ratio: 4 / 5;
+          object-fit: cover;
+          object-position: center top;
+          display: block;
+          background: #f3efe8;
+        }
+        .about-founder-body { padding: 22px 22px 26px; }
+        .about-founder-body h3 { font-size: 23px; font-weight: 600; color: #1c1917; margin: 0 0 5px; }
+        .about-founder-role {
+          margin: 0 0 3px;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 1.4px;
+          text-transform: uppercase;
+          color: #a67c37;
+        }
+        .about-founder-title { margin: 0 0 14px; font-size: 12.5px; color: #a8a09a; font-weight: 500; }
+        .about-founder-blurb { margin: 0; font-size: 14px; color: #57534e; line-height: 1.75; }
+
+        /* How we work. */
+        .about-pillars {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          gap: 24px;
+        }
+        .about-pillar {
+          position: relative;
+          height: 100%;
+          background: #faf8f5;
+          border: 1px solid #eae4d9;
+          border-radius: 10px;
+          padding: 30px 26px 28px;
+          overflow: hidden;
+        }
+        .about-pillar h3 { font-size: 16.5px; font-weight: 700; color: #1c1917; margin: 0 0 9px; }
+        .about-pillar p { font-size: 14px; color: #78716c; line-height: 1.8; margin: 0; }
+        .about-pillar-num {
+          position: absolute;
+          top: 12px;
+          right: 18px;
+          font-size: 44px;
+          font-weight: 800;
+          line-height: 1;
+          color: rgba(197, 160, 40, 0.13);
+          pointer-events: none;
+        }
+        .about-pillar-icon {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 44px;
+          height: 44px;
+          border-radius: 10px;
+          margin-bottom: 16px;
+        }
+
         @media (max-width: 900px) {
-          .container > div[style*="grid-template-columns: 1fr 1fr"] {
-            grid-template-columns: 1fr !important;
+          .about-split { grid-template-columns: 1fr; gap: 52px; }
+          /* The quote card hangs off the portrait on desktop; on a phone that would overflow. */
+          .about-quote-card {
+            position: static;
+            max-width: none;
+            margin-top: 18px;
+            box-shadow: none;
           }
+          .about-portrait-frame { display: none; }
+
           .container > div[style*="repeat(3, 1fr)"] {
             grid-template-columns: 1fr !important;
           }
           .container > div[style*="repeat(4, 1fr)"] {
             grid-template-columns: repeat(2, 1fr) !important;
           }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .about-founder-card { transition: none; }
+          .about-founder-card:hover { transform: none; }
         }
       `}</style>
     </main>
