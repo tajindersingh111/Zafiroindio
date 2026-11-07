@@ -271,3 +271,105 @@
 }
 
 .bulk-nav-link { white-space: nowrap; }
+
+/* ═════════════ Second pass: hero life, marquee, tabs, craft ═════════════ */
+
+/* ── Hero: the photograph at full strength ──
+   The image used to sit at 88% over the navy hero background, which dulled every colour. The cream wash
+   on the left (for the headline) is what it was meant to rely on. */
+.heroSlider { --hero-dwell: 6.5s; }
+.heroImg { opacity: 1; }
+.heroImg.heroSlide.isActive { opacity: 1; animation: hero-zoom 9s ease-out both; }
+@keyframes hero-zoom { from { scale: 1; } to { scale: 1.06; } }
+
+/* Headline, copy and buttons rise in one after another. */
+.heroEnter { animation: none; }
+.heroEnter > * { animation: hero-rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.heroEnter > :nth-child(1) { animation-delay: 0.05s; }
+.heroEnter > :nth-child(2) { animation-delay: 0.16s; }
+.heroEnter > :nth-child(3) { animation-delay: 0.28s; }
+.heroEnter > :nth-child(4) { animation-delay: 0.4s; }
+@keyframes hero-rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+
+/* Slide controls: a counter, one progress bar per banner, and the arrows. */
+.heroControlsWrap { bottom: 38px; }
+.heroControls { gap: 16px; }
+.heroCount { display: inline-flex; align-items: center; gap: 9px; font-family: "Cormorant Garamond", Georgia, serif; font-size: 15px; letter-spacing: 1px; color: var(--ink); }
+.heroCount b { font-size: 24px; font-weight: 600; }
+.heroCount i { width: 22px; height: 1px; background: var(--ink); opacity: 0.4; }
+.heroSegs { display: flex; align-items: center; gap: 8px; }
+.heroSeg { position: relative; width: 54px; height: 22px; padding: 0; border: 0; background: none; cursor: pointer; }
+.heroSeg::before { content: ""; position: absolute; left: 0; right: 0; top: 10px; height: 2px; border-radius: 2px; background: rgba(11, 19, 38, 0.22); }
+.heroSeg i { position: absolute; left: 0; top: 10px; height: 2px; width: 0; border-radius: 2px; background: var(--ink); }
+.heroSeg.isDone i { width: 100%; }
+.heroSeg.isActive i { animation: hero-fill var(--hero-dwell) linear forwards; }
+@keyframes hero-fill { from { width: 0; } to { width: 100%; } }
+.heroSlider.isPaused .heroSeg.isActive i { animation-play-state: paused; }
+.heroSeg:focus-visible { outline: 2px solid #a67c37; outline-offset: 2px; }
+
+/* ── Headline accents: one italic gold phrase per heading ── */
+.hm-head h2 em, .hm-craft-copy h2 em { font-style: italic; font-weight: 500; color: var(--gold-dark); }
+.hm-founder-copy h2 em { font-style: italic; font-weight: 500; color: var(--gold); }
+
+/* ── Marquee band ── */
+.hm-marquee { background: #0b1326; color: #f1ebd8; overflow: hidden; border-block: 1px solid rgba(197, 160, 40, 0.3); padding: 17px 0; }
+.hm-marquee-track { display: flex; width: max-content; animation: hm-marquee 48s linear infinite; }
+.hm-marquee:hover .hm-marquee-track { animation-play-state: paused; }
+.hm-marquee ul { display: flex; flex: none; margin: 0; padding: 0; list-style: none; }
+.hm-marquee li { display: flex; align-items: center; gap: 30px; padding-right: 30px; font-size: 12px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; white-space: nowrap; }
+.hm-diamond { display: block; width: 7px; height: 7px; background: var(--gold); transform: rotate(45deg); }
+@keyframes hm-marquee { to { transform: translateX(-50%); } }
+
+/* ── Product tabs ── */
+.hm-tablist { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; width: fit-content; max-width: 100%; margin: 0 auto clamp(28px, 4vw, 46px); padding: 5px; background: #fff; border: 1px solid var(--line); border-radius: 999px; box-shadow: 0 8px 24px rgba(11, 19, 38, 0.05); }
+.hm-tab { border: 0; background: transparent; padding: 12px 24px; border-radius: 999px; font-size: 11.5px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-soft); cursor: pointer; transition: background 0.25s ease, color 0.25s ease; white-space: nowrap; }
+.hm-tab:hover { color: var(--ink); }
+.hm-tab.isActive { background: var(--ink); color: #e5c158; }
+.hm-tab:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.hm-panel { animation: hm-fade 0.5s ease both; }
+@keyframes hm-fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* ── Craft in focus ── */
+.hm-craft { background: var(--paper); overflow: hidden; }
+.hm-craft-grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(36px, 6vw, 88px); align-items: center; }
+.hm-craft-copy h2 { font-size: clamp(32px, 4vw, 52px); line-height: 1.07; margin: 14px 0 22px; font-weight: 600; color: var(--ink); letter-spacing: -0.4px; text-wrap: balance; }
+.hm-craft-text { margin: 0 0 26px; max-width: 520px; color: var(--ink-soft); font-size: 16px; line-height: 1.85; }
+.hm-craft-points { display: grid; gap: 12px; margin: 0 0 32px; padding: 0; list-style: none; }
+.hm-craft-points li { display: flex; align-items: center; gap: 12px; font-size: 14.5px; font-weight: 600; color: var(--ink); }
+.hm-craft-points svg { flex: none; width: 28px; height: 28px; padding: 7px; border-radius: 50%; background: linear-gradient(135deg, #fbf5df, #f1e6bd); border: 1px solid var(--line-gold); color: var(--gold-dark); }
+.hm-craft-art { position: relative; padding: 0 0 9% 9%; }
+.hm-craft-main { position: relative; overflow: hidden; border-radius: 4px; box-shadow: 0 30px 70px rgba(11, 19, 38, 0.18); }
+.hm-craft-main::after { content: ""; position: absolute; inset: 12px; border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 2px; pointer-events: none; }
+.hm-craft-main img, .hm-craft-small img { display: block; width: 100%; height: auto; object-fit: cover; }
+.hm-craft-small { position: absolute; left: 0; bottom: 0; width: 34%; overflow: hidden; border: 6px solid var(--paper); border-radius: 4px; box-shadow: 0 22px 50px rgba(11, 19, 38, 0.25); }
+.hm-craft-small img { aspect-ratio: 4 / 5; }
+.hm-craft-badge { position: absolute; right: -8px; top: 26px; display: grid; place-content: center; width: 118px; height: 118px; border-radius: 50%; background: #0b1326; border: 1px solid var(--gold); box-shadow: 0 14px 34px rgba(11, 19, 38, 0.3); color: #f1ebd8; text-align: center; font-size: 9.5px; font-weight: 800; letter-spacing: 2px; line-height: 1.5; text-transform: uppercase; }
+.hm-craft-badge b { font-family: "Cormorant Garamond", Georgia, serif; font-size: 23px; font-weight: 600; font-style: italic; letter-spacing: 0.4px; text-transform: none; color: var(--gold); }
+
+/* The closing band sits on a warm bedroom photograph, so it needs a lighter wash than the old dark one. */
+.home-editorial::before { background: linear-gradient(180deg, rgba(6, 10, 20, 0.6) 0%, rgba(11, 19, 38, 0.8) 100%); }
+
+@media (max-width: 900px) {
+  .hm-craft-grid { grid-template-columns: minmax(0, 1fr); gap: 48px; }
+  .hm-craft-art { padding-left: 6%; }
+  .heroControlsWrap { bottom: 22px; }
+}
+@media (max-width: 560px) {
+  .hm-tab { padding: 11px 16px; font-size: 10.5px; letter-spacing: 1.1px; }
+  .hm-craft-badge { width: 92px; height: 92px; right: 4px; top: 14px; font-size: 8px; letter-spacing: 1.4px; }
+  .hm-craft-badge b { font-size: 18px; }
+  .heroSeg { width: 38px; }
+  .heroCount { display: none; }
+  .hm-marquee li { font-size: 11px; letter-spacing: 2.2px; gap: 22px; padding-right: 22px; }
+}
+
+/* Reduced motion: nothing moves, nothing auto-advances. The site-wide rule shrinks every animation
+   to 0.01ms, which would make the progress bar finish instantly and flip the banners without end,
+   so these animations are removed outright instead. */
+@media (prefers-reduced-motion: reduce) {
+  .heroImg.heroSlide.isActive, .heroEnter > *, .hm-panel { animation: none; }
+  .heroSeg.isActive i { animation: none; width: 100%; }
+  .hm-marquee-track { animation: none; flex-wrap: wrap; justify-content: center; width: auto; }
+  .hm-marquee ul[aria-hidden="true"] { display: none; }
+  .hm-marquee ul { flex-wrap: wrap; justify-content: center; row-gap: 10px; }
+}

@@ -4,14 +4,18 @@ import Image from "next/image";
 import SmartImg from "@/components/SmartImg";
 import heroEditorial from "@/public/editorial/hero.jpg";
 import craftEditorial from "@/public/editorial/craft.jpg";
-import { ArrowRight, Factory, Layers, Leaf, PackageCheck, PenTool, Quote, RotateCcw, ShieldCheck, Sparkles, Star } from "lucide-react";
-import ProductCard from "@/components/ProductCard";
+import artisanEditorial from "@/public/editorial/heritage.jpg";
+import lifestyleEditorial from "@/public/editorial/lifestyle.jpg";
+import { ArrowRight, Check, Factory, Layers, Leaf, PackageCheck, PenTool, Quote, RotateCcw, ShieldCheck, Sparkles, Star } from "lucide-react";
+import ProductTabs, { type ProductTab } from "@/components/site/ProductTabs";
 import { getCatalogProducts, getCatalogBanners, getCatalogCollections } from "@/lib/storefront/catalog";
 import HeroDepth from "@/components/site/HeroDepth";
 import HeroSlider from "@/components/site/HeroSlider";
 import SmartRecommendations from "@/components/site/SmartRecommendations";
 import { getFounders } from "@/lib/storefront/founders";
 import { getFeaturedReviews } from "@/lib/storefront/reviews";
+import { getShippingTerms, rupees } from "@/lib/storefront/shipping-terms";
+import type { Product } from "@/lib/data";
 
 // Cached page (ISR): rebuilt in the background at most once a minute, and right after admin edits.
 export const revalidate = 60;
@@ -95,12 +99,13 @@ const websiteJsonLd = {
 };
 
 export default async function Home() {
-  const [products, banners, collectionsList, founders, reviews] = await Promise.all([
+  const [products, banners, collectionsList, founders, reviews, terms] = await Promise.all([
     getCatalogProducts(),
     getCatalogBanners(),
     getCatalogCollections(),
     getFounders(),
     getFeaturedReviews(6),
+    getShippingTerms(),
   ]);
   const founder = founders[0];
   // Five tiles make a clean mosaic (one large + four small). Any other count falls back to an even grid.
@@ -115,8 +120,41 @@ export default async function Home() {
     image: "",
   };
 
-  // Cards only need listing fields: full descriptions would bloat every page view.
-  const featured = products.filter((p) => p.badge === "BESTSELLER" || !p.badge).slice(0, 8).map((p) => ({ ...p, description: "" }));
+  // Cards only need listing fields: descriptions, specs and variations would bloat the page.
+  const slim = (p: Product): Product => ({ ...p, description: "", specs: undefined, variations: undefined });
+  // "Bestsellers" must mean something: only products that have actually sold (or that the shop tagged as a
+  // bestseller). With fewer than four of those the tab is left out rather than filled with unrelated items.
+  const sold = products
+    .filter((p) => (p.popularity || 0) > 0 || p.badge === "BESTSELLER")
+    .sort((a, b) => (b.popularity || 0) - (a.popularity || 0) || Number(b.badge === "BESTSELLER") - Number(a.badge === "BESTSELLER"))
+    .slice(0, 8)
+    .map(slim);
+  const bestsellers = sold.length >= 4 ? sold : [];
+  const newest = [...products]
+    .sort((a, b) => Number(b.badge === "NEW") - Number(a.badge === "NEW") || (b.createdAt || "").localeCompare(a.createdAt || ""))
+    .slice(0, 8)
+    .map(slim);
+  const onSale = products
+    .filter((p) => (p.oldPrice || 0) > (p.price || 0))
+    .sort((a, b) => (b.discount || 0) - (a.discount || 0))
+    .slice(0, 8)
+    .map(slim);
+  const tabs: ProductTab[] = [
+    { id: "best", label: "Bestsellers", href: "/shop?badge=bestseller", products: bestsellers },
+    { id: "new", label: "New Arrivals", href: "/shop?badge=new", products: newest },
+    { id: "sale", label: "On Sale", href: "/shop?badge=sale", products: onSale },
+  ];
+
+  // Only things that are true of the business, and the shipping value comes from the same settings the checkout uses.
+  const marqueeItems = [
+    "Hand block printed",
+    "100% pure cotton",
+    "Made in Jaipur",
+    "Our own manufacturing",
+    `Free shipping above ${rupees(terms.freeShippingMinOrder)}`,
+    "7-day exchange",
+    "Cash on delivery",
+  ];
 
   return (
     <>
@@ -195,7 +233,9 @@ export default async function Home() {
           <div className="container">
             <div className="hm-head hm-reveal">
               <p className="eyebrow">Shop by category</p>
-              <h2 className="serif">Explore the Collection</h2>
+              <h2 className="serif">
+                Explore the <em>Collection</em>
+              </h2>
               <p className="hm-lede">From the bedroom to the dining table, every piece is hand block printed in Jaipur.</p>
             </div>
 
@@ -231,25 +271,71 @@ export default async function Home() {
         </section>
       )}
 
-      {/* ── 4. FEATURED PRODUCTS ─────────────────────────────── */}
+      {/* ── 3b. MARQUEE ──────────────────────────────────────── */}
+      <div className="hm-marquee" role="region" aria-label="Why Zafiro Indio">
+        <div className="hm-marquee-track">
+          {[0, 1].map((copy) => (
+            <ul key={copy} aria-hidden={copy === 1}>
+              {marqueeItems.map((text) => (
+                <li key={text}>
+                  {text}
+                  <span className="hm-diamond" aria-hidden="true" />
+                </li>
+              ))}
+            </ul>
+          ))}
+        </div>
+      </div>
+
+      {/* ── 4. FEATURED PRODUCTS (tabs) ──────────────────────── */}
       <section className="hm-section hm-section-tint">
         <div className="container">
           <div className="hm-head hm-reveal">
             <p className="eyebrow">Handpicked</p>
-            <h2 className="serif">Pieces We Love</h2>
+            <h2 className="serif">
+              Pieces We <em>Love</em>
+            </h2>
             <p className="hm-lede">Pure cotton, hand block printed, and made to be lived in.</p>
           </div>
+          <ProductTabs tabs={tabs} />
+        </div>
+      </section>
 
-          <div className="hm-products">
-            {featured.map((p) => (
-              <ProductCard key={p.slug} p={p} />
-            ))}
+      {/* ── 4b. CRAFT IN FOCUS ───────────────────────────────── */}
+      <section className="hm-section hm-craft">
+        <div className="container hm-craft-grid">
+          <div className="hm-craft-copy hm-reveal">
+            <p className="eyebrow">The craft</p>
+            <h2 className="serif">
+              Printed by hand, <em>one block at a time</em>
+            </h2>
+            <p className="hm-craft-text">
+              Hand block printing is slow on purpose. A carved wooden block is dipped in colour and pressed onto the cloth by hand, one impression at a time. It is why every
+              piece has its own character, and why small variations are the mark of handwork rather than a flaw.
+            </p>
+            <ul className="hm-craft-points">
+              {["Carved wooden blocks", "Printed by hand, never by machine", "Designed and made in Jaipur"].map((point) => (
+                <li key={point}>
+                  <Check size={15} aria-hidden="true" /> {point}
+                </li>
+              ))}
+            </ul>
+            <Link href="/about" className="btn dark">
+              The story behind the craft <ArrowRight size={14} />
+            </Link>
           </div>
 
-          <div className="hm-more hm-reveal">
-            <Link className="btn dark" href="/shop">
-              Explore all {products.length} pieces <ArrowRight size={14} />
-            </Link>
+          <div className="hm-craft-art hm-reveal">
+            <div className="hm-craft-main">
+              <Image src={craftEditorial} alt="An artisan pressing a carved wooden block onto cloth in a Jaipur courtyard" sizes="(max-width: 900px) 100vw, 55vw" placeholder="blur" />
+            </div>
+            <div className="hm-craft-small">
+              <Image src={artisanEditorial} alt="A block printer holding a hand-carved wooden block" sizes="(max-width: 900px) 40vw, 22vw" placeholder="blur" />
+            </div>
+            <span className="hm-craft-badge" aria-hidden="true">
+              Hand block printed
+              <b>Jaipur</b>
+            </span>
           </div>
         </div>
       </section>
@@ -270,7 +356,9 @@ export default async function Home() {
 
             <div className="hm-founder-copy hm-reveal">
               <p className="eyebrow">The founder&rsquo;s story</p>
-              <h2 className="serif">Thirty years of thread. One name of her own.</h2>
+              <h2 className="serif">
+                Thirty years of thread. <em>One name of her own.</em>
+              </h2>
               <blockquote>
                 <Quote size={22} aria-hidden="true" />
                 <p>
@@ -299,7 +387,9 @@ export default async function Home() {
         <div className="container">
           <div className="hm-head hm-reveal">
             <p className="eyebrow">How we work</p>
-            <h2 className="serif">From Idea to Your Bedroom</h2>
+            <h2 className="serif">
+              From Idea to <em>Your Bedroom</em>
+            </h2>
           </div>
           <ol className="hm-steps">
             {[
@@ -328,7 +418,7 @@ export default async function Home() {
 
       {/* ── 8. EDITORIAL BANNER ──────────────────────────────── */}
       <section className="home-editorial">
-        <Image src={craftEditorial} alt="" fill sizes="100vw" placeholder="blur" className="home-editorial-bg" />
+        <Image src={lifestyleEditorial} alt="" fill sizes="100vw" placeholder="blur" className="home-editorial-bg" />
         <div className="container hm-editorial-inner">
           <p className="eyebrow" style={{ color: "#c5a028", marginBottom: 14 }}>Tactile perfection</p>
           <h2 className="serif">Crafted for Beauty. Built for Every Night.</h2>
@@ -345,7 +435,9 @@ export default async function Home() {
           <div className="container">
             <div className="hm-head hm-reveal">
               <p className="eyebrow">In their words</p>
-              <h2 className="serif">What Our Customers Say</h2>
+              <h2 className="serif">
+                What Our Customers <em>Say</em>
+              </h2>
             </div>
             <div className="hm-reviews">
               {reviews.slice(0, 3).map((r, i) => (

@@ -1,15 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { ArrowRight, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import SmartImg from "@/components/SmartImg";
 
 export type HeroSlide = { id: string; title: string; subtitle: string; ctaText: string; ctaLink: string; image: string };
 
+/** How long each banner stays up is set in app/home.css (`--hero-dwell`), which drives the progress bar. */
+const pad = (n: number) => String(n).padStart(2, "0");
+
 /**
- * Homepage hero: every active banner from Admin → Marketing → Banners, cross-fading every 6.5 s.
- * Pauses on hover / keyboard focus, and never auto-plays for visitors who prefer reduced motion.
+ * Homepage hero: every active banner from Admin → Marketing → Banners, cross-fading.
+ *
+ * Autoplay is driven by the progress bar's own CSS animation: when it finishes, the next banner
+ * shows. That keeps the bar and the timing as one thing, so pausing (hover or keyboard focus) simply
+ * freezes the bar and the timer together. For visitors who prefer reduced motion the animation is
+ * switched off in CSS, so nothing ever auto-advances.
  */
 export default function HeroSlider({ slides }: { slides: HeroSlide[] }) {
   const n = slides.length;
@@ -17,16 +24,10 @@ export default function HeroSlider({ slides }: { slides: HeroSlide[] }) {
   const [paused, setPaused] = useState(false);
   const go = useCallback((i: number) => setActive(((i % n) + n) % n), [n]);
 
-  useEffect(() => {
-    if (n < 2 || paused || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const t = setInterval(() => setActive((a) => (a + 1) % n), 6500);
-    return () => clearInterval(t);
-  }, [n, paused]);
-
   const s = slides[active];
   return (
     <div
-      className="heroSlider"
+      className={`heroSlider${paused ? " isPaused" : ""}`}
       aria-roledescription="carousel"
       aria-label="Featured collections"
       onMouseEnter={() => setPaused(true)}
@@ -67,23 +68,32 @@ export default function HeroSlider({ slides }: { slides: HeroSlide[] }) {
           </div>
         </div>
       </div>
-      {/* Outside the parallax layer, so the dots don't move while you aim at them. */}
+      {/* Outside the parallax layer, so the controls don't move while you aim at them. */}
       {n > 1 && (
         <div className="container heroControlsWrap">
           <div className="heroControls">
+            <span className="heroCount" aria-hidden="true">
+              <b>{pad(active + 1)}</b>
+              <i /> {pad(n)}
+            </span>
+            <div className="heroSegs" role="group" aria-label="Choose a banner">
+              {slides.map((sl, i) => (
+                <button
+                  key={sl.id}
+                  type="button"
+                  className={`heroSeg${i === active ? " isActive" : ""}${i < active ? " isDone" : ""}`}
+                  aria-label={`Show banner ${i + 1}: ${sl.title}`}
+                  aria-current={i === active}
+                  onClick={() => go(i)}
+                >
+                  {/* The fill restarts whenever this banner becomes the active one. */}
+                  <i onAnimationEnd={i === active ? () => go(active + 1) : undefined} />
+                </button>
+              ))}
+            </div>
             <button type="button" className="heroArrow" aria-label="Previous banner" onClick={() => go(active - 1)}>
               <ChevronLeft size={16} />
             </button>
-            {slides.map((sl, i) => (
-              <button
-                key={sl.id}
-                type="button"
-                className={`heroDot${i === active ? " isActive" : ""}`}
-                aria-label={`Show banner ${i + 1}: ${sl.title}`}
-                aria-current={i === active}
-                onClick={() => go(i)}
-              />
-            ))}
             <button type="button" className="heroArrow" aria-label="Next banner" onClick={() => go(active + 1)}>
               <ChevronRight size={16} />
             </button>
