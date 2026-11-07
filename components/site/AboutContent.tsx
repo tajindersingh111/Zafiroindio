@@ -537,7 +537,7 @@ export default function AboutContent({ founders = [] }: { founders?: Founder[] }
       {/* ══════════════════════════════════════
           7. OUR VALUES
       ══════════════════════════════════════ */}
-      <section style={{ padding: "96px 20px", background: "#fff" }}>
+      <section id="values" style={{ padding: "96px 20px", background: "#fff", scrollMarginTop: 100 }}>
         <div className="container" style={{ maxWidth: 1160 }}>
           <Reveal>
             <div style={{ textAlign: "center", marginBottom: 56 }}>

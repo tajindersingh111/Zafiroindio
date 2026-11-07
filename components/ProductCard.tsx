@@ -4,7 +4,6 @@ import Link from "next/link";
 import { Heart, Sparkles, Check } from "lucide-react";
 import { Product } from "@/lib/data";
 import { useStore } from "./StoreProvider";
-import Tilt from "@/components/site/Tilt";
 import { img, imgSrcSet, fallbackToOriginal } from "@/lib/img";
 
 export default function ProductCard({ p }: { p: Product }) {
@@ -37,7 +36,6 @@ export default function ProductCard({ p }: { p: Product }) {
   }
 
   return (
-    <Tilt max={6}>
     <article 
       className="group relative bg-[#fcfbfa] border border-[#e8e2d8] hover:border-[#c5a028]/60 transition-all duration-300 hover:shadow-xl hover:shadow-[#12192c]/5 rounded-sm overflow-hidden flex flex-col"
       onMouseEnter={() => setIsHovered(true)}
@@ -180,12 +178,12 @@ export default function ProductCard({ p }: { p: Product }) {
         <div>
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-1.5">
             <span className="text-[15px] sm:text-base font-bold text-[#12192c]">
-              ₹{p.price.toLocaleString("en-IN")}
+              ₹{Math.round(p.price).toLocaleString("en-IN")}
             </span>
             {p.oldPrice > p.price && (
               <>
                 <span className="text-xs text-slate-400 line-through">
-                  ₹{p.oldPrice.toLocaleString("en-IN")}
+                  ₹{Math.round(p.oldPrice).toLocaleString("en-IN")}
                 </span>
                 <span className="text-[10px] font-mono text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded-xs">
                   {p.discount}% OFF
@@ -212,7 +210,6 @@ export default function ProductCard({ p }: { p: Product }) {
         </div>
       </div>
     </article>
-    </Tilt>
   );
 }
 

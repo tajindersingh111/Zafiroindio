@@ -7,6 +7,8 @@ const inputCls = "w-full px-3 py-2 border border-stone/30 rounded-sm bg-paper te
 
 interface Settings {
   storeName: string; storeEmail: string; storePhone: string;
+  businessLegalName?: string; gstin?: string; supportHours?: string; grievanceOfficer?: string;
+  socialInstagram?: string; socialFacebook?: string; socialYoutube?: string;
   currency: string; currencySymbol: string; timezone: string;
   storeAddress: { address1: string; city: string; state: string; postalCode: string; country: string };
   lowStockThreshold: number;
@@ -40,6 +42,13 @@ export default function SettingsPage() {
         storeName: s.storeName ?? "",
         storeEmail: s.storeEmail ?? "",
         storePhone: s.storePhone ?? "",
+        businessLegalName: s.businessLegalName ?? "",
+        gstin: s.gstin ?? "",
+        supportHours: s.supportHours ?? "",
+        grievanceOfficer: s.grievanceOfficer ?? "",
+        socialInstagram: s.socialInstagram ?? "",
+        socialFacebook: s.socialFacebook ?? "",
+        socialYoutube: s.socialYoutube ?? "",
         currency: s.currency ?? "INR",
         currencySymbol: s.currencySymbol ?? "₹",
         timezone: s.timezone ?? "Asia/Kolkata",
@@ -109,12 +118,33 @@ export default function SettingsPage() {
               { label: "Store Name", key: "storeName" as const },
               { label: "Store Email", key: "storeEmail" as const },
               { label: "Phone", key: "storePhone" as const },
-            ] as { label: string; key: keyof Settings }[]).map(({ label, key }) => (
+              { label: "Registered business name", key: "businessLegalName" as const, hint: "Shown on the policy pages and contact page. Leave blank to use the store name." },
+              { label: "GSTIN", key: "gstin" as const, hint: "Optional. Shown on the contact page and policies when set." },
+              { label: "Support hours", key: "supportHours" as const, hint: "e.g. Mon–Sat · 10AM–7PM IST" },
+              { label: "Grievance officer", key: "grievanceOfficer" as const, hint: "Name and designation, e.g. Neelu Singh, Founder. Indian e-commerce rules require this to be shown on the site." },
+            ] as { label: string; key: keyof Settings; hint?: string }[]).map(({ label, key, hint }) => (
               <div key={key}>
                 <label className="block text-xs font-semibold uppercase tracking-wide text-stone mb-1.5">{label}</label>
                 <input value={String(settings[key] ?? "")} onChange={(e) => set(key, e.target.value)} className={inputCls} />
+                {hint && <p className="mt-1 text-[11px] text-stone">{hint}</p>}
               </div>
             ))}
+          </div>
+        </SectionCard>
+
+        <SectionCard title="Social profiles">
+          <div className="space-y-4">
+            {([
+              { label: "Instagram", key: "socialInstagram" as const, ph: "https://instagram.com/yourpage" },
+              { label: "Facebook", key: "socialFacebook" as const, ph: "https://facebook.com/yourpage" },
+              { label: "YouTube", key: "socialYoutube" as const, ph: "https://youtube.com/@yourchannel" },
+            ] as { label: string; key: keyof Settings; ph: string }[]).map(({ label, key, ph }) => (
+              <div key={key}>
+                <label className="block text-xs font-semibold uppercase tracking-wide text-stone mb-1.5">{label}</label>
+                <input value={String(settings[key] ?? "")} placeholder={ph} onChange={(e) => set(key, e.target.value)} className={inputCls} />
+              </div>
+            ))}
+            <p className="text-[11px] text-stone">Full https:// links only. Each one appears as an icon in the site footer once filled in; blank ones are hidden.</p>
           </div>
         </SectionCard>
 

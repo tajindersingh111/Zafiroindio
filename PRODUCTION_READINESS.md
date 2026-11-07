@@ -229,3 +229,38 @@ on Delivery" and the webhook returns 503. COD is unaffected.
   the template.
 - **`/api/refunds/execute`** — the logic and its double-click guard were reviewed, not executed
   against Razorpay.
+
+---
+
+## Policy pages and storefront polish (2026-11-07)
+
+The footer used to link **Privacy Policy** and **Terms & Conditions** to `/about`, which payment
+gateways and Indian e-commerce rules both treat as missing pages. Now real pages exist, all sharing
+one layout (`components/site/PolicyPage.tsx`) and reading their contact details from Admin → Settings:
+
+| Page | Notes |
+|---|---|
+| `/privacy-policy` | Written against what the site actually does (DPDP Act 2023 rights, Razorpay, ShipMozo, WhatsApp). Browsing data stays in the browser. |
+| `/terms` | Orders, pricing, payments, delivery, returns; governed by Indian law, Jaipur courts. |
+| `/shipping-policy` | Charges, free-shipping value and COD fee are read from the same settings the checkout charges from. |
+| `/return-policy` | Your existing rules, unchanged, plus cancellations and a refund table with timelines. |
+| `/faq` | Accordion answers, with FAQ structured data. |
+| `/contact` | E-mail, phone, WhatsApp, hours, business details, grievance officer. |
+
+**Fill these in Admin → Settings before going live** (they are what the pages display):
+
+- **Phone**: currently empty, so no phone number appears anywhere. A gateway reviewer will look for one.
+- **Registered business name** and **GSTIN**.
+- **Grievance officer** (name and designation). Indian e-commerce rules require it on the site.
+- **Full address** (the footer shows whatever is saved) and **support hours**.
+- **Social profiles**: icons appear in the footer only for the links you fill in.
+
+**Have a lawyer read the policy text once.** It is written carefully and matches the code, but it
+makes commitments (30-day privacy response, 48-hour grievance acknowledgement, Jaipur jurisdiction,
+"5–7 business day" refund timing, COD refunds by UPI or bank transfer) that are the business's to
+confirm.
+
+Home page: the 3D carousel and card tilt are gone, and the "5th generation Karigars" line (an
+unverifiable claim) was replaced by the founder's real words. Customer reviews on the home page
+come from the real review system only, and the section stays hidden until at least three
+approved reviews of 4 stars or more exist.

@@ -10,6 +10,8 @@ import { ChevronDown, ChevronUp, LayoutGrid, Grid, Check, SlidersHorizontal, X }
 function ShopContent() {
   const searchParams = useSearchParams();
   const { products: allProducts, loading: catalogLoading } = useCatalog();
+  // /shop?badge=sale (the footer's "Sale" link) shows only products priced below their list price.
+  const onSaleOnly = searchParams.get("badge") === "sale";
 
   // Filter states
   const [selectedCategory, setSelectedCategory] = useState<string>(""); // category or collection slug; "" = everything
@@ -85,6 +87,9 @@ function ShopContent() {
   const filteredProducts = useMemo(() => {
     let result = [...allProducts];
 
+    // Sale: only what is genuinely marked down from its list price.
+    if (onSaleOnly) result = result.filter((p) => (p.oldPrice || 0) > (p.price || 0));
+
     // Category Filter
     if (selectedCategory) {
       result = result.filter((p) => p.categorySlug === selectedCategory || p.category === selectedCategory || p.collections?.includes(selectedCategory));
@@ -113,6 +118,11 @@ function ShopContent() {
     }
 
     // Sorting
+    // On the Sale view, "featured" means the deepest discounts first.
+    if (onSaleOnly && sort === "featured") {
+      const pct = (p: (typeof result)[number]) => ((p.oldPrice || 0) - (p.price || 0)) / (p.oldPrice || 1);
+      result = [...result].sort((a, b) => pct(b) - pct(a));
+    }
     switch (sort) {
       case "newest":
         // Tagged "new" first, then most recently added.
@@ -134,7 +144,7 @@ function ShopContent() {
     }
 
     return result;
-  }, [allProducts, selectedCategory, selectedSizes, selectedColors, maxPrice, minRating, sort]);
+  }, [allProducts, onSaleOnly, selectedCategory, selectedSizes, selectedColors, maxPrice, minRating, sort]);
 
   const hasFilters =
     !!selectedCategory ||
@@ -173,10 +183,19 @@ function ShopContent() {
               margin: "0 0 6px"
             }}
           >
-            SHOP ALL
+            {onSaleOnly ? "SALE" : "SHOP ALL"}
           </h1>
           <p style={{ fontSize: 14, color: "#66625d", margin: 0 }}>
-            Timeless designs. Premium comfort.
+            {onSaleOnly ? (
+              <>
+                Pieces priced below their list price, deepest discounts first.{" "}
+                <Link href="/shop" style={{ color: "#9a7b1c", textDecoration: "underline" }}>
+                  View all products
+                </Link>
+              </>
+            ) : (
+              "Timeless designs. Premium comfort."
+            )}
           </p>
         </div>
 

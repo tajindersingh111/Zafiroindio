@@ -303,8 +303,8 @@ export default function WelcomeDiscountModal() {
                 style={{
                   marginTop: 6,
                   width: "100%",
-                  background: "#006b54", // Luxury teal/green matching reference
-                  color: "#ffffff",
+                  background: "#0b1326",
+                  color: "#e5c158",
                   border: 0,
                   padding: "14px",
                   fontSize: 14,
@@ -318,8 +318,8 @@ export default function WelcomeDiscountModal() {
                   justifyContent: "center",
                   gap: 8
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "#005241")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "#006b54")}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "#1a2544")}
+                onMouseLeave={(e) => (e.currentTarget.style.background = "#0b1326")}
               >
                 {loading ? "CLAIMING DISCOUNT…" : "Claim discount"}
               </button>

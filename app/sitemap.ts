@@ -13,6 +13,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/collections`, changeFrequency: "weekly", priority: 0.85 },
     { url: `${BASE}/about`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE}/search`, changeFrequency: "weekly", priority: 0.6 },
+    // Policy and help pages (the payment gateway and search engines both look for these).
+    { url: `${BASE}/contact`, changeFrequency: "yearly", priority: 0.5 },
+    { url: `${BASE}/faq`, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${BASE}/shipping-policy`, changeFrequency: "yearly", priority: 0.4 },
+    { url: `${BASE}/return-policy`, changeFrequency: "yearly", priority: 0.4 },
+    { url: `${BASE}/privacy-policy`, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${BASE}/terms`, changeFrequency: "yearly", priority: 0.3 },
   ];
   return [
     ...staticPages,

@@ -3,15 +3,15 @@ import Link from "next/link";
 import Image from "next/image";
 import SmartImg from "@/components/SmartImg";
 import heroEditorial from "@/public/editorial/hero.jpg";
-import artisanEditorial from "@/public/editorial/heritage.jpg";
 import craftEditorial from "@/public/editorial/craft.jpg";
-import { ArrowRight, Leaf, Sparkles, RotateCcw, ShieldCheck, HeartHandshake } from "lucide-react";
+import { ArrowRight, Factory, Layers, Leaf, PackageCheck, PenTool, Quote, RotateCcw, ShieldCheck, Sparkles, Star } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import { getCatalogProducts, getCatalogBanners, getCatalogCollections } from "@/lib/storefront/catalog";
 import HeroDepth from "@/components/site/HeroDepth";
 import HeroSlider from "@/components/site/HeroSlider";
-import Carousel3D from "@/components/site/Carousel3D";
 import SmartRecommendations from "@/components/site/SmartRecommendations";
+import { getFounders } from "@/lib/storefront/founders";
+import { getFeaturedReviews } from "@/lib/storefront/reviews";
 
 // Cached page (ISR): rebuilt in the background at most once a minute, and right after admin edits.
 export const revalidate = 60;
@@ -95,7 +95,17 @@ const websiteJsonLd = {
 };
 
 export default async function Home() {
-  const [products, banners, collectionsList] = await Promise.all([getCatalogProducts(), getCatalogBanners(), getCatalogCollections()]);
+  const [products, banners, collectionsList, founders, reviews] = await Promise.all([
+    getCatalogProducts(),
+    getCatalogBanners(),
+    getCatalogCollections(),
+    getFounders(),
+    getFeaturedReviews(6),
+  ]);
+  const founder = founders[0];
+  // Five tiles make a clean mosaic (one large + four small). Any other count falls back to an even grid.
+  const shownCollections = collectionsList.slice(0, 5);
+  const mosaic = shownCollections.length === 5;
   // Shown only when no banner is active in Admin → Marketing → Banners.
   const heroBanner = {
     title: "Make Your Bedroom Feel Like Sanctuary.",
@@ -105,9 +115,8 @@ export default async function Home() {
     image: "",
   };
 
-  // Cards and the carousel only need listing fields: full descriptions would bloat every page view.
+  // Cards only need listing fields: full descriptions would bloat every page view.
   const featured = products.filter((p) => p.badge === "BESTSELLER" || !p.badge).slice(0, 8).map((p) => ({ ...p, description: "" }));
-  const carousel = products.slice(0, 8).map((p) => ({ slug: p.slug, name: p.name, price: p.price, image: p.images[0] }));
 
   return (
     <>
@@ -180,141 +189,184 @@ export default async function Home() {
         </div>
       </div>
 
-      {products.length >= 3 && (
-        <section className="section c3d-section">
-          <div className="container" style={{ textAlign: "center" }}>
-            <p className="eyebrow">Drag to explore</p>
-            <h2 className="serif" style={{ fontSize: "clamp(30px,4.5vw,48px)", margin: "10px 0 0" }}>The Zafiro Atelier</h2>
+      {/* ── 3. SHOP BY COLLECTION ────────────────────────────── */}
+      {shownCollections.length > 0 && (
+        <section className="hm-section">
+          <div className="container">
+            <div className="hm-head hm-reveal">
+              <p className="eyebrow">Shop by category</p>
+              <h2 className="serif">Explore the Collection</h2>
+              <p className="hm-lede">From the bedroom to the dining table, every piece is hand block printed in Jaipur.</p>
+            </div>
+
+            <div className={mosaic ? "hm-mosaic" : "hm-tiles"}>
+              {shownCollections.map((c, i) => (
+                <Link href={`/collections/${c.slug}`} className="hm-tile hm-reveal" key={c.slug}>
+                  <SmartImg
+                    src={c.image}
+                    width={mosaic && i === 0 ? 1080 : 640}
+                    widths={mosaic && i === 0 ? [640, 1080, 1200] : [384, 640, 828]}
+                    sizes={mosaic && i === 0 ? "(max-width: 900px) 100vw, 50vw" : "(max-width: 900px) 50vw, 25vw"}
+                    alt={c.name}
+                    loading={i < 2 ? "eager" : "lazy"}
+                  />
+                  <span className="hm-tile-shade" aria-hidden="true" />
+                  <span className="hm-tile-text">
+                    <strong className="serif">{c.name}</strong>
+                    {c.desc && <small>{c.desc}</small>}
+                    <span className="hm-tile-cta">
+                      Shop now <ArrowRight size={13} aria-hidden="true" />
+                    </span>
+                  </span>
+                </Link>
+              ))}
+            </div>
+
+            <div className="hm-more hm-reveal">
+              <Link className="btn outline" href="/collections">
+                View all collections <ArrowRight size={14} />
+              </Link>
+            </div>
           </div>
-          <Carousel3D items={carousel} />
         </section>
       )}
 
-      {/* ── 3. SHOP BY COLLECTION ────────────────────────────── */}
-      <section className="section" style={{ background: "var(--paper)" }}>
+      {/* ── 4. FEATURED PRODUCTS ─────────────────────────────── */}
+      <section className="hm-section hm-section-tint">
         <div className="container">
-          <div className="sectionHead">
-            <div>
-              <p className="eyebrow">Shop by Category</p>
-              <h2 className="serif">Explore the Collection</h2>
-            </div>
-            <Link className="link" href="/collections">
-              View All Edits <ArrowRight size={13} style={{ display: "inline", verticalAlign: "middle" }} />
-            </Link>
+          <div className="hm-head hm-reveal">
+            <p className="eyebrow">Handpicked</p>
+            <h2 className="serif">Pieces We Love</h2>
+            <p className="hm-lede">Pure cotton, hand block printed, and made to be lived in.</p>
           </div>
 
-          <div className="collections">
-            {collectionsList.map((c) => (
-              <Link
-                href={`/collections/${c.slug}`}
-                className="collection"
-                key={c.slug}
-              >
-                <SmartImg src={c.image} width={640} widths={[384, 640, 828]} sizes="(max-width: 640px) 50vw, 33vw" alt={c.name} className="collectionImg" loading="lazy" />
-                <div className="collectionText">
-                  {c.name}
-                  <small>{c.desc.substring(0, 42)}…</small>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── 4. FOUNDER & BRAND STORY SECTION ─────────────────── */}
-      <section className="section" style={{ background: "linear-gradient(180deg, var(--cream) 0%, #f1ebd8 100%)", borderTop: "1px solid var(--line-gold)", borderBottom: "1px solid var(--line-gold)" }}>
-        <div className="container">
-          <div className="home-story">
-            <div style={{ position: "relative" }}>
-              <Image
-                src={artisanEditorial}
-                alt="A master block-printer in Jaipur holding a hand-carved wooden block"
-                sizes="(max-width: 900px) 100vw, 50vw"
-                placeholder="blur"
-                style={{ width: "100%", height: "auto", aspectRatio: "4/5", objectFit: "cover", borderRadius: 2, border: "1px solid rgba(197, 160, 40, 0.3)" }}
-              />
-              <div
-                className="home-story-badge"
-                style={{
-                  position: "absolute",
-                  bottom: -20,
-                  right: -20,
-                  background: "#090d16",
-                  color: "#fff",
-                  padding: "24px 28px",
-                  maxWidth: 260,
-                  border: "1px solid #c5a028",
-                  boxShadow: "0 14px 40px rgba(0,0,0,0.25)"
-                }}
-              >
-                <HeartHandshake size={28} style={{ color: "#c5a028", marginBottom: 8 }} />
-                <p style={{ margin: 0, fontSize: 12, lineHeight: 1.6, fontWeight: 600, color: "#f1ebd8" }}>
-                  Hand-block printed by traditional 5th generation Karigars in Sanganer &amp; Bagru, Jaipur.
-                </p>
-              </div>
-            </div>
-
-            <div>
-              <p className="eyebrow">Our Philosophy</p>
-              <h2 className="serif" style={{ fontSize: 42, lineHeight: 1.12, margin: "14px 0 22px", color: "var(--ink)" }}>
-                "We believe restful sleep begins with textiles made with soul, patience, and integrity."
-              </h2>
-              <p style={{ color: "var(--ink-soft)", lineHeight: 1.85, fontSize: 15, marginBottom: 24 }}>
-                Zafiro Indio was born out of a passion for authentic Indian textile craftsmanship. Every sheet is woven from 100% long-staple combed cotton, printed using wooden block stamps carved by hand, and pre-washed for velvety softness that endures for years.
-              </p>
-              <Link href="/about" className="btn dark">
-                Read Our Heritage Story <ArrowRight size={14} />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 5. FEATURED PRODUCTS ─────────────────────────────── */}
-      <section className="section" style={{ background: "var(--paper)" }}>
-        <div className="container">
-          <div className="sectionHead">
-            <div>
-              <p className="eyebrow">Handpicked Masterpieces</p>
-              <h2 className="serif">Loved by Zafiro Homes</h2>
-            </div>
-            <Link className="link" href="/shop">
-              Explore All ({products.length}) <ArrowRight size={13} style={{ display: "inline", verticalAlign: "middle" }} />
-            </Link>
-          </div>
-
-          <div className="products">
+          <div className="hm-products">
             {featured.map((p) => (
               <ProductCard key={p.slug} p={p} />
             ))}
           </div>
+
+          <div className="hm-more hm-reveal">
+            <Link className="btn dark" href="/shop">
+              Explore all {products.length} pieces <ArrowRight size={14} />
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* ── 5.5 SMART RECOMMENDATIONS (personalised) ──────── */}
-      <SmartRecommendations
-        mode="interest"
-        title="Picked For You"
-        subtitle="Products you've shown the most interest in — based on your browsing."
-        maxItems={4}
-      />
+      {/* ── 5. FOUNDER STORY ─────────────────────────────────── */}
+      <section className="hm-section hm-founder">
+        <div className="container">
+          <div className="hm-founder-grid">
+            <div className="hm-founder-photo hm-reveal">
+              <span className="hm-founder-frame" aria-hidden="true" />
+              <img
+                src={founder?.photo || "/editorial/neelu.jpg"}
+                alt={founder ? `${founder.name}, ${founder.role} of Zafiro Indio` : "Founder of Zafiro Indio"}
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
 
-      {/* ── 6. EDITORIAL BANNER ──────────────────────────────── */}
+            <div className="hm-founder-copy hm-reveal">
+              <p className="eyebrow">The founder&rsquo;s story</p>
+              <h2 className="serif">Thirty years of thread. One name of her own.</h2>
+              <blockquote>
+                <Quote size={22} aria-hidden="true" />
+                <p>
+                  Thirty years have been spent understanding every thread and design of the fabric. While working in this textile industry, I always had a dream: to create a
+                  brand that was completely my own.
+                </p>
+                <footer>
+                  <strong>{founder?.name ?? "Neelu Singh"}</strong>
+                  <span>{founder?.role ?? "Founder"}, Zafiro Indio</span>
+                </footer>
+              </blockquote>
+              <p className="hm-founder-text">
+                Five years ago she started her own manufacturing, so quality could be decided in-house at every stage by the person whose name is on the label. Zafiro Indio
+                is what thirty years of knowing cloth looks like.
+              </p>
+              <Link href="/about#story" className="btn dark">
+                Read our story <ArrowRight size={14} />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 6. HOW IT'S MADE ─────────────────────────────────── */}
+      <section className="hm-section hm-process">
+        <div className="container">
+          <div className="hm-head hm-reveal">
+            <p className="eyebrow">How we work</p>
+            <h2 className="serif">From Idea to Your Bedroom</h2>
+          </div>
+          <ol className="hm-steps">
+            {[
+              { Icon: PenTool, title: "Design & innovation", text: "Every product begins with thoughtful design, inspired by global trends and modern living." },
+              { Icon: Layers, title: "Fabric & materials", text: "Fabric is chosen with care, because quality starts with what a piece is made from." },
+              { Icon: Factory, title: "Craftsmanship & production", text: "Made in our own unit, with the support of JHB Industries, with precision at every stage." },
+              { Icon: PackageCheck, title: "Finishing & delivery", text: "Finishing details checked, then packed and sent to you with reliable service." },
+            ].map(({ Icon, title, text }, i) => (
+              <li key={title} className="hm-step hm-reveal">
+                <span className="hm-step-num" aria-hidden="true">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="hm-step-icon" aria-hidden="true">
+                  <Icon size={22} strokeWidth={1.5} />
+                </span>
+                <h3>{title}</h3>
+                <p>{text}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* ── 7. SMART RECOMMENDATIONS (personalised) ──────────── */}
+      <SmartRecommendations mode="interest" title="Picked For You" subtitle="Products you've shown the most interest in — based on your browsing." maxItems={4} />
+
+      {/* ── 8. EDITORIAL BANNER ──────────────────────────────── */}
       <section className="home-editorial">
         <Image src={craftEditorial} alt="" fill sizes="100vw" placeholder="blur" className="home-editorial-bg" />
-        <div className="container" style={{ maxWidth: 680, position: "relative", zIndex: 1 }}>
-          <p className="eyebrow" style={{ color: "#c5a028", marginBottom: 14 }}>Tactile Perfection</p>
-          <h2 className="serif" style={{ fontSize: 40, margin: "0 0 18px", color: "#fff" }}>
-            Crafted for Beauty. Built for Every Night.
-          </h2>
-          <p style={{ color: "#94a3b8", lineHeight: 1.8, marginBottom: 28, fontSize: 15 }}>
-            Every Zafiro bedsheet is breathable, pre-washed for extra softness, and designed to age gracefully through every wash.
-          </p>
-          <Link href="/shop" className="btn gold" style={{ background: "#c5a028", borderColor: "#c5a028", color: "#0f172a" }}>
-            Shop New Arrivals <ArrowRight size={14} />
+        <div className="container hm-editorial-inner">
+          <p className="eyebrow" style={{ color: "#c5a028", marginBottom: 14 }}>Tactile perfection</p>
+          <h2 className="serif">Crafted for Beauty. Built for Every Night.</h2>
+          <p>Breathable cotton, hand block printed, and designed to age gracefully through every wash.</p>
+          <Link href="/shop?badge=new" className="btn gold hm-gold-solid">
+            Shop new arrivals <ArrowRight size={14} />
           </Link>
         </div>
       </section>
+
+      {/* ── 9. REAL CUSTOMER REVIEWS (hidden until there are enough good ones) ── */}
+      {reviews.length > 0 && (
+        <section className="hm-section">
+          <div className="container">
+            <div className="hm-head hm-reveal">
+              <p className="eyebrow">In their words</p>
+              <h2 className="serif">What Our Customers Say</h2>
+            </div>
+            <div className="hm-reviews">
+              {reviews.slice(0, 3).map((r, i) => (
+                <figure key={`${r.name}-${i}`} className="hm-review hm-reveal">
+                  <div className="hm-review-stars" role="img" aria-label={`${r.rating} out of 5 stars`}>
+                    {Array.from({ length: r.rating }).map((_, k) => (
+                      <Star key={k} size={14} fill="currentColor" strokeWidth={0} />
+                    ))}
+                  </div>
+                  {r.title && <h3>{r.title}</h3>}
+                  <blockquote>{r.text}</blockquote>
+                  <figcaption>
+                    <strong>{r.name}</strong>
+                    {r.product && <span>on {r.product}</span>}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </main>
     </>
   );

@@ -2,24 +2,56 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Instagram, Facebook, Twitter, Youtube, CheckCircle2 } from "lucide-react";
+import { Instagram, Facebook, Youtube, CheckCircle2, Mail, MapPin, Phone, MessageCircle, Clock, ShieldCheck } from "lucide-react";
+import { useStoreContact, waLink } from "@/components/useStoreContact";
 
-/** Contact details and social profiles shown in the footer. Empty entries are not rendered. */
-const CONTACT = { email: "hello@zafiroindio.com", phone: "", hours: "Mon–Sat · 10AM–7PM IST" };
-const SOCIAL = [
-  { label: "Instagram", href: "", Icon: Instagram },
-  { label: "Facebook", href: "", Icon: Facebook },
-  { label: "Twitter", href: "", Icon: Twitter },
-  { label: "Youtube", href: "", Icon: Youtube },
-].filter((x) => x.href);
+/** Where each footer column leads. Every entry is a real page. */
+const SHOP_LINKS = [
+  { href: "/shop", label: "All Bedsheets" },
+  { href: "/shop?badge=bestseller", label: "Bestsellers" },
+  { href: "/shop?badge=new", label: "New Arrivals" },
+  { href: "/collections", label: "Collections" },
+  { href: "/shop?badge=sale", label: "Sale" },
+];
+
+const CARE_LINKS = [
+  { href: "/account", label: "My Orders" },
+  { href: "/track", label: "Track My Order" },
+  { href: "/return-policy", label: "Returns & Exchanges" },
+  { href: "/shipping-policy", label: "Shipping & Delivery" },
+  { href: "/faq", label: "FAQs" },
+  { href: "/bulk-order", label: "Bulk Orders" },
+];
+
+const COMPANY_LINKS = [
+  { href: "/about#story", label: "Our Story" },
+  { href: "/about#values", label: "Our Values" },
+  { href: "/contact", label: "Contact Us" },
+  { href: "/privacy-policy", label: "Privacy Policy" },
+  { href: "/terms", label: "Terms & Conditions" },
+];
+
+const PAYMENT_METHODS = ["UPI", "Cards", "Net Banking", "Wallets", "Cash on Delivery"];
 
 export default function Footer() {
   const pathname = usePathname();
+  const contact = useStoreContact();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   if (pathname?.startsWith("/admin")) return null;
+
+  // Shown until the real settings load, so the footer is never empty or jumpy.
+  const supportEmail = contact?.email || "hello@zafiroindio.com";
+  const hours = contact?.hours || "Mon–Sat · 10AM–7PM IST";
+  const address = contact?.address || "Jaipur, Rajasthan, India";
+  const wa = waLink(contact, "Hi Zafiro Indio, I need some help.");
+  const social = [
+    { label: "Instagram", href: contact?.social.instagram, Icon: Instagram },
+    { label: "Facebook", href: contact?.social.facebook, Icon: Facebook },
+    { label: "YouTube", href: contact?.social.youtube, Icon: Youtube },
+  ].filter((x): x is { label: string; href: string; Icon: typeof Instagram } => !!x.href);
 
   async function handleSubscribe(e: React.FormEvent) {
     e.preventDefault();
@@ -57,27 +89,22 @@ export default function Footer() {
       {/* ── Newsletter ──────────────────────────────────────── */}
       <section className="newsletter">
         <div className="container">
+          <p className="eyebrow">Stay in touch</p>
           <h2 className="serif">A Little More Beautiful in Your Inbox.</h2>
-          <p>Get first access to new collections, special offers and bedroom inspiration.</p>
-          
+          <p className="newsletter-sub">First access to new collections, special offers and bedroom inspiration. No spam, unsubscribe any time.</p>
+
           {message ? (
-            <div className={`p-4 rounded-sm max-w-md mx-auto text-sm font-medium flex items-center justify-center gap-2 ${
-              message.type === "success" ? "bg-emerald-950/80 text-emerald-300 border border-emerald-500/40" : "bg-red-950/80 text-red-300 border border-red-500/40"
-            }`}>
+            <div
+              role="status"
+              className={`newsletter-msg ${message.type === "success" ? "is-success" : "is-error"}`}
+            >
               <CheckCircle2 size={16} /> {message.text}
             </div>
           ) : (
             <form onSubmit={handleSubscribe}>
-              <input 
-                type="email" 
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Your email address" 
-                aria-label="Email address" 
-              />
+              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Your email address" aria-label="Email address" autoComplete="email" />
               <button type="submit" disabled={loading}>
-                {loading ? "Subscribing..." : "Subscribe"}
+                {loading ? "Subscribing…" : "Subscribe"}
               </button>
             </form>
           )}
@@ -89,69 +116,89 @@ export default function Footer() {
         <div className="container">
           <div className="footerGrid">
             {/* Brand */}
-            <div>
-              <Link href="/" style={{ display: "inline-block", marginBottom: 14 }}>
-                <img
-                  src="/zafiro-logo-dark.png"
-                  alt="Zafiro Indio"
-                  style={{ height: 44, width: "auto", objectFit: "contain", filter: "brightness(0) invert(1)" }}
-                />
+            <div className="footerBrand">
+              <Link href="/" style={{ display: "inline-block", marginBottom: 16 }} aria-label="Zafiro Indio home">
+                <img src="/zafiro-logo-dark.png" alt="Zafiro Indio" style={{ height: 46, width: "auto", objectFit: "contain", filter: "brightness(0) invert(1)" }} />
               </Link>
-              <p>Beautiful bedsheets for beautiful homes. Thoughtfully crafted for everyday comfort and timeless style.</p>
-              {SOCIAL.length > 0 && (
+              <p>Hand block printed bedding and home textiles, designed and made with care in Jaipur.</p>
+              {social.length > 0 && (
                 <div className="footerSocial">
-                  {SOCIAL.map(({ label, href, Icon }) => (
-                    <a key={label} href={href} aria-label={label} target="_blank" rel="noopener noreferrer"><Icon size={14} /></a>
+                  {social.map(({ label, href, Icon }) => (
+                    <a key={label} href={href} aria-label={label} target="_blank" rel="noopener noreferrer">
+                      <Icon size={15} />
+                    </a>
                   ))}
                 </div>
               )}
+              <div className="footerPay" aria-label="Payment methods">
+                {PAYMENT_METHODS.map((m) => (
+                  <span key={m}>{m}</span>
+                ))}
+              </div>
+              <p className="footerSecure">
+                <ShieldCheck size={13} aria-hidden="true" /> Secure payments by Razorpay
+              </p>
             </div>
 
-            {/* Shop */}
-            <div>
+            <nav aria-label="Shop">
               <h4>Shop</h4>
-              <Link href="/shop">All Bedsheets</Link>
-              <Link href="/shop?badge=bestseller">Bestsellers</Link>
-              <Link href="/shop?badge=new">New Arrivals</Link>
-              <Link href="/collections">Collections</Link>
-              <Link href="/shop">Sale</Link>
-            </div>
+              {SHOP_LINKS.map((l) => (
+                <Link key={l.label} href={l.href}>
+                  {l.label}
+                </Link>
+              ))}
+            </nav>
 
-            {/* Customer Care */}
-            <div>
+            <nav aria-label="Customer care">
               <h4>Customer Care</h4>
-              <Link href="/account">My Orders</Link>
-              <Link href="/track">Track My Order</Link>
-              <Link href="/return-policy">Returns &amp; Exchanges</Link>
-              <Link href="/account">Request a Return / Exchange</Link>
-              <Link href="/bulk-order">Bulk Orders</Link>
-            </div>
+              {CARE_LINKS.map((l) => (
+                <Link key={l.label} href={l.href}>
+                  {l.label}
+                </Link>
+              ))}
+            </nav>
 
-            {/* About */}
-            <div>
-              <h4>About Us</h4>
-              <Link href="/about#story">Our Story</Link>
-              <Link href="/about">Our Values</Link>
-              <Link href="/about">Sustainability</Link>
-              <a href={`mailto:${CONTACT.email}`}>Contact Us</a>
-            </div>
+            <nav aria-label="Company">
+              <h4>Company</h4>
+              {COMPANY_LINKS.map((l) => (
+                <Link key={l.label} href={l.href}>
+                  {l.label}
+                </Link>
+              ))}
+            </nav>
 
-            {/* Contact */}
             <div>
-              <h4>Contact Us</h4>
-              <p><a href={`mailto:${CONTACT.email}`}>✉ {CONTACT.email}</a></p>
-              {CONTACT.phone && <p><a href={`tel:${CONTACT.phone.replace(/\s/g, "")}`}>☎ {CONTACT.phone}</a></p>}
-              <p>{CONTACT.hours}</p>
-              <p style={{ marginTop: 14 }}>Jaipur, Rajasthan, India</p>
+              <h4>Get in touch</h4>
+              <a href={`mailto:${supportEmail}`} className="footerContact">
+                <Mail size={14} aria-hidden="true" /> {supportEmail}
+              </a>
+              {contact?.phone && (
+                <a href={`tel:${contact.phone.replace(/[^\d+]/g, "")}`} className="footerContact">
+                  <Phone size={14} aria-hidden="true" /> {contact.phone}
+                </a>
+              )}
+              {wa && (
+                <a href={wa} target="_blank" rel="noopener noreferrer" className="footerContact">
+                  <MessageCircle size={14} aria-hidden="true" /> WhatsApp us
+                </a>
+              )}
+              <p className="footerContact">
+                <Clock size={14} aria-hidden="true" /> {hours}
+              </p>
+              <p className="footerContact">
+                <MapPin size={14} aria-hidden="true" /> {address}
+              </p>
             </div>
           </div>
 
           <div className="footerBottom">
-            <span>© {new Date().getFullYear()} Zafiro Indio. All rights reserved.</span>
+            <span>© {new Date().getFullYear()} {contact?.businessName || "Zafiro Indio"}. All rights reserved.</span>
             <div className="footerLegalLinks">
-              <Link href="/about">Privacy Policy</Link>
+              <Link href="/privacy-policy">Privacy Policy</Link>
               <span className="dot">•</span>
-              <Link href="/about">Terms &amp; Conditions</Link>
+              <Link href="/terms">Terms &amp; Conditions</Link>
+              <span className="dot">•</span>
+              <Link href="/shipping-policy">Shipping Policy</Link>
               <span className="dot">•</span>
               <Link href="/return-policy">Return &amp; Refund Policy</Link>
             </div>
