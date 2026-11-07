@@ -14,7 +14,10 @@ const SESSION_MS = CUSTOMER_COOKIE_MAX_AGE * 1000;
 
 export interface CustomerSession {
   customerId: string;
+  /** Verified phone number; empty for a shopper who signed in with e-mail. */
   phone: string;
+  /** Verified e-mail address; only set for a shopper who signed in with e-mail. */
+  email?: string;
   name: string;
   issuedAt: number;
 }
@@ -44,7 +47,7 @@ export function parseCustomerSession(raw: string | undefined | null): CustomerSe
     const [payload, signature] = parts;
     if (!safeEqual(sign(payload), signature)) return null;
     const session = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as CustomerSession;
-    if (!session.customerId || !session.phone || typeof session.issuedAt !== "number") return null;
+    if (!session.customerId || (!session.phone && !session.email) || typeof session.issuedAt !== "number") return null;
     if (Date.now() - session.issuedAt > SESSION_MS) return null;
     return session;
   } catch {
@@ -52,10 +55,11 @@ export function parseCustomerSession(raw: string | undefined | null): CustomerSe
   }
 }
 
-export function buildCustomerSessionCookie(customer: { id: string; phone: string; name: string }): string {
+export function buildCustomerSessionCookie(customer: { id: string; phone?: string; email?: string; name: string }): string {
   const session: CustomerSession = {
     customerId: customer.id,
-    phone: customer.phone,
+    phone: customer.phone || "",
+    ...(customer.email ? { email: customer.email } : {}),
     name: customer.name,
     issuedAt: Date.now(),
   };

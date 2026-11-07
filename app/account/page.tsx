@@ -87,7 +87,7 @@ export default function AccountPage() {
               <p className="eyebrow" style={{ marginBottom: 4 }}>Signed in</p>
               <h2 className="serif" style={{ fontSize: 24, margin: 0 }}>{customer.name}</h2>
               <p style={{ color: "var(--muted)", fontSize: 12.5, margin: "4px 0 0" }}>
-                +91 {customer.phone}
+                {customer.phone ? `+91 ${customer.phone}` : customer.email}
                 {customer.totalOrders ? ` · ${customer.totalOrders} order${customer.totalOrders === 1 ? "" : "s"}` : ""}
               </p>
             </div>

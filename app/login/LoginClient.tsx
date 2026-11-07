@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ShieldCheck, ArrowLeft, Loader2 } from "lucide-react";
+import { ShieldCheck, ArrowLeft, Loader2, Mail, MessageCircle } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 
 /** Only allow internal destinations, so ?next= can never bounce a shopper off-site. */
@@ -12,14 +12,29 @@ function safeNext(raw: string | null): string {
   return raw;
 }
 
+type Channel = "whatsapp" | "email";
+type Methods = { whatsapp: boolean; email: boolean };
+
+const labelStyle: React.CSSProperties = {
+  display: "block",
+  fontSize: 12,
+  fontWeight: 700,
+  letterSpacing: ".04em",
+  textTransform: "uppercase",
+  marginBottom: 8,
+};
+
 export default function LoginClient() {
   const router = useRouter();
   const params = useSearchParams();
   const next = safeNext(params.get("next"));
   const { customer, loading, refresh } = useAuth();
 
-  const [step, setStep] = useState<"phone" | "code">("phone");
+  const [methods, setMethods] = useState<Methods | null>(null);
+  const [channel, setChannel] = useState<Channel>("whatsapp");
+  const [step, setStep] = useState<"contact" | "code">("contact");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -32,6 +47,27 @@ export default function LoginClient() {
     if (!loading && customer) router.replace(next);
   }, [loading, customer, next, router]);
 
+  // Offer only the methods this server can actually deliver a code through.
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/auth/methods", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: Methods | null) => {
+        if (cancelled) return;
+        // If the check itself fails, offer both rather than locking everyone out of signing in.
+        const m = data ?? { whatsapp: true, email: true };
+        setMethods(m);
+        setChannel(m.whatsapp ? "whatsapp" : "email");
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setMethods({ whatsapp: true, email: true });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   useEffect(() => {
     if (cooldown <= 0) return;
     const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
@@ -42,9 +78,22 @@ export default function LoginClient() {
     if (step === "code") codeInput.current?.focus();
   }, [step]);
 
+  const isEmail = channel === "email";
+  const phoneValid = /^[6-9]\d{9}$/.test(phone);
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const contactValid = isEmail ? emailValid : phoneValid;
+  const contactBody = isEmail ? { channel, email: email.trim() } : { channel, phone };
+
+  function pickChannel(next: Channel) {
+    if (next === channel || busy) return;
+    setChannel(next);
+    setError("");
+    setNotice("");
+  }
+
   async function sendCode(e?: React.FormEvent) {
     e?.preventDefault();
-    if (busy || cooldown > 0) return;
+    if (busy || cooldown > 0 || !contactValid) return;
     setBusy(true);
     setError("");
     setNotice("");
@@ -52,13 +101,13 @@ export default function LoginClient() {
       const res = await fetch("/api/auth/otp/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone }),
+        body: JSON.stringify(contactBody),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "We could not send the code. Please try again.");
       setStep("code");
       setCooldown(Number(data.cooldownSeconds) || 60);
-      setNotice(data.devNotice || `We sent a 6-digit code to WhatsApp on +91 ${phone}.`);
+      setNotice(data.devNotice || (isEmail ? `We sent a 6-digit code to ${email.trim()}. Check your spam folder if it does not arrive.` : `We sent a 6-digit code to WhatsApp on +91 ${phone}.`));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -75,7 +124,7 @@ export default function LoginClient() {
       const res = await fetch("/api/auth/otp/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone, code }),
+        body: JSON.stringify({ ...contactBody, code }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "That code was not accepted.");
@@ -90,7 +139,8 @@ export default function LoginClient() {
     }
   }
 
-  const phoneValid = /^[6-9]\d{9}$/.test(phone);
+  const bothAvailable = !!methods?.whatsapp && !!methods?.email;
+  const noneAvailable = !!methods && !methods.whatsapp && !methods.email;
 
   return (
     <main className="blockprint-bg">
@@ -101,127 +151,209 @@ export default function LoginClient() {
 
         <div className="lux-card" style={{ padding: "32px 28px" }}>
           <h1 className="serif" style={{ fontSize: 30, marginBottom: 6 }}>
-            {step === "phone" ? "Sign in" : "Enter your code"}
+            {step === "contact" ? "Sign in" : "Enter your code"}
           </h1>
           <p style={{ color: "var(--muted)", fontSize: 13.5, marginBottom: 24, lineHeight: 1.6 }}>
-            {step === "phone"
-              ? "We'll send a one-time code to your WhatsApp. No password to remember."
-              : `Sent to WhatsApp on +91 ${phone}.`}
+            {step === "contact"
+              ? isEmail
+                ? "We'll e-mail you a one-time code. No password to remember."
+                : "We'll send a one-time code to your WhatsApp. No password to remember."
+              : isEmail
+                ? `Sent to ${email.trim()}.`
+                : `Sent to WhatsApp on +91 ${phone}.`}
           </p>
 
-          {step === "phone" ? (
-            <form onSubmit={sendCode} noValidate>
-              <label htmlFor="phone" style={{ display: "block", fontSize: 12, fontWeight: 700, letterSpacing: ".04em", textTransform: "uppercase", marginBottom: 8 }}>
-                Mobile number
-              </label>
-              <div style={{ display: "flex", alignItems: "stretch", gap: 8, marginBottom: 18 }}>
-                <span
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    padding: "0 14px",
-                    border: "1px solid var(--line)",
-                    borderRadius: 8,
-                    background: "var(--cream)",
-                    fontSize: 14,
-                    fontWeight: 600,
-                  }}
-                >
-                  +91
-                </span>
-                <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  inputMode="numeric"
-                  autoComplete="tel-national"
-                  autoFocus
-                  placeholder="98765 43210"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                  style={{ flex: 1, padding: "13px 14px", border: "1px solid var(--line)", borderRadius: 8, fontSize: 15, letterSpacing: ".05em" }}
-                />
-              </div>
-
-              <button type="submit" className="btn gold full" disabled={busy || !phoneValid} style={{ padding: "15px 22px", fontSize: 12.5 }}>
-                {busy ? (
-                  <>
-                    <Loader2 size={14} className="spin" /> Sending…
-                  </>
-                ) : (
-                  "Send code on WhatsApp"
-                )}
-              </button>
-            </form>
+          {!methods ? (
+            <p style={{ color: "var(--muted)", fontSize: 13 }}>Loading…</p>
+          ) : noneAvailable ? (
+            <p role="alert" style={{ color: "var(--danger)", fontSize: 13.5, lineHeight: 1.6 }}>
+              Sign-in is temporarily unavailable. You can still{" "}
+              <Link href="/track" style={{ textDecoration: "underline" }}>
+                track an order
+              </Link>{" "}
+              or check out without an account.
+            </p>
           ) : (
-            <form onSubmit={verify} noValidate>
-              <label htmlFor="code" style={{ display: "block", fontSize: 12, fontWeight: 700, letterSpacing: ".04em", textTransform: "uppercase", marginBottom: 8 }}>
-                6-digit code
-              </label>
-              <input
-                id="code"
-                ref={codeInput}
-                name="otp"
-                type="text"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                maxLength={6}
-                placeholder="••••••"
-                value={code}
-                onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                style={{
-                  width: "100%",
-                  padding: "14px 16px",
-                  border: "1px solid var(--line)",
-                  borderRadius: 8,
-                  fontSize: 22,
-                  letterSpacing: ".4em",
-                  textAlign: "center",
-                  marginBottom: 18,
-                }}
-              />
+            <>
+              {/* Method choice — only while picking where to send the code, and only if there is a choice. */}
+              {step === "contact" && bothAvailable && (
+                <div role="tablist" aria-label="Sign-in method" style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+                  {(
+                    [
+                      { id: "whatsapp", label: "WhatsApp", Icon: MessageCircle },
+                      { id: "email", label: "E-mail", Icon: Mail },
+                    ] as const
+                  ).map(({ id, label, Icon }) => {
+                    const active = channel === id;
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        role="tab"
+                        aria-selected={active}
+                        onClick={() => pickChannel(id)}
+                        style={{
+                          flex: 1,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 7,
+                          padding: "11px 12px",
+                          fontSize: 13,
+                          fontWeight: 700,
+                          border: `1.5px solid ${active ? "var(--gold-dark)" : "var(--line)"}`,
+                          borderRadius: 8,
+                          background: active ? "var(--cream)" : "#fff",
+                          color: active ? "var(--gold-dark)" : "var(--muted)",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <Icon size={15} /> {label}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
 
-              <button type="submit" className="btn gold full" disabled={busy || code.length !== 6} style={{ padding: "15px 22px", fontSize: 12.5 }}>
-                {busy ? (
-                  <>
-                    <Loader2 size={14} className="spin" /> Verifying…
-                  </>
-                ) : (
-                  "Verify and continue"
-                )}
-              </button>
+              {step === "contact" ? (
+                <form onSubmit={sendCode} noValidate>
+                  {isEmail ? (
+                    <>
+                      <label htmlFor="email" style={labelStyle}>
+                        E-mail address
+                      </label>
+                      <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        inputMode="email"
+                        autoComplete="email"
+                        autoFocus
+                        placeholder="you@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        style={{ width: "100%", padding: "13px 14px", border: "1px solid var(--line)", borderRadius: 8, fontSize: 15, marginBottom: 18 }}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <label htmlFor="phone" style={labelStyle}>
+                        Mobile number
+                      </label>
+                      <div style={{ display: "flex", alignItems: "stretch", gap: 8, marginBottom: 18 }}>
+                        <span
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            padding: "0 14px",
+                            border: "1px solid var(--line)",
+                            borderRadius: 8,
+                            background: "var(--cream)",
+                            fontSize: 14,
+                            fontWeight: 600,
+                          }}
+                        >
+                          +91
+                        </span>
+                        <input
+                          id="phone"
+                          name="phone"
+                          type="tel"
+                          inputMode="numeric"
+                          autoComplete="tel-national"
+                          autoFocus
+                          placeholder="98765 43210"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                          style={{ flex: 1, padding: "13px 14px", border: "1px solid var(--line)", borderRadius: 8, fontSize: 15, letterSpacing: ".05em" }}
+                        />
+                      </div>
+                    </>
+                  )}
 
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 16, gap: 12 }}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setStep("phone");
-                    setCode("");
-                    setError("");
-                    setNotice("");
-                  }}
-                  style={{ background: "none", border: "none", padding: 0, cursor: "pointer", color: "var(--muted)", fontSize: 12.5, display: "flex", alignItems: "center", gap: 5 }}
-                >
-                  <ArrowLeft size={13} /> Change number
-                </button>
-                <button
-                  type="button"
-                  onClick={() => sendCode()}
-                  disabled={cooldown > 0 || busy}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    padding: 0,
-                    cursor: cooldown > 0 ? "default" : "pointer",
-                    color: cooldown > 0 ? "var(--muted)" : "var(--gold-dark)",
-                    fontSize: 12.5,
-                    fontWeight: 600,
-                  }}
-                >
-                  {cooldown > 0 ? `Resend in ${cooldown}s` : "Resend code"}
-                </button>
-              </div>
-            </form>
+                  <button type="submit" className="btn gold full" disabled={busy || !contactValid} style={{ padding: "15px 22px", fontSize: 12.5 }}>
+                    {busy ? (
+                      <>
+                        <Loader2 size={14} className="spin" /> Sending…
+                      </>
+                    ) : isEmail ? (
+                      "Send code to my e-mail"
+                    ) : (
+                      "Send code on WhatsApp"
+                    )}
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={verify} noValidate>
+                  <label htmlFor="code" style={labelStyle}>
+                    6-digit code
+                  </label>
+                  <input
+                    id="code"
+                    ref={codeInput}
+                    name="otp"
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    maxLength={6}
+                    placeholder="••••••"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                    style={{
+                      width: "100%",
+                      padding: "14px 16px",
+                      border: "1px solid var(--line)",
+                      borderRadius: 8,
+                      fontSize: 22,
+                      letterSpacing: ".4em",
+                      textAlign: "center",
+                      marginBottom: 18,
+                    }}
+                  />
+
+                  <button type="submit" className="btn gold full" disabled={busy || code.length !== 6} style={{ padding: "15px 22px", fontSize: 12.5 }}>
+                    {busy ? (
+                      <>
+                        <Loader2 size={14} className="spin" /> Verifying…
+                      </>
+                    ) : (
+                      "Verify and continue"
+                    )}
+                  </button>
+
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 16, gap: 12 }}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStep("contact");
+                        setCode("");
+                        setError("");
+                        setNotice("");
+                      }}
+                      style={{ background: "none", border: "none", padding: 0, cursor: "pointer", color: "var(--muted)", fontSize: 12.5, display: "flex", alignItems: "center", gap: 5 }}
+                    >
+                      <ArrowLeft size={13} /> {bothAvailable ? "Change number or method" : isEmail ? "Change e-mail" : "Change number"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => sendCode()}
+                      disabled={cooldown > 0 || busy}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        padding: 0,
+                        cursor: cooldown > 0 ? "default" : "pointer",
+                        color: cooldown > 0 ? "var(--muted)" : "var(--gold-dark)",
+                        fontSize: 12.5,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {cooldown > 0 ? `Resend in ${cooldown}s` : "Resend code"}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </>
           )}
 
           {error && (
@@ -229,14 +361,12 @@ export default function LoginClient() {
               {error}
             </p>
           )}
-          {notice && !error && (
-            <p style={{ color: "var(--success)", fontSize: 12.5, marginTop: 16, lineHeight: 1.5 }}>{notice}</p>
-          )}
+          {notice && !error && <p style={{ color: "var(--success)", fontSize: 12.5, marginTop: 16, lineHeight: 1.5 }}>{notice}</p>}
 
           <p style={{ display: "flex", gap: 8, alignItems: "flex-start", color: "var(--muted)", fontSize: 11.5, marginTop: 24, lineHeight: 1.6 }}>
             <ShieldCheck size={14} style={{ flexShrink: 0, marginTop: 2 }} />
             <span>
-              Your number is used only to sign you in and to send order updates. Never share your code with anyone — we will
+              Your {isEmail ? "e-mail" : "number"} is used only to sign you in and to send order updates. Never share your code with anyone — we will
               never ask for it.
             </span>
           </p>

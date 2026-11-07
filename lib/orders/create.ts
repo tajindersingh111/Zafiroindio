@@ -68,8 +68,11 @@ async function upsertCustomerDoc(
   const byPhone = !byId && identity.phone
     ? await tx.document.findFirst({ where: { collection: "customers", data: { path: ["phone"], equals: identity.phone } } })
     : null;
+  // A record an e-mail sign-in created is the shopper's own identity. A guest typing that address into
+  // a checkout form must not merge into it (and overwrite its saved address), so those are skipped.
   const byEmail = !byId && !byPhone && identity.email
-    ? await tx.document.findFirst({ where: { collection: "customers", data: { path: ["email"], equals: identity.email } } })
+    ? (await tx.document.findMany({ where: { collection: "customers", data: { path: ["email"], equals: identity.email } }, take: 5 }))
+        .find((r) => (r.data as { emailVerified?: boolean } | null)?.emailVerified !== true) ?? null
     : null;
   const row = byId ?? byPhone ?? byEmail;
   const [firstName, ...rest] = identity.name.split(" ");

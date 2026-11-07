@@ -1,7 +1,7 @@
 # Zafiro Indio
 
 Hand-block printed bedding store (Jaipur). Next.js 16 App Router + TypeScript, PostgreSQL via Prisma 7,
-own checkout with **Razorpay** (UPI / cards / net banking) and COD, shopper login by **WhatsApp OTP**,
+own checkout with **Razorpay** (UPI / cards / net banking) and COD, shopper login by **WhatsApp or e-mail OTP**,
 shipping by **ShipMozo**.
 
 ## Run locally
@@ -29,10 +29,26 @@ DATABASE_URL=postgresql://postgres@localhost:5435/zafiro_dev npm run dev
 `npm run build` prerenders the cached pages, so it needs a reachable database (if it can't reach one,
 those pages fall back to rendering on request instead of failing the build).
 
-## How customers sign in (WhatsApp OTP)
+## How customers sign in (WhatsApp or e-mail OTP)
 
-There is no password. A shopper enters their mobile number, we send a 6-digit code to WhatsApp, and a
-correct code signs them in and creates their customer record on first login.
+There is no password. A shopper enters their mobile number (code sent to WhatsApp) or their e-mail
+address (code sent by e-mail), and a correct code signs them in and creates their customer record on
+first login. `/login` offers a WhatsApp / E-mail choice, and only shows the methods this server can
+actually deliver (`GET /api/auth/methods`), so nobody waits for a code that cannot be sent.
+
+Both channels share one engine (`lib/auth/otp.ts`) and the limits below. E-mail needs SMTP
+(`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `EMAIL_FROM`) — the same settings the order
+e-mails use. With no SMTP in production the e-mail option is hidden and the endpoint refuses, rather
+than silently failing. WhatsApp and e-mail can run side by side; either can be switched off by simply
+not configuring it.
+
+**An e-mail sign-in is its own identity.** A record is matched by e-mail only if the shopper proved
+they control that address (`emailVerified`). An address typed into a checkout form proves nothing —
+anyone can type anyone's e-mail — so those are never trusted: otherwise someone could place a guest
+order using a victim's phone or e-mail and then claim the victim's record by receiving a code at
+their own inbox. A verified e-mail cannot be edited from the profile for the same reason. As a
+consequence, the same person signing in once by phone and once by e-mail gets two accounts; their
+order history still lines up, because orders are matched on the verified phone or e-mail.
 
 1. `/login` → `POST /api/auth/otp/send`. `lib/auth/otp.ts` issues the code; only an HMAC of it is
    stored, so a leaked database row cannot be used to sign in.
@@ -49,16 +65,17 @@ without signing in, and so does `/track`.
 
 ### Because every OTP costs money
 
-Meta bills per authentication message, so the limits are about the bill as much as security:
+Meta bills per authentication message (and an e-mail code can be aimed at a stranger's inbox), so
+the limits are about the bill and about abuse as much as security:
 
 | Limit | Value | Where |
 |---|---|---|
 | Resend cooldown | 60 s | `lib/auth/otp.ts` |
-| Codes per phone | 3 / hour | `lib/auth/otp.ts` |
+| Codes per phone or e-mail | 3 / hour | `lib/auth/otp.ts` |
 | Wrong codes before the code is burned | 5 | `lib/auth/otp.ts` |
 | Code lifetime | 5 min | `lib/auth/otp.ts` |
 | Sends per IP | 20 / hour | `/api/auth/otp/send` |
-| Sends per phone (second gate) | 5 / hour | `/api/auth/otp/send` |
+| Sends per phone or e-mail (second gate) | 5 / hour | `/api/auth/otp/send` |
 
 ### WhatsApp setup (Meta Cloud API)
 

@@ -162,3 +162,57 @@ ${site ? `<p><a href="${esc(site)}/track">Track order</a></p>` : ""}
 
   return { success: sentStatus !== "FAILED", logId };
 }
+
+/** True when an SMTP server is configured, so e-mail sign-in codes can actually be delivered. */
+export function isSmtpConfigured(): boolean {
+  return !!process.env.SMTP_HOST?.trim();
+}
+
+/**
+ * Sends a sign-in code by e-mail. Returns the outcome instead of throwing, so the sign-in route can
+ * tell the shopper that delivery failed rather than leaving them waiting for a code that never comes.
+ *
+ * Deliberately not written to the e-mail log: that log is keyed by order, and a stored code (even
+ * one that expires in minutes) has no business sitting in a table staff can browse.
+ */
+export async function sendLoginOtpEmail(to: string, code: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  const host = process.env.SMTP_HOST?.trim();
+  if (!host) return { ok: false, error: "SMTP is not configured (SMTP_HOST is missing)." };
+  if (!/^\d{4,10}$/.test(code)) return { ok: false, error: "Invalid code." };
+
+  try {
+    const nodemailer = (await import("nodemailer")).default;
+    const port = Number(process.env.SMTP_PORT || 587);
+    const transporter = nodemailer.createTransport({
+      host,
+      port,
+      secure: port === 465,
+      auth: process.env.SMTP_USER ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } : undefined,
+      // A hung mail server must not hold the sign-in request open for minutes.
+      connectionTimeout: 10_000,
+      greetingTimeout: 10_000,
+      socketTimeout: 15_000,
+    });
+
+    const html = `<!doctype html><html><body style="margin:0;background:#f7f1e6;font-family:Georgia,serif;color:#1b1f3b">
+<div style="max-width:480px;margin:0 auto;padding:32px 24px;background:#fffdf8;border-top:4px solid #b08d3c">
+<p style="letter-spacing:4px;font-size:12px;color:#b08d3c;margin:0">ZAFIRO INDIO</p>
+<h1 style="font-weight:normal;font-size:22px;margin:12px 0">Your sign-in code</h1>
+<p style="font-size:34px;letter-spacing:10px;margin:22px 0;font-weight:bold">${code}</p>
+<p>This code expires in 5 minutes. Enter it on the sign-in page to continue.</p>
+<p style="font-size:12px;color:#777;margin-top:28px">Never share this code with anyone. We will never ask you for it. If you did not ask to sign in, you can ignore this e-mail.</p></div></body></html>`;
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_FROM || process.env.SMTP_USER,
+      to,
+      subject: `${code} is your Zafiro Indio sign-in code`,
+      html,
+      text: `Your Zafiro Indio sign-in code is ${code}. It expires in 5 minutes.\n\nNever share this code with anyone. If you did not ask to sign in, ignore this e-mail.`,
+    });
+    return { ok: true };
+  } catch (err: any) {
+    const error = err?.message || "E-mail dispatch failed";
+    console.error("[email] login code failed:", error);
+    return { ok: false, error };
+  }
+}

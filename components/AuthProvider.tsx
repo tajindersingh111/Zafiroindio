@@ -9,6 +9,8 @@ export interface CustomerProfile {
   firstName: string;
   lastName: string;
   email: string;
+  /** True when the shopper signed in by e-mail, so the address is proven rather than typed. */
+  emailVerified?: boolean;
   phone: string;
   shipping: Address | null;
   billing: Address | null;

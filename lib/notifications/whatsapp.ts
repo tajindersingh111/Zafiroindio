@@ -207,6 +207,19 @@ export async function sendOrderShippedWhatsApp(order: Order): Promise<void> {
 }
 
 /**
+ * Whether WhatsApp sign-in codes can be delivered right now. The login page uses this to decide
+ * whether to offer the WhatsApp option, so a shopper is never invited to wait for a code that this
+ * server has no way to send.
+ */
+export async function isWhatsAppOtpConfigured(): Promise<boolean> {
+  const s = (await readSettings<WhatsAppSettings>("settings").catch(() => null)) ?? {};
+  if (!s.whatsappToken?.trim() || !s.whatsappPhoneId?.trim()) return false;
+  // Meta only delivers a code outside a 24h window through an approved authentication template.
+  if ((s.whatsappProvider || "meta") === "meta" && !s.whatsappOtpTemplateName?.trim()) return false;
+  return true;
+}
+
+/**
  * Sends a login OTP over WhatsApp. Returns the provider's answer so the sign-in route can tell the
  * shopper that delivery failed instead of leaving them waiting for a code that never arrives.
  *

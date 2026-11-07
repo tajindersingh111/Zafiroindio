@@ -235,6 +235,12 @@ export interface Customer {
   firstName: string;
   lastName: string;
   email: string;
+  /**
+   * True only when the shopper proved they control `email` by entering a code sent to it. Sign-in
+   * and order-history matching by e-mail trust this flag and nothing else: an address typed into
+   * a checkout form proves nothing, and anyone can type anyone's e-mail there.
+   */
+  emailVerified?: boolean;
   phone?: string;
   company?: string;
   billing?: Address;

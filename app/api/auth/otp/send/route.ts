@@ -1,22 +1,26 @@
 import { NextResponse } from "next/server";
-import { issueOtp, OTP_RESEND_COOLDOWN_MS } from "@/lib/auth/otp";
+import { issueEmailOtp, issueOtp, OTP_RESEND_COOLDOWN_MS } from "@/lib/auth/otp";
 import { sendLoginOtpWhatsApp } from "@/lib/notifications/whatsapp";
+import { isSmtpConfigured, sendLoginOtpEmail } from "@/lib/email/service";
 import { checkRateLimit, rateLimitResponse } from "@/lib/security/rate-limit";
 import { getClientIp } from "@/lib/security/client-ip";
-import { normalizePhone } from "@/lib/orders/contact";
+import { normalizeEmail, normalizePhone } from "@/lib/orders/contact";
 import { isSameOrigin } from "@/lib/auth/customer";
 
 export const dynamic = "force-dynamic";
 
+const COOLDOWN_SECONDS = Math.floor(OTP_RESEND_COOLDOWN_MS / 1000);
+
 /**
- * Sends a login code to a mobile number over WhatsApp.
+ * Sends a sign-in code, by WhatsApp (default) or e-mail (`channel: "email"`).
  *
- * Every send costs money, so this is limited three ways: per IP (a script cannot run up the bill),
- * per phone number (lib/auth/otp.ts: a 60s cooldown and 3 per hour), and by refusing to create the
- * code at all if WhatsApp is not configured.
+ * A WhatsApp send costs money (Meta bills per authentication message) and an e-mail send can be
+ * aimed at a stranger's inbox, so both are limited three ways: per IP (a script cannot run up the
+ * bill or flood an address), per recipient (lib/auth/otp.ts: a 60s cooldown and 3 per hour), and by
+ * refusing to create a code at all when the channel cannot deliver it.
  *
- * The response never says whether the number is already a customer — that would turn this endpoint
- * into a "is this person a customer here" oracle.
+ * The response never says whether the number or address already belongs to a customer — that would
+ * turn this endpoint into a "is this person a customer here" oracle.
  */
 export async function POST(request: Request) {
   if (!isSameOrigin(request)) return NextResponse.json({ error: "Cross-site request blocked." }, { status: 403 });
@@ -26,14 +30,18 @@ export async function POST(request: Request) {
   const ipLimit = await checkRateLimit(`otp-send:ip:${ip}`, { windowMs: 60 * 60_000, maxRequests: 20 });
   if (!ipLimit.success) return rateLimitResponse(ipLimit.reset);
 
-  let body: { phone?: unknown };
+  let body: { channel?: unknown; phone?: unknown; email?: unknown };
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
 
-  const rawPhone = typeof body.phone === "string" ? body.phone : "";
+  return body.channel === "email" ? sendByEmail(body.email) : sendByWhatsApp(body.phone);
+}
+
+async function sendByWhatsApp(rawValue: unknown): Promise<NextResponse> {
+  const rawPhone = typeof rawValue === "string" ? rawValue : "";
   if (rawPhone.length > 20) return NextResponse.json({ error: "Enter a valid 10-digit Indian mobile number." }, { status: 400 });
   const phone = normalizePhone(rawPhone);
 
@@ -56,7 +64,7 @@ export async function POST(request: Request) {
       console.warn(`[otp] WhatsApp unavailable (${sent.error}). Code for ${issued.phone} is ${issued.code}`);
       return NextResponse.json({
         success: true,
-        cooldownSeconds: Math.floor(OTP_RESEND_COOLDOWN_MS / 1000),
+        cooldownSeconds: COOLDOWN_SECONDS,
         expiresInSeconds: issued.expiresInSeconds,
         devNotice: "WhatsApp is not configured. The code was printed to the server log.",
       });
@@ -65,9 +73,43 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "We could not send the code right now. Please try again in a moment." }, { status: 502 });
   }
 
-  return NextResponse.json({
-    success: true,
-    cooldownSeconds: Math.floor(OTP_RESEND_COOLDOWN_MS / 1000),
-    expiresInSeconds: issued.expiresInSeconds,
-  });
+  return NextResponse.json({ success: true, cooldownSeconds: COOLDOWN_SECONDS, expiresInSeconds: issued.expiresInSeconds });
+}
+
+async function sendByEmail(rawValue: unknown): Promise<NextResponse> {
+  const rawEmail = typeof rawValue === "string" ? rawValue : "";
+  if (rawEmail.length > 254) return NextResponse.json({ error: "Enter a valid e-mail address." }, { status: 400 });
+  const email = normalizeEmail(rawEmail);
+
+  // Second limiter keyed on the address itself, so rotating IPs cannot be used to flood one inbox.
+  const emailLimit = await checkRateLimit(`otp-send:email:${email}`, { windowMs: 60 * 60_000, maxRequests: 5 });
+  if (!emailLimit.success) return rateLimitResponse(emailLimit.reset);
+
+  // Refuse before creating a code when this server has no way to deliver one in production.
+  if (process.env.NODE_ENV === "production" && !isSmtpConfigured()) {
+    return NextResponse.json({ error: "E-mail sign-in is not available right now. Please try another way." }, { status: 503 });
+  }
+
+  const issued = await issueEmailOtp(rawEmail);
+  if (!issued.ok) {
+    const status = issued.reason === "invalid_email" ? 400 : 429;
+    return NextResponse.json({ error: issued.message, retryAfterSeconds: issued.retryAfterSeconds }, { status });
+  }
+
+  const sent = await sendLoginOtpEmail(issued.email, issued.code);
+
+  if (!sent.ok) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn(`[otp] E-mail unavailable (${sent.error}). Code for ${issued.email} is ${issued.code}`);
+      return NextResponse.json({
+        success: true,
+        cooldownSeconds: COOLDOWN_SECONDS,
+        expiresInSeconds: issued.expiresInSeconds,
+        devNotice: "SMTP is not configured. The code was printed to the server log.",
+      });
+    }
+    return NextResponse.json({ error: "We could not send the code right now. Please try again in a moment." }, { status: 502 });
+  }
+
+  return NextResponse.json({ success: true, cooldownSeconds: COOLDOWN_SECONDS, expiresInSeconds: issued.expiresInSeconds });
 }
