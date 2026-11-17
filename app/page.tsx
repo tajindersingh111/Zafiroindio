@@ -12,6 +12,7 @@ import { getCatalogProducts, getCatalogBanners, getCatalogCollections } from "@/
 import HeroDepth from "@/components/site/HeroDepth";
 import HeroSlider from "@/components/site/HeroSlider";
 import SmartRecommendations from "@/components/site/SmartRecommendations";
+import AtelierShowcase from "@/components/site/AtelierShowcase";
 import { getFounders } from "@/lib/storefront/founders";
 import { getFeaturedReviews } from "@/lib/storefront/reviews";
 import { getShippingTerms, rupees } from "@/lib/storefront/shipping-terms";
@@ -137,6 +138,21 @@ export default async function Home() {
   const onSale = products
     .filter((p) => (p.oldPrice || 0) > (p.price || 0))
     .sort((a, b) => (b.discount || 0) - (a.discount || 0))
+    .slice(0, 8)
+    .map(slim);
+  // The Atelier rail is the showpiece, so it gets the best-reviewed pieces that actually have a photo.
+  // On a fresh catalogue there are no reviews or sales yet, so it falls back to badged pieces and then
+  // to the newest ones rather than whatever order the database happens to return.
+  const score = (p: Product) => (p.rating || 0) * Math.log1p(p.reviews || 0);
+  const atelier = products
+    .filter((p) => p.images?.[0])
+    .sort(
+      (a, b) =>
+        score(b) - score(a) ||
+        (b.popularity || 0) - (a.popularity || 0) ||
+        Number(Boolean(b.badge)) - Number(Boolean(a.badge)) ||
+        (b.createdAt || "").localeCompare(a.createdAt || "")
+    )
     .slice(0, 8)
     .map(slim);
   const tabs: ProductTab[] = [
@@ -300,6 +316,14 @@ export default async function Home() {
           <ProductTabs tabs={tabs} />
         </div>
       </section>
+
+      {/* ── 4a. THE ZAFIRO ATELIER (drag-to-explore showcase) ── */}
+      <AtelierShowcase
+        products={atelier}
+        title={<>Pieces from the <em>atelier floor</em></>}
+        lede="Drag along the rail, or use the arrows, to look through the pieces our karigars have on the table right now."
+        href="/shop"
+      />
 
       {/* ── 4b. CRAFT IN FOCUS ───────────────────────────────── */}
       <section className="hm-section hm-craft">

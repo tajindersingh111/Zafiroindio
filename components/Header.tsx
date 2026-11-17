@@ -1,17 +1,15 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Search, UserRound, Heart, ShoppingBag, Menu, X, PackageCheck, Truck, RotateCcw } from "lucide-react";
+import { Search, UserRound, Heart, ShoppingBag, Menu, X, Truck, RotateCcw } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useStore } from "./StoreProvider";
 import { useAuth } from "./AuthProvider";
-import BulkOrderModal from "./BulkOrderModal";
 
 export default function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [bulkModalOpen, setBulkModalOpen] = useState(false);
   const [announcements, setAnnouncements] = useState<string[]>([
     "Hand-block printed by artisans in Jaipur",
     "100% pure cotton",
@@ -49,14 +47,23 @@ export default function Header() {
 
   if (pathname?.startsWith("/admin")) return null;
 
+  // "BULK ORDERS" is an ordinary navigation link to the Bulk Orders page (which carries the enquiry
+  // form), so the whole item is clickable and shares the typography of every other link. Its only
+  // distinction is a small gold diamond before the label.
   const navLinks = [
     { href: "/shop", label: "SHOP" },
     { href: "/collections", label: "COLLECTIONS" },
     { href: "/shop?badge=new", label: "NEW ARRIVALS" },
     { href: "/shop?badge=bestseller", label: "BESTSELLERS" },
-    { href: "/bulk-order", label: "BULK ORDERS", isBulk: true },
+    { href: "/bulk-order", label: "BULK ORDERS", accent: true },
     { href: "/about", label: "ABOUT US" },
   ];
+
+  const isActive = (href: string) =>
+    pathname === href ||
+    (href === "/shop" && pathname?.startsWith("/shop")) ||
+    (href === "/collections" && pathname?.startsWith("/collections")) ||
+    (href === "/bulk-order" && pathname?.startsWith("/bulk-order"));
 
   return (
     <>
@@ -75,77 +82,33 @@ export default function Header() {
             className="iconbtn mobileMenu"
             onClick={() => setOpen(!open)}
             aria-label="Open menu"
+            aria-expanded={open}
           >
-            <Menu size={22} />
+            <Menu size={20} />
           </button>
 
           {/* Logo */}
-          <Link href="/" className="logo" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
-            <img src="/zafiro-logo-dark.png" alt="Zafiro Indio" style={{ height: 42, width: "auto", objectFit: "contain" }} />
+          <Link href="/" className="logo" aria-label="Zafiro Indio — home">
+            <img src="/zafiro-logo-dark.png" alt="Zafiro Indio" />
           </Link>
 
           {/* Desktop nav */}
-          <nav className="menu">
+          <nav className="menu" aria-label="Main">
             {navLinks.map((l) => (
-              l.isBulk ? (
-                <button
-                  key={l.label}
-                  type="button"
-                  onClick={() => setBulkModalOpen(true)}
-                  className="bulk-nav-link"
-                  style={{
-                    background: "none",
-                    border: "none",
-                    font: "inherit",
-                    cursor: "pointer",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "5px",
-                    color: "#a67c37",
-                    fontWeight: 700,
-                    fontSize: "12px",
-                    letterSpacing: "1px"
-                  }}
-                >
-                  <PackageCheck size={16} /> BULK ORDERS
-                </button>
-              ) : (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  className={
-                    pathname === l.href ||
-                    (l.href === "/shop" && pathname?.startsWith("/shop")) ||
-                    (l.href === "/collections" && pathname?.startsWith("/collections"))
-                      ? "active"
-                      : ""
-                  }
-                >
-                  {l.label}
-                </Link>
-              )
+              <Link
+                key={l.href}
+                href={l.href}
+                className={`${l.accent ? "menu-accent" : ""}${isActive(l.href) ? " active" : ""}`.trim()}
+                aria-current={isActive(l.href) ? "page" : undefined}
+              >
+                {l.accent && <i className="menu-diamond" aria-hidden="true" />}
+                {l.label}
+              </Link>
             ))}
           </nav>
 
-          {/* Action icons */}
+          {/* Action icons — one shared .iconbtn box keeps every icon on the same baseline */}
           <div className="actions">
-            {/* Bulk Order Icon Button */}
-            <button
-              type="button"
-              onClick={() => setBulkModalOpen(true)}
-              className="iconbtn desktopOnly"
-              title="Bulk Order Inquiry"
-              aria-label="Bulk Order Inquiry"
-              style={{
-                color: "#a67c37",
-                background: "rgba(166, 124, 55, 0.08)",
-                borderRadius: "50%",
-                padding: "6px"
-              }}
-            >
-              <PackageCheck size={20} />
-            </button>
-
             <Link className="iconbtn" href="/search" aria-label="Search">
               <Search size={20} />
             </Link>
@@ -154,27 +117,17 @@ export default function Header() {
               href={customer ? "/account/orders" : "/login"}
               aria-label={customer ? `Account — signed in as ${customer.name}` : "Sign in"}
               title={customer ? customer.name : "Sign in"}
-              style={{ position: "relative" }}
             >
               <UserRound size={20} />
-              {customer && (
-                <span
-                  aria-hidden="true"
-                  style={{ position: "absolute", right: 4, bottom: 4, width: 7, height: 7, borderRadius: "50%", background: "var(--success)", border: "1.5px solid var(--paper)" }}
-                />
-              )}
+              {customer && <span className="iconDot" aria-hidden="true" />}
             </Link>
-            <Link className="iconbtn" href="/wishlist" aria-label="Wishlist" style={{ position: "relative" }}>
+            <Link className="iconbtn" href="/wishlist" aria-label={`Wishlist${wishlist.length > 0 ? ` (${wishlist.length} items)` : ""}`}>
               <Heart size={20} />
-              {wishlist.length > 0 && (
-                <span className="badge">{wishlist.length}</span>
-              )}
+              {wishlist.length > 0 && <span className="badge">{wishlist.length}</span>}
             </Link>
-            <Link className="iconbtn" href="/cart" aria-label="Cart" style={{ position: "relative" }}>
+            <Link className="iconbtn" href="/cart" aria-label={`Cart${cartCount > 0 ? ` (${cartCount} items)` : ""}`}>
               <ShoppingBag size={20} />
-              {cartCount > 0 && (
-                <span className="badge">{cartCount}</span>
-              )}
+              {cartCount > 0 && <span className="badge">{cartCount}</span>}
             </Link>
           </div>
         </div>
@@ -186,44 +139,21 @@ export default function Header() {
         onClick={(e) => { if (e.target === e.currentTarget) setOpen(false); }}
       >
         <div className="mobileDrawerInner">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-            <Link href="/" style={{ display: "flex", alignItems: "center" }}>
-              <img src="/zafiro-logo-dark.png" alt="Zafiro Indio" style={{ height: 36, width: "auto", objectFit: "contain" }} />
+          <div className="mobileDrawerTop">
+            <Link href="/" className="logo" aria-label="Zafiro Indio — home">
+              <img src="/zafiro-logo-dark.png" alt="Zafiro Indio" />
             </Link>
             <button className="iconbtn" onClick={() => setOpen(false)} aria-label="Close menu">
-              <X size={22} />
+              <X size={20} />
             </button>
           </div>
           {navLinks.map((l) => (
-            l.isBulk ? (
-              <button
-                key={l.label}
-                onClick={() => {
-                  setOpen(false);
-                  setBulkModalOpen(true);
-                }}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  width: "100%",
-                  textAlign: "left",
-                  background: "none",
-                  border: 0,
-                  fontSize: 14,
-                  fontWeight: 700,
-                  color: "#a67c37",
-                  padding: "12px 0",
-                  cursor: "pointer"
-                }}
-              >
-                <PackageCheck size={18} /> BULK ORDERS &amp; WHOLESALE
-              </button>
-            ) : (
-              <Link key={l.href} href={l.href}>{l.label}</Link>
-            )
+            <Link key={l.href} href={l.href} className={l.accent ? "menu-accent" : undefined}>
+              {l.accent && <i className="menu-diamond" aria-hidden="true" />}
+              {l.label}
+            </Link>
           ))}
-          <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid var(--line)", display: "flex", flexWrap: "wrap", gap: "12px 18px" }}>
+          <div className="mobileDrawerUtil">
             {[
               customer
                 ? { href: "/account/orders", label: "My orders", Icon: UserRound }
@@ -232,19 +162,15 @@ export default function Header() {
               { href: "/track", label: "Track order", Icon: Truck },
               { href: "/return-policy", label: "Returns & exchange", Icon: RotateCcw },
             ].map(({ href, label, Icon }) => (
-              <Link key={href} href={href} style={{ fontSize: 12, color: "var(--muted)", display: "flex", alignItems: "center", gap: 6, border: "none", padding: 0, textTransform: "none", letterSpacing: 0 }}>
+              <Link key={href} href={href}>
                 <Icon size={16} /> {label}
               </Link>
             ))}
           </div>
         </div>
       </div>
-
-      {/* ── Bulk Order Modal ──────────────────────────────────── */}
-      <BulkOrderModal isOpen={bulkModalOpen} onClose={() => setBulkModalOpen(false)} />
     </>
   );
 }
 
 export { Header };
-

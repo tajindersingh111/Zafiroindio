@@ -99,14 +99,12 @@
    the logo to nothing and collided with the icons, so the hamburger layout now runs up to 1030px. */
 @media (max-width: 1030px) {
   .menu { display: none; }
-  .mobileMenu { display: flex; }
-  .header { height: 66px; }
-  .logo { font-size: 22px; letter-spacing: 6px; }
-  .actions { gap: 12px; }
+  .mobileMenu { display: inline-grid; }
+  .header { height: 70px; }
+  .logo img { height: 38px; }
 }
 @media (min-width: 1031px) and (max-width: 1180px) {
-  .menu { gap: clamp(16px, 2vw, 28px); }
-  .actions { gap: 12px; }
+  .menu { gap: clamp(16px, 2vw, 26px); }
 }
 
 /* Headlines break evenly instead of leaving a lone word on the last line. */
@@ -270,8 +268,6 @@
   .hm-tile:hover img { transform: none; }
 }
 
-.bulk-nav-link { white-space: nowrap; }
-
 /* ═════════════ Second pass: hero life, marquee, tabs, craft ═════════════ */
 
 /* ── Hero: the photograph at full strength ──
@@ -361,6 +357,170 @@
   .heroSeg { width: 38px; }
   .heroCount { display: none; }
   .hm-marquee li { font-size: 11px; letter-spacing: 2.2px; gap: 22px; padding-right: 22px; }
+}
+
+/* ═════════════ The Zafiro Atelier — drag-to-explore showcase ═════════════
+   A lit stage rather than a carousel of floating boxes. Plates sit on one baseline and are scaled,
+   dimmed and lifted by their distance from the centre (--d signed, --a absolute, both set in JS),
+   with no more than 6deg of rotation so the photographs stay rectangular and sharp. The rail is a
+   native scroller: wheel, trackpad, touch, arrows and the keyboard all work, and the drag handler
+   only nudges scrollLeft. */
+.hm-atelier {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: clamp(54px, 7vw, 100px) 0 clamp(40px, 5vw, 66px);
+  background: radial-gradient(ellipse 80% 120% at 50% -10%, #16203a 0%, #0b1326 46%, #070b15 100%);
+  color: #f1ebd8;
+  border-block: 1px solid rgba(197, 160, 40, 0.28);
+}
+/* Soft overhead light, plus the faintest block-print grid in the floor. */
+.hm-atelier-glow {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 46% 52% at 50% 46%, rgba(197, 160, 40, 0.17), transparent 72%),
+    radial-gradient(circle at 14px 14px, rgba(197, 160, 40, 0.05) 1.4px, transparent 1.5px);
+  background-size: auto, 28px 28px;
+}
+
+.hm-atelier-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 28px; margin-bottom: clamp(28px, 3.6vw, 46px); }
+.hm-atelier .eyebrow { color: var(--gold); }
+.hm-atelier-head h2 { margin: 14px 0 0; font-size: clamp(30px, 4vw, 50px); line-height: 1.07; font-weight: 600; color: #fff; letter-spacing: -0.4px; text-wrap: balance; }
+.hm-atelier-head h2 em { font-style: italic; font-weight: 500; color: var(--gold); }
+.hm-atelier-lede { margin: 14px 0 0; max-width: 480px; color: #c6cedd; font-size: 15px; line-height: 1.75; }
+
+.hm-atelier-nav { display: flex; gap: 10px; flex: none; }
+.hm-atelier-arrow {
+  width: 46px;
+  height: 46px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid rgba(197, 160, 40, 0.42);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--gold);
+  cursor: pointer;
+  line-height: 0;
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+}
+.hm-atelier-arrow svg { stroke-width: 1.7; }
+.hm-atelier-arrow:hover:not(:disabled) { background: var(--gold); border-color: var(--gold); color: #0b1326; transform: translateY(-2px); }
+.hm-atelier-arrow:active:not(:disabled) { transform: none; }
+.hm-atelier-arrow:disabled { opacity: 0.3; cursor: default; }
+
+/* ── The rail ── */
+.hm-atelier-rail {
+  display: flex;
+  gap: 22px;
+  align-items: flex-start;
+  padding: 10px max(24px, calc((100% - var(--max)) / 2)) 30px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  cursor: grab;
+  -webkit-tap-highlight-color: transparent;
+}
+.hm-atelier-rail::-webkit-scrollbar { display: none; }
+.hm-atelier-rail:focus-visible { outline: 2px solid var(--gold); outline-offset: -4px; border-radius: 4px; }
+.hm-atelier-rail.isDragging { cursor: grabbing; scroll-snap-type: none; scroll-behavior: auto; }
+.hm-atelier-rail.isDragging .hm-plate-link { pointer-events: none; }
+
+.hm-plate {
+  --d: 0;
+  --a: 0;
+  flex: none;
+  width: clamp(236px, 27vw, 322px);
+  scroll-snap-align: center;
+  transform-origin: 50% 100%;
+  transform:
+    perspective(1600px)
+    rotateY(calc(var(--d) * -6deg))
+    scale(calc(1 - var(--a) * 0.07))
+    translateY(calc(var(--a) * 12px));
+  opacity: calc(1 - var(--a) * 0.32);
+  transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+.hm-plate-link { display: block; text-decoration: none; color: inherit; }
+.hm-plate-frame {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: 3px;
+  background: #121a2e;
+  box-shadow:
+    0 calc(26px - var(--a) * 12px) calc(60px - var(--a) * 26px) rgba(0, 0, 0, calc(0.5 - var(--a) * 0.2)),
+    0 2px 0 rgba(255, 255, 255, 0.04) inset;
+}
+.hm-plate-frame img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 1.1s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease;
+  filter: brightness(calc(1 - var(--a) * 0.16)) saturate(calc(1 - var(--a) * 0.12));
+  user-select: none;
+}
+/* A gold hairline inside the frame, drawn on hover — no border on the photograph itself. */
+.hm-plate-rule { position: absolute; inset: 11px; border: 1px solid rgba(229, 193, 88, 0); border-radius: 2px; transition: border-color 0.4s ease; pointer-events: none; }
+.hm-plate-link:hover .hm-plate-frame img, .hm-plate-link:focus-visible .hm-plate-frame img { transform: scale(1.045); }
+.hm-plate-link:hover .hm-plate-rule, .hm-plate-link:focus-visible .hm-plate-rule { border-color: rgba(229, 193, 88, 0.62); }
+.hm-plate-link:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; border-radius: 4px; }
+.hm-plate-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  padding: 5px 9px;
+  background: rgba(9, 13, 22, 0.82);
+  border: 1px solid rgba(197, 160, 40, 0.42);
+  border-radius: 2px;
+  backdrop-filter: blur(6px);
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.hm-plate-meta { display: flex; flex-direction: column; gap: 5px; padding: 18px 2px 0; }
+.hm-plate-meta small { font-size: 9.5px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); }
+.hm-plate-meta strong { font-size: 21px; font-weight: 600; line-height: 1.25; color: #fff; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.hm-plate-price { display: flex; align-items: baseline; gap: 9px; font-size: 14.5px; font-weight: 700; color: #f1ebd8; }
+.hm-plate-price s { font-size: 12.5px; font-weight: 500; color: #8c98ad; }
+.hm-plate-cta { margin-top: 5px; display: inline-flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 800; letter-spacing: 1.8px; text-transform: uppercase; color: var(--gold); opacity: 0; transform: translateY(5px); transition: opacity 0.3s ease, transform 0.3s ease; }
+.hm-plate-link:hover .hm-plate-cta, .hm-plate-link:focus-visible .hm-plate-cta { opacity: 1; transform: none; }
+@media (hover: none) { .hm-plate-cta { opacity: 1; transform: none; } }
+
+/* ── Progress and the way out ── */
+.hm-atelier-foot { display: flex; align-items: center; justify-content: space-between; gap: 26px; }
+.hm-atelier-track { position: relative; flex: 1; max-width: 300px; height: 2px; background: rgba(241, 235, 216, 0.16); border-radius: 2px; overflow: hidden; }
+.hm-atelier-track i { position: absolute; inset: 0 auto 0 0; width: 30%; background: var(--gold); border-radius: 2px; transition: transform 0.18s linear; }
+.hm-atelier-all { flex: none; }
+
+@media (max-width: 900px) {
+  .hm-atelier-head { flex-direction: column; align-items: flex-start; gap: 20px; }
+  .hm-atelier-nav { align-self: flex-end; margin-top: -8px; }
+}
+@media (max-width: 700px) {
+  .hm-atelier-rail { gap: 16px; padding-inline: 16px; scroll-snap-type: x mandatory; }
+  .hm-plate { width: min(74vw, 300px); }
+  /* Phones get the lift and the dimming, but no rotation at all. */
+  .hm-plate { transform: scale(calc(1 - var(--a) * 0.05)) translateY(calc(var(--a) * 8px)); }
+  .hm-plate-meta strong { font-size: 19px; }
+  .hm-atelier-foot { flex-direction: column; align-items: stretch; gap: 20px; }
+  .hm-atelier-track { max-width: none; }
+  .hm-atelier-all { align-self: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hm-plate, .hm-plate-frame img, .hm-plate-cta, .hm-plate-rule, .hm-atelier-arrow, .hm-atelier-track i { transition: none; }
+  .hm-plate { transform: none; opacity: 1; }
+  .hm-plate-frame img { filter: none; }
+  .hm-plate-link:hover .hm-plate-frame img { transform: none; }
 }
 
 /* Reduced motion: nothing moves, nothing auto-advances. The site-wide rule shrinks every animation

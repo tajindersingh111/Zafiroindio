@@ -149,28 +149,30 @@ img { max-width: 100%; display: block; }
   background: rgba(251, 247, 238, 0.98);
   border-bottom-color: var(--line-gold);
 }
-.nav { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+.nav { display: flex; align-items: center; justify-content: space-between; gap: 20px; width: 100%; }
 .logo {
-  font-family: "Cormorant Garamond", "Playfair Display", serif;
-  font-size: 28px;
-  letter-spacing: 8px;
-  line-height: 1;
-  color: var(--ink);
-  font-weight: 700;
-  text-transform: uppercase;
-  transition: opacity 0.2s;
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  line-height: 0;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
 }
+.logo img { display: block; height: 42px; width: auto; object-fit: contain; }
 .logo:hover { opacity: 0.88; }
-.menu { display: flex; gap: 36px; align-items: center; }
+.menu { display: flex; gap: clamp(20px, 2.4vw, 34px); align-items: center; }
 .menu a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 0 9px;
   font-size: 11.5px;
   font-weight: 800;
   letter-spacing: 1.5px;
   text-transform: uppercase;
   color: var(--ink);
-  padding: 28px 0;
   border-bottom: 2px solid transparent;
-  transition: all 0.25s ease;
+  transition: color 0.25s ease, border-color 0.25s ease;
   white-space: nowrap;
   position: relative;
 }
@@ -178,33 +180,76 @@ img { max-width: 100%; display: block; }
   color: var(--gold-dark);
   border-bottom-color: var(--gold);
 }
-.actions { display: flex; gap: 18px; align-items: center; }
+.menu a:active { color: var(--gold-dark); }
+.menu a:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; border-radius: 2px; }
+/* The one accented item (Bulk Orders) keeps the shared type and only adds a small gold diamond. */
+.menu-diamond {
+  display: block;
+  flex: none;
+  width: 5px;
+  height: 5px;
+  background: var(--gold);
+  transform: rotate(45deg);
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+.menu a.menu-accent:hover .menu-diamond,
+.menu a.menu-accent.active .menu-diamond { background: var(--gold-dark); box-shadow: 0 0 0 3px rgba(197, 160, 40, 0.18); }
+
+/* ── Header action icons ──
+   Every icon lives in the same 40×40 box with the glyph centred, so sizes, optical weight and
+   baselines match across the row and at every width. Badges are positioned against that box. */
+.actions { display: flex; align-items: center; gap: 6px; flex: none; }
 .iconbtn {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  padding: 0;
   border: 0;
   background: none;
-  padding: 6px;
   position: relative;
-  display: grid;
+  display: inline-grid;
   place-items: center;
   color: var(--ink);
-  transition: color 0.2s;
-  border-radius: 4px;
+  line-height: 0;
+  cursor: pointer;
+  border-radius: 999px;
+  transition: color 0.2s ease, background 0.2s ease;
 }
-.iconbtn:hover { color: var(--gold-dark); }
+.iconbtn svg { display: block; width: 20px; height: 20px; stroke-width: 1.6; }
+.iconbtn:hover { color: var(--gold-dark); background: rgba(197, 160, 40, 0.1); }
+.iconbtn:active { background: rgba(197, 160, 40, 0.18); }
+.iconbtn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .badge {
   position: absolute;
-  right: -5px;
-  top: -4px;
-  min-width: 18px;
-  height: 18px;
-  border-radius: 99px;
+  top: 2px;
+  right: 2px;
+  min-width: 17px;
+  height: 17px;
+  border-radius: 999px;
   background: var(--ink);
   color: #fff;
-  font-size: 9px;
+  font-size: 9.5px;
   font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  line-height: 1;
   display: grid;
   place-items: center;
-  padding: 0 4px;
+  padding: 0 4.5px;
+  box-shadow: 0 0 0 2px rgba(251, 247, 238, 0.96);
+  pointer-events: none;
+}
+/* Signed-in dot on the account icon. */
+.iconDot {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 0 1.5px rgba(251, 247, 238, 0.96);
+  pointer-events: none;
 }
 .mobileMenu { display: none; }
 .mobileDrawer {
@@ -229,8 +274,10 @@ img { max-width: 100%; display: block; }
   gap: 6px;
   overflow-y: auto;
 }
-.mobileDrawerInner a {
-  display: block;
+.mobileDrawerInner > a {
+  display: flex;
+  align-items: center;
+  gap: 9px;
   padding: 14px 0;
   font-size: 13px;
   font-weight: 700;
@@ -239,7 +286,22 @@ img { max-width: 100%; display: block; }
   border-bottom: 1px solid var(--line);
   color: var(--ink);
 }
-.mobileDrawerInner a:hover { color: var(--gold-dark); }
+.mobileDrawerInner > a:hover, .mobileDrawerInner > a:active { color: var(--gold-dark); }
+.mobileDrawerInner > a .menu-diamond { width: 5px; height: 5px; background: var(--gold); transform: rotate(45deg); }
+.mobileDrawerTop { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.mobileDrawerTop .logo img { height: 34px; }
+.mobileDrawerUtil { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 12px 18px; }
+.mobileDrawerUtil a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 0;
+  text-transform: none;
+}
+.mobileDrawerUtil a svg { width: 16px; height: 16px; stroke-width: 1.6; }
+.mobileDrawerUtil a:hover { color: var(--gold-dark); }
 
 /* ── Buttons ───────────────────────────────────────────────── */
 .btn {
@@ -640,10 +702,11 @@ img { max-width: 100%; display: block; }
   .announcement span { display: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; animation: annIn .5s ease both; }
   .announcement span.isActive { display: inline-flex; }
   .header { height: 66px; }
-  .logo { font-size: 22px; letter-spacing: 6px; }
+  .logo img { height: 34px; }
   .menu { display: none; }
-  .mobileMenu { display: flex; }
-  .actions { gap: 10px; }
+  .mobileMenu { display: inline-grid; }
+  .actions { gap: 2px; }
+  .iconbtn { width: 38px; height: 38px; }
   /* Phones: bulk orders and account live in the menu drawer; the bar keeps search, wishlist and cart. */
   .actions .desktopOnly { display: none; }
   .hero { min-height: 560px; }
