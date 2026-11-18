@@ -112,15 +112,18 @@ img { max-width: 100%; display: block; }
 /* ── Announcement Bar ──────────────────────────────────────── */
 .announcement {
   height: 38px;
-  background: linear-gradient(90deg, #090d16 0%, #12192c 50%, #090d16 100%);
-  border-bottom: 1px solid rgba(197, 160, 40, 0.25);
+  /* Leaf gold: darker at the edges, bright through the middle, so the strip reads as metal rather
+     than a flat block of yellow. The text is the deep ink the rest of the site uses — on gold it is
+     far easier to read than cream, and it keeps the bar from shouting over the logo beneath it. */
+  background: linear-gradient(90deg, #a8861d 0%, #d9b641 22%, #f0d989 50%, #d9b641 78%, #a8861d 100%);
+  border-bottom: 1px solid rgba(11, 19, 38, 0.18);
   display: flex;
   align-items: center;
   justify-content: space-around;
   padding: 0 4%;
   font-size: 11px;
   font-weight: 700;
-  color: #f1ebd8;
+  color: #2a1f05;
   letter-spacing: 0.6px;
   text-transform: uppercase;
 }

@@ -2,7 +2,8 @@
 
 export { useToast } from "./AdminShell";
 
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
+import { img, fallbackToOriginal } from "@/lib/img";
 
 // ── Stat Card ────────────────────────────────────────────────
 
@@ -288,6 +289,74 @@ export function EmptyState({
       <h3 className="font-sans font-semibold text-base text-indigo mb-1">{title}</h3>
       {description && <p className="text-xs text-stone max-w-xs leading-relaxed">{description}</p>}
       {action && <div className="mt-5">{action}</div>}
+    </div>
+  );
+}
+
+// ── Order item thumbnails ────────────────────────────────────
+
+export interface ThumbItem {
+  name: string;
+  quantity?: number;
+  image?: string;
+}
+
+/**
+ * One product photo from an order line.
+ *
+ * Orders snapshot the photo at the time they were placed, but not every order has one — the
+ * imported WooCommerce orders predate the field, and a product can be deleted — so a missing or
+ * broken image falls back to the product's initial rather than to a broken-image icon.
+ */
+export function ItemThumb({ item, size = 40 }: { item: ThumbItem; size?: number }) {
+  const [broken, setBroken] = useState(!item.image);
+  const initial = item.name?.trim()?.[0]?.toUpperCase() || "?";
+
+  return (
+    <span
+      className="relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-md border border-stone/25 bg-paper-deep"
+      style={{ width: size, height: size }}
+      title={item.quantity && item.quantity > 1 ? `${item.name} × ${item.quantity}` : item.name}
+    >
+      {broken ? (
+        <span className="font-sans text-xs font-semibold text-stone">{initial}</span>
+      ) : (
+        <img
+          src={img(item.image, 128)}
+          alt={item.name}
+          loading="lazy"
+          decoding="async"
+          className="h-full w-full object-cover"
+          onError={fallbackToOriginal(item.image, () => setBroken(true))}
+        />
+      )}
+    </span>
+  );
+}
+
+/**
+ * The photos on an order, for a table cell: a few thumbnails and a count of whatever did not fit,
+ * so staff can tell at a glance what was bought without opening the order.
+ */
+export function ItemThumbs({ items, max = 3, size = 36 }: { items: ThumbItem[]; max?: number; size?: number }) {
+  if (!items.length) return <span className="text-xs text-stone">No items</span>;
+
+  const shown = items.slice(0, max);
+  const units = items.reduce((sum, i) => sum + (i.quantity || 1), 0);
+
+  return (
+    <div className="flex items-center gap-1.5">
+      {shown.map((item, i) => (
+        <ItemThumb key={i} item={item} size={size} />
+      ))}
+      {items.length > max && (
+        <span className="font-sans text-[11px] font-semibold text-stone" title={items.slice(max).map((i) => i.name).join(", ")}>
+          +{items.length - max}
+        </span>
+      )}
+      <span className="ml-0.5 whitespace-nowrap text-xs text-stone">
+        {units} {units === 1 ? "unit" : "units"}
+      </span>
     </div>
   );
 }

@@ -3,10 +3,10 @@
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { PageShell, PageHeader, StatusBadge, Btn, SectionCard, FilterSelect, useToast, LoadingSpinner } from "@/components/admin/Shared";
+import { PageShell, PageHeader, StatusBadge, Btn, SectionCard, FilterSelect, useToast, LoadingSpinner, ItemThumb } from "@/components/admin/Shared";
 
 interface Address { firstName: string; lastName: string; company?: string; address1: string; address2?: string; city: string; state: string; postalCode: string; country: string; phone?: string; email?: string; }
-interface OrderItem { productId: string; variationId?: string; name: string; sku: string; quantity: number; price: number; costPrice?: number; discount: number; tax: number; total: number; attributes?: { name: string; value: string }[]; }
+interface OrderItem { productId: string; variationId?: string; name: string; sku: string; quantity: number; price: number; costPrice?: number; discount: number; tax: number; total: number; image?: string; attributes?: { name: string; value: string }[]; }
 interface OrderNote { id: string; note: string; isCustomerNote: boolean; createdAt: string; }
 interface Order {
   id: string; orderNumber: string; customerName: string; customerEmail: string; customerPhone?: string;
@@ -186,8 +186,13 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                 {order.items.map((item, i) => (
                   <tr key={i} className="border-b border-stone/10 last:border-0">
                     <td className="py-3 px-3">
-                      <p className="font-medium text-ink">{item.name}</p>
-                      {item.attributes?.map((a) => <span key={a.name} className="text-[11px] text-stone">{a.name}: {a.value} </span>)}
+                      <div className="flex items-center gap-3">
+                        <ItemThumb item={item} size={48} />
+                        <div className="min-w-0">
+                          <p className="font-medium text-ink">{item.name}</p>
+                          {item.attributes?.map((a) => <span key={a.name} className="text-[11px] text-stone">{a.name}: {a.value} </span>)}
+                        </div>
+                      </div>
                     </td>
                     <td className="py-3 px-3 font-mono text-xs text-stone">{item.sku}</td>
                     <td className="py-3 px-3">{item.quantity}</td>

@@ -119,7 +119,12 @@ ${site ? `<p><a href="${esc(site)}/track">Track order</a></p>` : ""}
   let errorMsg: string | undefined = undefined;
 
   const host = process.env.SMTP_HOST;
-  if (host && order.customerEmail) {
+  const from = senderAddress();
+  if (host && !from) {
+    sentStatus = "FAILED";
+    errorMsg = SENDER_HELP;
+    console.error("[email] send failed:", errorMsg);
+  } else if (host && from && order.customerEmail) {
     try {
       const nodemailer = (await import("nodemailer")).default;
       const port = Number(process.env.SMTP_PORT || 587);
@@ -130,7 +135,7 @@ ${site ? `<p><a href="${esc(site)}/track">Track order</a></p>` : ""}
         auth: process.env.SMTP_USER ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } : undefined,
       });
       await transporter.sendMail({
-        from: process.env.EMAIL_FROM || process.env.SMTP_USER,
+        from,
         to: order.customerEmail,
         subject,
         html,
@@ -168,6 +173,46 @@ export function isSmtpConfigured(): boolean {
   return !!process.env.SMTP_HOST?.trim();
 }
 
+const ADDRESS = /^[^\s@<>,;"]+@[^\s@<>,;"]+\.[^\s@<>,;"]+$/;
+
+/** Strip what a hosting dashboard or a copied .env line leaves wrapped around a value. */
+function unquote(raw: string): string {
+  let value = raw.trim().replace(/[\u2018\u2019\u201c\u201d]/g, '"');
+  while (value.length > 1 && ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'")))) {
+    value = value.slice(1, -1).trim();
+  }
+  return value;
+}
+
+/**
+ * The From address, built from EMAIL_FROM — or null when there isn't a usable one.
+ *
+ * Hosting dashboards store the value verbatim, so a line pasted straight out of .env arrives with
+ * its quotes still attached and the provider answers with a flat `550 Invalid from field`. Both
+ * accepted shapes are handled here — a bare address, or `Name <address>` — the wrapping quotes come
+ * off, and a display name is re-quoted properly.
+ *
+ * SMTP_USER is a fallback only when it is itself an address: on Brevo, SendGrid and the like the
+ * username is an API key or a login id, and sending that as the From earns the same 550.
+ */
+export function senderAddress(): string | null {
+  for (const raw of [process.env.EMAIL_FROM, process.env.SMTP_USER]) {
+    const value = unquote(raw ?? "");
+    if (!value) continue;
+    if (ADDRESS.test(value)) return value;
+
+    const named = /^(.*)<\s*([^<>\s]+)\s*>$/.exec(value);
+    if (named && ADDRESS.test(named[2])) {
+      const name = unquote(named[1]).replace(/["\\]/g, "").trim();
+      return name ? `"${name}" <${named[2]}>` : named[2];
+    }
+  }
+  return null;
+}
+
+const SENDER_HELP =
+  'EMAIL_FROM is missing or malformed. Set it to orders@yourdomain.com or Zafiro Indio <orders@yourdomain.com> — no surrounding quotes.';
+
 /**
  * Sends a sign-in code by e-mail. Returns the outcome instead of throwing, so the sign-in route can
  * tell the shopper that delivery failed rather than leaving them waiting for a code that never comes.
@@ -179,6 +224,10 @@ export async function sendLoginOtpEmail(to: string, code: string): Promise<{ ok:
   const host = process.env.SMTP_HOST?.trim();
   if (!host) return { ok: false, error: "SMTP is not configured (SMTP_HOST is missing)." };
   if (!/^\d{4,10}$/.test(code)) return { ok: false, error: "Invalid code." };
+
+  // Checked before the code is sent, so a bad From is reported as itself rather than as a 550.
+  const from = senderAddress();
+  if (!from) return { ok: false, error: SENDER_HELP };
 
   try {
     const nodemailer = (await import("nodemailer")).default;
@@ -203,7 +252,7 @@ export async function sendLoginOtpEmail(to: string, code: string): Promise<{ ok:
 <p style="font-size:12px;color:#777;margin-top:28px">Never share this code with anyone. We will never ask you for it. If you did not ask to sign in, you can ignore this e-mail.</p></div></body></html>`;
 
     await transporter.sendMail({
-      from: process.env.EMAIL_FROM || process.env.SMTP_USER,
+      from,
       to,
       subject: `${code} is your Zafiro Indio sign-in code`,
       html,

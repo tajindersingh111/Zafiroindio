@@ -116,10 +116,6 @@ function LoginContent() {
               )}
             </button>
           </form>
-
-          <p className="text-center text-xs text-stone mt-6 font-mono">
-            Default: admin@zafiroindio.com / Zafiro#Admin2026!
-          </p>
         </div>
 
         <p className="text-center text-xs text-paper/30 mt-6">

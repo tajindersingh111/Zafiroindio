@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { PageShell, StatusBadge, SectionCard, LoadingSpinner } from "@/components/admin/Shared";
+import { PageShell, StatusBadge, SectionCard, LoadingSpinner, ItemThumbs } from "@/components/admin/Shared";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 interface ReportData {
@@ -409,7 +409,7 @@ export default function AdminDashboardPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-stone/20 bg-paper/60">
-                {["Order #", "Customer", "Amount", "Method", "Status", "Action"].map((h) => (
+                {["Order #", "Customer", "Items", "Amount", "Method", "Status", "Action"].map((h) => (
                   <th key={h} className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-stone">{h}</th>
                 ))}
               </tr>
@@ -419,6 +419,7 @@ export default function AdminDashboardPage() {
                 <tr key={o.id} className="border-b border-stone/10 last:border-0 hover:bg-paper/80 transition-colors">
                   <td className="px-4 py-3 font-mono text-xs text-indigo font-bold">{o.orderNumber}</td>
                   <td className="px-4 py-3 text-ink font-medium">{o.customerName}</td>
+                  <td className="px-4 py-3"><ItemThumbs items={o.items ?? []} max={3} size={34} /></td>
                   <td className="px-4 py-3 font-serif font-bold text-ink">{fmt(o.total)}</td>
                   <td className="px-4 py-3 text-stone text-xs uppercase font-mono">{o.paymentMethod}</td>
                   <td className="px-4 py-3"><StatusBadge status={o.status} /></td>

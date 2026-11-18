@@ -4,13 +4,13 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   PageShell, PageHeader, DataTable, Pagination, SearchBar, FilterSelect,
-  StatusBadge, Column, ConfirmDialog, Btn, LoadingSpinner, useToast,
+  StatusBadge, Column, ConfirmDialog, Btn, LoadingSpinner, useToast, ItemThumbs,
 } from "@/components/admin/Shared";
 
 interface Order {
   id: string; orderNumber: string; customerName: string; customerEmail: string;
   total: number; status: string; paymentMethod: string; type: string;
-  createdAt: string; items: { quantity: number }[];
+  createdAt: string; items: { quantity: number; name: string; image?: string }[];
   trackingNumber?: string; courierName?: string;
 }
 
@@ -96,7 +96,7 @@ export default function OrdersPage() {
     { key: "customerName", label: "Customer", render: (o) => (
       <div><p className="text-sm font-medium text-ink">{o.customerName}</p><p className="text-xs text-stone">{o.customerEmail}</p></div>
     )},
-    { key: "items", label: "Items", render: (o) => <span className="text-sm">{o.items.reduce((s, i) => s + i.quantity, 0)} items</span> },
+    { key: "items", label: "Items", render: (o) => <ItemThumbs items={o.items} /> },
     { key: "total", label: "Total", render: (o) => <span className="font-semibold text-ink">{fmt(o.total)}</span> },
     { key: "paymentMethod", label: "Payment", render: (o) => <span className="text-xs uppercase text-stone">{o.paymentMethod}</span> },
     { key: "type", label: "Type", render: (o) => <StatusBadge status={o.type} /> },
