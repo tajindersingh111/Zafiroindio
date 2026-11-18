@@ -163,13 +163,26 @@ async function main() {
   await client.query("BEGIN");
   let written = 0;
   for (const i of usable) {
-    const data = { ...i.row.data, variations: i.variations, updatedAt: new Date().toISOString() };
-    // Only fill attributes in; never overwrite what someone set by hand in admin.
-    if (!data.attributes || Object.keys(data.attributes).length === 0) data.attributes = i.attributes;
-    await client.query(`UPDATE documents SET data = $1::jsonb, "updatedAt" = now() WHERE collection='products' AND id = $2`, [
-      JSON.stringify(data).replace(/\\u0000/g, ""),
-      i.row.id,
-    ]);
+    /**
+     * Only the two keys are set, rather than the whole document being written back. The row was
+     * read at the start of this run, so writing all of it would undo anything else that touched
+     * the product meanwhile — the image rewrite, or a change made in admin.
+     */
+    const fillAttributes = !i.row.data.attributes || Object.keys(i.row.data.attributes).length === 0;
+    await client.query(
+      `UPDATE documents
+          SET data = jsonb_set(
+                       CASE WHEN $3::bool THEN jsonb_set(data, '{attributes}', $2::jsonb) ELSE data END,
+                       '{variations}', $1::jsonb),
+              "updatedAt" = now()
+        WHERE collection = 'products' AND id = $4`,
+      [
+        JSON.stringify(i.variations).replace(/\\u0000/g, ""),
+        JSON.stringify(i.attributes).replace(/\\u0000/g, ""),
+        fillAttributes,
+        i.row.id,
+      ]
+    );
     written++;
   }
   await client.query("COMMIT");
