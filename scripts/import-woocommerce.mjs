@@ -63,18 +63,34 @@ async function fetchAll(resource) {
 
 // ── Mapping ──────────────────────────────────────────────────────────
 
-/** Woo's statuses, in this shop's vocabulary. Anything unknown is held rather than guessed. */
+/**
+ * Woo's statuses in this shop's vocabulary. Most of these are not WooCommerce's own: the old site
+ * ran a courier plugin that added its own lifecycle (in-transit, out-for-delivery, pending-pickup,
+ * rto-delivered), and those cover all but a handful of the orders. Anything still unknown is held
+ * as on_hold rather than guessed at, and the run prints what it did not recognise.
+ */
 const STATUS = {
+  // WooCommerce's own
   pending: "pending_payment",
   processing: "processing",
   "on-hold": "on_hold",
   completed: "delivered",
   cancelled: "cancelled",
+  canceled: "cancelled", // the courier plugin spells it with one l
   refunded: "refunded",
   failed: "failed",
   trash: "cancelled",
   "checkout-draft": "payment_pending",
+  // Courier plugin
+  "pending-pickup": "processing", // packed, waiting for the courier to collect
+  "in-transit": "shipped",
+  "out-for-delivery": "out_for_delivery",
+  delivered: "delivered",
+  "rto-delivered": "returned", // return to origin: it came back undelivered
 };
+
+/** Statuses that mean the parcel reached the customer, so a COD order was in fact collected. */
+const DELIVERED = new Set(["delivered"]);
 
 /** Woo gateway ids vary by plugin, so match on what the id contains. */
 function payMethod(id = "", title = "") {
@@ -82,6 +98,8 @@ function payMethod(id = "", title = "") {
   if (s.includes("cod") || s.includes("cash on delivery")) return "cod";
   if (s.includes("upi")) return "upi";
   if (s.includes("razorpay")) return "razorpay";
+  // The old shop's gateway: "prepaid" and "GoKwik Prepaid" both mean paid online, gateway unknown.
+  if (s.includes("prepaid") || s.includes("gokwik")) return "gateway";
   if (s.includes("netbank")) return "netbanking";
   if (s.includes("wallet")) return "wallet";
   if (s.includes("card") || s.includes("stripe")) return "card";
@@ -150,10 +168,14 @@ function mapOrder(o) {
     discount: num(o.discount_total),
     total: num(o.total),
     paymentMethod: payMethod(o.payment_method, o.payment_method_title),
-    paymentStatus: o.date_paid ? "paid" : o.status === "refunded" ? "refunded" : "pending",
+    /**
+     * A delivered COD order was paid at the door, which Woo never records as date_paid, so going
+     * by that alone would report years of cash sales as unpaid.
+     */
+    paymentStatus: o.status === "refunded" ? "refunded" : o.date_paid || DELIVERED.has(o.status) ? "paid" : "pending",
     transactionId: o.transaction_id || undefined,
     notes: [],
-    deliveredDate: o.status === "completed" ? iso(o.date_completed_gmt || o.date_modified_gmt) : undefined,
+    deliveredDate: DELIVERED.has(o.status) || o.status === "completed" ? iso(o.date_completed_gmt || o.date_modified_gmt) : undefined,
     createdAt: iso(o.date_created_gmt),
     updatedAt: iso(o.date_modified_gmt),
     /** Kept so an imported row is always identifiable, and re-importable. */
@@ -191,13 +213,19 @@ function mapCustomer(c) {
 
 // ── Writing ──────────────────────────────────────────────────────────
 
+/**
+ * Postgres jsonb rejects a null byte, and the old shop's data carries it — a few rows came through its
+ * checkout with stray null bytes in them. They mean nothing here, so they are dropped.
+ */
+const clean = (doc) => JSON.stringify(doc).replace(/\\u0000/g, "");
+
 async function upsertAll(client, collection, docs) {
   for (const doc of docs) {
     await client.query(
       `INSERT INTO documents (collection, id, position, data, "createdAt", "updatedAt")
        VALUES ($1, $2, 0, $3::jsonb, now(), now())
        ON CONFLICT (collection, id) DO UPDATE SET data = EXCLUDED.data, "updatedAt" = now()`,
-      [collection, doc.id, JSON.stringify(doc)]
+      [collection, doc.id, clean(doc)]
     );
   }
 }
