@@ -10,36 +10,13 @@ export default function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [announcements, setAnnouncements] = useState<string[]>([
-    "Hand-block printed by artisans in Jaipur",
-    "100% pure cotton",
-    "Easy 7-day exchanges"
-  ]);
   const { cartCount, wishlist } = useStore();
   const { customer } = useAuth();
-  // Phones show one announcement at a time (CSS hides the rest); rotate through them.
-  const [annIdx, setAnnIdx] = useState(0);
-  useEffect(() => {
-    const n = Math.min(announcements.length, 3);
-    if (n < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const t = setInterval(() => setAnnIdx((i) => (i + 1) % n), 4000);
-    return () => clearInterval(t);
-  }, [announcements.length]);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 8);
     window.addEventListener("scroll", handler, { passive: true });
     return () => window.removeEventListener("scroll", handler);
-  }, []);
-
-  // Live announcement-bar messages managed in the admin panel (cached endpoint).
-  useEffect(() => {
-    fetch("/api/banners")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data.announcements) && data.announcements.length) setAnnouncements(data.announcements);
-      })
-      .catch(() => {});
   }, []);
 
   // Close drawer when navigating
@@ -67,13 +44,6 @@ export default function Header() {
 
   return (
     <>
-      {/* ── Dynamic Announcement Bar ─────────────────────────── */}
-      <div className="announcement">
-        {announcements.slice(0, 3).map((text, idx) => (
-          <span key={idx} className={idx === annIdx % Math.min(announcements.length, 3) ? "isActive" : undefined}>{text}</span>
-        ))}
-      </div>
-
       {/* ── Main Header ──────────────────────────────────────── */}
       <header className={`header${scrolled ? " scrolled" : ""}`}>
         <div className="container nav">

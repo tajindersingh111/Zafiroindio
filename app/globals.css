@@ -109,48 +109,25 @@ img { max-width: 100%; display: block; }
 }
 .link:hover { color: var(--gold-dark); border-color: var(--gold-dark); transform: translateX(3px); }
 
-/* ── Announcement Bar ──────────────────────────────────────── */
-.announcement {
-  height: 38px;
-  /* Leaf gold: darker at the edges, bright through the middle, so the strip reads as metal rather
-     than a flat block of yellow. The text is the deep ink the rest of the site uses — on gold it is
-     far easier to read than cream, and it keeps the bar from shouting over the logo beneath it. */
-  background: linear-gradient(90deg, #a8861d 0%, #d9b641 22%, #f0d989 50%, #d9b641 78%, #a8861d 100%);
-  border-bottom: 1px solid rgba(11, 19, 38, 0.18);
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  padding: 0 4%;
-  font-size: 11px;
-  font-weight: 700;
-  color: #2a1f05;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-}
-.announcement span {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
 /* ── Header ────────────────────────────────────────────────── */
 .header {
   height: 80px;
-  background: rgba(251, 247, 238, 0.94);
-  border-bottom: 1px solid var(--line);
+  /* Leaf gold, lit from the top: light enough that the deep-ink wordmark, menu and icons stay
+     legible across the whole band, and warm enough to read as metal rather than flat yellow.
+     The background is opaque, so there is nothing for a backdrop blur to do. */
+  background: linear-gradient(180deg, #f7e9bd 0%, #e4cb8a 100%);
+  border-bottom: 1px solid rgba(11, 19, 38, 0.16);
   display: flex;
   align-items: center;
   position: sticky;
   top: 0;
   z-index: 100;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  transition: all 0.3s ease;
+  transition: background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 .header.scrolled {
-  box-shadow: 0 10px 30px rgba(23, 26, 69, 0.08);
-  background: rgba(251, 247, 238, 0.98);
-  border-bottom-color: var(--line-gold);
+  box-shadow: 0 10px 30px rgba(23, 19, 4, 0.18);
+  background: linear-gradient(180deg, #f3e2ad 0%, #dcc077 100%);
+  border-bottom-color: rgba(11, 19, 38, 0.24);
 }
 .nav { display: flex; align-items: center; justify-content: space-between; gap: 20px; width: 100%; }
 .logo {
@@ -173,30 +150,30 @@ img { max-width: 100%; display: block; }
   font-weight: 800;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: var(--ink);
+  color: #2a1f05;
   border-bottom: 2px solid transparent;
   transition: color 0.25s ease, border-color 0.25s ease;
   white-space: nowrap;
   position: relative;
 }
 .menu a:hover, .menu a.active {
-  color: var(--gold-dark);
-  border-bottom-color: var(--gold);
+  color: var(--ink);
+  border-bottom-color: var(--ink);
 }
-.menu a:active { color: var(--gold-dark); }
-.menu a:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; border-radius: 2px; }
+.menu a:active { color: var(--ink); }
+.menu a:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; border-radius: 2px; }
 /* The one accented item (Bulk Orders) keeps the shared type and only adds a small gold diamond. */
 .menu-diamond {
   display: block;
   flex: none;
   width: 5px;
   height: 5px;
-  background: var(--gold);
+  background: #8a6a10;
   transform: rotate(45deg);
   transition: background 0.25s ease, box-shadow 0.25s ease;
 }
 .menu a.menu-accent:hover .menu-diamond,
-.menu a.menu-accent.active .menu-diamond { background: var(--gold-dark); box-shadow: 0 0 0 3px rgba(197, 160, 40, 0.18); }
+.menu a.menu-accent.active .menu-diamond { background: var(--ink); box-shadow: 0 0 0 3px rgba(11, 19, 38, 0.14); }
 
 /* ── Header action icons ──
    Every icon lives in the same 40×40 box with the glyph centred, so sizes, optical weight and
@@ -212,16 +189,16 @@ img { max-width: 100%; display: block; }
   position: relative;
   display: inline-grid;
   place-items: center;
-  color: var(--ink);
+  color: #2a1f05;
   line-height: 0;
   cursor: pointer;
   border-radius: 999px;
   transition: color 0.2s ease, background 0.2s ease;
 }
 .iconbtn svg { display: block; width: 20px; height: 20px; stroke-width: 1.6; }
-.iconbtn:hover { color: var(--gold-dark); background: rgba(197, 160, 40, 0.1); }
-.iconbtn:active { background: rgba(197, 160, 40, 0.18); }
-.iconbtn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.iconbtn:hover { color: var(--ink); background: rgba(11, 19, 38, 0.09); }
+.iconbtn:active { background: rgba(11, 19, 38, 0.16); }
+.iconbtn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .badge {
   position: absolute;
   top: 2px;
@@ -239,7 +216,7 @@ img { max-width: 100%; display: block; }
   display: grid;
   place-items: center;
   padding: 0 4.5px;
-  box-shadow: 0 0 0 2px rgba(251, 247, 238, 0.96);
+  box-shadow: 0 0 0 2px rgba(244, 228, 178, 0.96);
   pointer-events: none;
 }
 /* Signed-in dot on the account icon. */
@@ -701,9 +678,6 @@ img { max-width: 100%; display: block; }
 
 @media (max-width: 720px) {
   .container { width: min(100% - 32px, var(--max)); }
-  .announcement { font-size: 10px; height: 32px; justify-content: center; text-align: center; }
-  .announcement span { display: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; animation: annIn .5s ease both; }
-  .announcement span.isActive { display: inline-flex; }
   .header { height: 66px; }
   .logo img { height: 34px; }
   .menu { display: none; }
@@ -785,7 +759,6 @@ h1 { line-height: 1.08; }
 .heroImg.heroSlide.isActive { opacity: .88; }
 .heroEnter { animation: heroIn .7s ease both; }
 @keyframes heroIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes annIn { from { opacity: 0; } to { opacity: 1; } }
 .heroControlsWrap { position: absolute; left: 0; right: 0; bottom: 34px; margin: 0 auto; z-index: 3; }
 .heroControls { display: flex; align-items: center; gap: 10px; }
 .heroDot { position: relative; width: 9px; height: 9px; padding: 0; border-radius: 999px; border: 1px solid var(--ink); background: transparent; cursor: pointer; transition: width .3s ease, background .3s ease; }
