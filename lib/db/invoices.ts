@@ -20,7 +20,8 @@ const DEFAULT_BUSINESS_SNAPSHOT: BusinessSnapshot = {
   },
   gstin: "08ABCDE1234F1Z5",
   pan: "ABCDE1234F",
-  logoUrl: "/images/logo.png"
+  // /images/logo.png was never in the repo, so every invoice drew a broken image.
+  logoUrl: "/zafiro-logo-dark.png"
 };
 
 const DEFAULT_ADDRESS: Address = {
