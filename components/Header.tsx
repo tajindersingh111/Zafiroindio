@@ -130,7 +130,7 @@ export default function Header() {
                 : { href: "/login", label: "Sign in", Icon: UserRound },
               { href: "/wishlist", label: `Wishlist${wishlist.length > 0 ? ` (${wishlist.length})` : ""}`, Icon: Heart },
               { href: "/track", label: "Track order", Icon: Truck },
-              { href: "/return-policy", label: "Returns & exchange", Icon: RotateCcw },
+              { href: "/account", label: "Cancel or return", Icon: RotateCcw },
             ].map(({ href, label, Icon }) => (
               <Link key={href} href={href}>
                 <Icon size={16} /> {label}

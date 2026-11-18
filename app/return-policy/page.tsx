@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PackageX, Repeat, Video } from "lucide-react";
+import { ArrowRight, PackageX, Repeat, Video } from "lucide-react";
 import PolicyPage, { type PolicySection } from "@/components/site/PolicyPage";
 import { RETURN_WINDOW_DAYS } from "@/lib/returns/policy";
 import { getStoreContact, whatsappLink } from "@/lib/storefront/contact";
@@ -209,7 +209,21 @@ export default async function ReturnPolicyPage() {
       eyebrow="Customer care"
       title="Return, Exchange & Refund Policy"
       updated="7 November 2026"
-      intro={<p>Simple, fair rules for returns, exchanges, cancellations and refunds, and exactly what we need from you to make any of them quick.</p>}
+      intro={
+        <>
+          <p>Simple, fair rules for returns, exchanges, cancellations and refunds, and exactly what we need from you to make any of them quick.</p>
+          {/* This page only explains the rules; the request itself is raised against an order, so
+              point at the lookup rather than leaving the reader to find it. */}
+          <p style={{ marginTop: 18 }}>
+            <Link href="/account" className="btn gold">
+              Start a return, exchange or cancellation <ArrowRight size={14} />
+            </Link>
+          </p>
+          <p style={{ marginTop: 10, fontSize: 13 }}>
+            Enter your order number with the phone number or e-mail you ordered with — no account needed.
+          </p>
+        </>
+      }
       highlights={[
         {
           icon: <PackageX size={20} strokeWidth={1.6} />,

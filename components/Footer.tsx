@@ -17,6 +17,9 @@ const SHOP_LINKS = [
 const CARE_LINKS = [
   { href: "/account", label: "My Orders" },
   { href: "/track", label: "Track My Order" },
+  // The lookup on /account is where an order is actually cancelled or returned; the policy page
+  // only explains the rules, so both need their own line here.
+  { href: "/account", label: "Cancel or Return an Order" },
   { href: "/return-policy", label: "Returns & Exchanges" },
   { href: "/shipping-policy", label: "Shipping & Delivery" },
   { href: "/faq", label: "FAQs" },

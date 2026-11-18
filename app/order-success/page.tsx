@@ -162,6 +162,15 @@ function OrderSuccessContent() {
               <Link href="/shop" className="btn gold" style={{ flex: "1 1 100%" }}>
                 <ShoppingBag size={15} /> Continue shopping <ArrowRight size={14} />
               </Link>
+              {/* Changed their mind in the first minutes: say where that is done, now, rather than
+                  leaving them to hunt for it later. */}
+              <p style={{ flex: "1 1 100%", margin: "4px 0 0", fontSize: 12.5, color: "var(--muted)", lineHeight: 1.6 }}>
+                Need to change something? You can{" "}
+                <Link href="/account" style={{ color: "var(--gold-dark)", fontWeight: 600 }}>
+                  cancel this order
+                </Link>{" "}
+                until it ships, and raise a return or exchange from the same place once it is delivered.
+              </p>
             </div>
           </>
         )}
