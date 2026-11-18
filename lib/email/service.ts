@@ -15,6 +15,9 @@ export type EmailEventType =
   | "RETURN_APPROVED"
   | "RETURN_REJECTED";
 
+/** The e-mails that carry the tax invoice as a PDF. */
+const INVOICE_EVENTS: EmailEventType[] = ["ORDER_CREATED", "PAYMENT_SUCCESS", "INVOICE_GENERATED"];
+
 export interface EmailLogEntry {
   id: string;
   eventType: EmailEventType;
@@ -115,6 +118,26 @@ export async function sendTransactionalEmail(
 ${site ? `<p><a href="${esc(site)}/track">Track order</a></p>` : ""}
 <p style="font-size:12px;color:#777;margin-top:32px">Handblock bedding, Jaipur.</p></div></body></html>`;
 
+  /**
+   * The invoice rides along with the e-mails that mark money changing hands. A shopper should not
+   * have to come back to the site for the one document they may need for a warranty claim, an
+   * expense report or their own books.
+   */
+  let attachments: { filename: string; content: Buffer; contentType: string }[] = [];
+  if (INVOICE_EVENTS.includes(eventType)) {
+    try {
+      const { getInvoiceByOrderId } = await import("@/lib/db/invoices");
+      const invoice = await getInvoiceByOrderId(order.id);
+      if (invoice) {
+        const { invoicePdf, invoiceFileName } = await import("@/lib/invoices/pdf");
+        attachments = [{ filename: invoiceFileName(invoice), content: await invoicePdf(invoice), contentType: "application/pdf" }];
+      }
+    } catch (err) {
+      // A missing invoice must never hold up the e-mail that tells someone their order went through.
+      console.error("[email] invoice attachment skipped:", err instanceof Error ? err.message : err);
+    }
+  }
+
   let sentStatus: "SENT" | "LOGGED_ONLY" | "FAILED" = "LOGGED_ONLY";
   let errorMsg: string | undefined = undefined;
 
@@ -140,6 +163,7 @@ ${site ? `<p><a href="${esc(site)}/track">Track order</a></p>` : ""}
         subject,
         html,
         text: `${headline}\n\n${bodyMessage}`,
+        ...(attachments.length ? { attachments } : {}),
       });
       sentStatus = "SENT";
     } catch (err: any) {
