@@ -112,22 +112,21 @@ img { max-width: 100%; display: block; }
 /* ── Header ────────────────────────────────────────────────── */
 .header {
   height: 80px;
-  /* Leaf gold, lit from the top: light enough that the deep-ink wordmark, menu and icons stay
-     legible across the whole band, and warm enough to read as metal rather than flat yellow.
-     The background is opaque, so there is nothing for a backdrop blur to do. */
-  background: linear-gradient(180deg, #f7e9bd 0%, #e4cb8a 100%);
-  border-bottom: 1px solid rgba(11, 19, 38, 0.16);
+  background: rgba(251, 247, 238, 0.94);
+  border-bottom: 1px solid var(--line);
   display: flex;
   align-items: center;
   position: sticky;
   top: 0;
   z-index: 100;
-  transition: background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.3s ease;
 }
 .header.scrolled {
-  box-shadow: 0 10px 30px rgba(23, 19, 4, 0.18);
-  background: linear-gradient(180deg, #f3e2ad 0%, #dcc077 100%);
-  border-bottom-color: rgba(11, 19, 38, 0.24);
+  box-shadow: 0 10px 30px rgba(23, 26, 69, 0.08);
+  background: rgba(251, 247, 238, 0.98);
+  border-bottom-color: var(--line-gold);
 }
 .nav { display: flex; align-items: center; justify-content: space-between; gap: 20px; width: 100%; }
 .logo {
@@ -150,30 +149,30 @@ img { max-width: 100%; display: block; }
   font-weight: 800;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: #2a1f05;
+  color: var(--ink);
   border-bottom: 2px solid transparent;
   transition: color 0.25s ease, border-color 0.25s ease;
   white-space: nowrap;
   position: relative;
 }
 .menu a:hover, .menu a.active {
-  color: var(--ink);
-  border-bottom-color: var(--ink);
+  color: var(--gold-dark);
+  border-bottom-color: var(--gold);
 }
-.menu a:active { color: var(--ink); }
-.menu a:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; border-radius: 2px; }
+.menu a:active { color: var(--gold-dark); }
+.menu a:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; border-radius: 2px; }
 /* The one accented item (Bulk Orders) keeps the shared type and only adds a small gold diamond. */
 .menu-diamond {
   display: block;
   flex: none;
   width: 5px;
   height: 5px;
-  background: #8a6a10;
+  background: var(--gold);
   transform: rotate(45deg);
   transition: background 0.25s ease, box-shadow 0.25s ease;
 }
 .menu a.menu-accent:hover .menu-diamond,
-.menu a.menu-accent.active .menu-diamond { background: var(--ink); box-shadow: 0 0 0 3px rgba(11, 19, 38, 0.14); }
+.menu a.menu-accent.active .menu-diamond { background: var(--gold-dark); box-shadow: 0 0 0 3px rgba(197, 160, 40, 0.18); }
 
 /* ── Header action icons ──
    Every icon lives in the same 40×40 box with the glyph centred, so sizes, optical weight and
@@ -189,16 +188,16 @@ img { max-width: 100%; display: block; }
   position: relative;
   display: inline-grid;
   place-items: center;
-  color: #2a1f05;
+  color: var(--ink);
   line-height: 0;
   cursor: pointer;
   border-radius: 999px;
   transition: color 0.2s ease, background 0.2s ease;
 }
 .iconbtn svg { display: block; width: 20px; height: 20px; stroke-width: 1.6; }
-.iconbtn:hover { color: var(--ink); background: rgba(11, 19, 38, 0.09); }
-.iconbtn:active { background: rgba(11, 19, 38, 0.16); }
-.iconbtn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.iconbtn:hover { color: var(--gold-dark); background: rgba(197, 160, 40, 0.1); }
+.iconbtn:active { background: rgba(197, 160, 40, 0.18); }
+.iconbtn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .badge {
   position: absolute;
   top: 2px;
@@ -216,7 +215,7 @@ img { max-width: 100%; display: block; }
   display: grid;
   place-items: center;
   padding: 0 4.5px;
-  box-shadow: 0 0 0 2px rgba(244, 228, 178, 0.96);
+  box-shadow: 0 0 0 2px rgba(251, 247, 238, 0.96);
   pointer-events: none;
 }
 /* Signed-in dot on the account icon. */
