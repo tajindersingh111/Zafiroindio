@@ -65,7 +65,13 @@ function stockStatus(v, qty) {
 const variationId = (wooId) => crypto.createHash("sha1").update(`wc-variation-${wooId}`).digest("hex").slice(0, 32);
 
 function mapVariation(v) {
-  const stock = v.manage_stock ? num(v.stock_quantity) : 5;
+  /**
+   * Woo only carries a quantity when the variation manages its own stock; otherwise the truth is
+   * stock_status alone. Reading stock_quantity regardless turns "in stock, not counted" into zero,
+   * which takes the product off sale — so the status decides, and a counted quantity refines it.
+   */
+  const counted = v.manage_stock === true && v.stock_quantity !== null && v.stock_quantity !== undefined;
+  const stock = counted ? num(v.stock_quantity) : v.stock_status === "outofstock" ? 0 : 5;
   return {
     id: variationId(v.id),
     sku: v.sku || "",
