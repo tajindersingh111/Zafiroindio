@@ -207,7 +207,7 @@ export async function createOrderFromCheckout(n: NormalizedCheckoutOrder, eventI
   if (existingId) return { status: "duplicate", orderId: existingId };
 
   const now = new Date().toISOString();
-  const seq = await nextSequence("order", 10000);
+  const seq = await nextSequence("order", 1);
   const orderId = `ord-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const orderNumber = `ZI-${seq}`;
 

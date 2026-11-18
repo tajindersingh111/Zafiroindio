@@ -159,7 +159,7 @@ export async function createDirectOrder(params: CreateDirectOrderParams): Promis
   if (existingId) return { status: "duplicate", order: await getDoc<Order>("orders", existingId) };
 
   const now = new Date().toISOString();
-  const seq = await nextSequence("order", 10000);
+  const seq = await nextSequence("order", 1);
   const orderId = `ord-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const orderNumber = `ZI-${seq}`;
   const snapshot = params.snapshot;

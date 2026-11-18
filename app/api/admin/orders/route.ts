@@ -106,7 +106,7 @@ async function handlePOST(request: Request) {
       restock.push({ productId: line.productId, qty: line.quantity });
     }
 
-    const seq = await nextSequence("order", 10000);
+    const seq = await nextSequence("order", 1);
     const addr = (a: any) => ({
       firstName: a.firstName || customerName.split(" ")[0],
       lastName: a.lastName || customerName.split(" ").slice(1).join(" "),
