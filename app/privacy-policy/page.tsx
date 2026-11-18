@@ -40,7 +40,7 @@ export default async function PrivacyPolicyPage() {
         <>
           <ul>
             <li>
-              <strong>Sign-in details.</strong> The mobile number or e-mail address you use to sign in, and the one-time codes we send you. We keep only a
+              <strong>Sign-in details.</strong> The e-mail address you use to sign in, and the one-time codes we send you. We keep only a
               scrambled form of each code, and it expires within minutes.
             </li>
             <li>
@@ -111,7 +111,7 @@ export default async function PrivacyPolicyPage() {
               contents of the parcel so they can deliver it.
             </li>
             <li>
-              <strong>Messaging and e-mail providers</strong>, including the WhatsApp Business Platform, so we can send order updates and sign-in codes.
+              <strong>E-mail and messaging providers</strong>, who deliver your sign-in codes and order updates (order updates may also be sent over the WhatsApp Business Platform).
             </li>
             <li>
               <strong>Hosting and infrastructure providers</strong> that store our data and keep the site running.

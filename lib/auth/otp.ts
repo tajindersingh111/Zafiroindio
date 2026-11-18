@@ -1,15 +1,14 @@
 import crypto from "node:crypto";
 import { getDoc, upsertDoc, deleteDoc } from "@/lib/db/store";
 import { getSessionSecret } from "@/lib/auth/token";
-import { normalizeEmail, normalizePhone } from "@/lib/orders/contact";
+import { normalizeEmail } from "@/lib/orders/contact";
 
 /**
- * One-time codes for shopper sign-in, over WhatsApp (phone) or e-mail.
+ * One-time codes for shopper sign-in, by e-mail.
  *
- * Both channels share the same engine, so they get the same protections: a cooldown between sends,
- * a cap per recipient per hour, and a hard attempt limit so a wrong code cannot be brute-forced. A
- * WhatsApp code costs money (Meta bills per authentication message) and an e-mail code can be used
- * to spam a stranger's inbox, so the limits matter for both reasons.
+ * A code can be aimed at a stranger's inbox, so sending is limited three ways: a cooldown between
+ * sends, a cap per address per hour, and a hard attempt limit so a wrong code cannot be
+ * brute-forced.
  *
  * The code itself is never stored — only an HMAC of it — so a leaked database row cannot be used
  * to sign in.
@@ -25,7 +24,7 @@ export const OTP_SEND_WINDOW_MS = 60 * 60 * 1000; // ...per hour
 const COLLECTION = "otp-requests";
 
 interface OtpRecord {
-  /** Record key: the normalised phone number, or `email:<address>` for e-mail codes. */
+  /** Record key: `email:<address>`. */
   id: string;
   hashedOtp: string;
   attempts: number;
@@ -39,11 +38,7 @@ interface OtpRecord {
   updatedAt: string;
 }
 
-/**
- * HMAC the code, salted with the record key, so the same code for two recipients hashes
- * differently. Phone records keep the key they always had, so a code already in flight when this
- * was generalised stays valid.
- */
+/** HMAC the code, salted with the record key, so the same code for two recipients hashes differently. */
 function hashOtp(recordId: string, code: string): string {
   return crypto.createHmac("sha256", getSessionSecret()).update(`otp:${recordId}:${code}`).digest("base64url");
 }
@@ -59,12 +54,6 @@ function generateCode(): string {
   return String(crypto.randomInt(0, 10 ** OTP_LENGTH)).padStart(OTP_LENGTH, "0");
 }
 
-export function isValidIndianMobile(raw: unknown): boolean {
-  const phone = normalizePhone(raw);
-  // 10 digits, and Indian mobile numbers start 6-9.
-  return /^[6-9]\d{9}$/.test(phone);
-}
-
 /** Deliberately simple: the real proof an address is valid is that the code arrives. */
 export function isValidEmail(raw: unknown): boolean {
   const email = normalizeEmail(raw);
@@ -75,11 +64,9 @@ export function isValidEmail(raw: unknown): boolean {
   return /^[^\s@]+\.[^\s@]+$/.test(domain);
 }
 
-type Recipient = "number" | "email address";
-
 type Refusal = { ok: false; reason: "cooldown" | "too_many"; retryAfterSeconds: number; message: string };
 
-async function issueFor(recordId: string, recipient: Recipient): Promise<{ ok: true; code: string; expiresInSeconds: number } | Refusal> {
+async function issueFor(recordId: string): Promise<{ ok: true; code: string; expiresInSeconds: number } | Refusal> {
   const now = Date.now();
   const existing = await getDoc<OtpRecord>(COLLECTION, recordId);
 
@@ -98,7 +85,7 @@ async function issueFor(recordId: string, recipient: Recipient): Promise<{ ok: t
         ok: false,
         reason: "too_many",
         retryAfterSeconds,
-        message: `Too many codes requested for this ${recipient}. Please try again later.`,
+        message: "Too many codes requested for this e-mail address. Please try again later.",
       };
     }
   }
@@ -165,45 +152,7 @@ async function verifyFor(recordId: string, rawCode: string): Promise<{ ok: true 
   return { ok: true };
 }
 
-// ───────────────────────── Phone (WhatsApp) ─────────────────────────
-
-export type IssueResult =
-  | { ok: true; phone: string; code: string; expiresInSeconds: number }
-  | { ok: false; reason: "invalid_phone"; retryAfterSeconds: number; message: string }
-  | Refusal;
-
-/**
- * Issues a fresh code for a phone number, or refuses with the reason.
- *
- * The caller is responsible for delivering the returned `code` — it is returned rather than sent
- * here so that a delivery failure can be reported to the shopper without the record having already
- * been consumed.
- */
-export async function issueOtp(rawPhone: string): Promise<IssueResult> {
-  const phone = normalizePhone(rawPhone);
-  if (!isValidIndianMobile(phone)) {
-    return { ok: false, reason: "invalid_phone", retryAfterSeconds: 0, message: "Enter a valid 10-digit Indian mobile number." };
-  }
-  const issued = await issueFor(phone, "number");
-  return issued.ok ? { ok: true, phone, code: issued.code, expiresInSeconds: issued.expiresInSeconds } : issued;
-}
-
-export type VerifyResult =
-  | { ok: true; phone: string }
-  | { ok: false; reason: "invalid_phone" | VerifyFailure["reason"]; attemptsLeft: number; message: string };
-
-export async function verifyOtp(rawPhone: string, rawCode: string): Promise<VerifyResult> {
-  const phone = normalizePhone(rawPhone);
-  if (!isValidIndianMobile(phone)) {
-    return { ok: false, reason: "invalid_phone", attemptsLeft: 0, message: "Enter a valid 10-digit Indian mobile number." };
-  }
-  const result = await verifyFor(phone, rawCode);
-  return result.ok ? { ok: true, phone } : result;
-}
-
-// ───────────────────────── E-mail ─────────────────────────
-
-/** E-mail codes live under their own key, so a phone code can never satisfy an e-mail sign-in. */
+/** Codes live under a prefixed key, so the collection stays readable alongside anything added later. */
 const emailKey = (email: string) => `email:${email}`;
 
 export type IssueEmailResult =
@@ -216,7 +165,7 @@ export async function issueEmailOtp(rawEmail: string): Promise<IssueEmailResult>
     return { ok: false, reason: "invalid_email", retryAfterSeconds: 0, message: "Enter a valid e-mail address." };
   }
   const email = normalizeEmail(rawEmail);
-  const issued = await issueFor(emailKey(email), "email address");
+  const issued = await issueFor(emailKey(email));
   return issued.ok ? { ok: true, email, code: issued.code, expiresInSeconds: issued.expiresInSeconds } : issued;
 }
 

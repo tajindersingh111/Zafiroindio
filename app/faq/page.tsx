@@ -38,7 +38,7 @@ export default async function FaqPage() {
         },
         {
           q: "Do I need an account?",
-          a: "No, you can check out as a guest. If you sign in, you can see all your orders in one place and your address is filled in for you. There is no password: we send a one-time code to your mobile number on WhatsApp, or to your e-mail.",
+          a: "No, you can check out as a guest. If you sign in, you can see all your orders in one place and your address is filled in for you. There is no password: we e-mail you a one-time code.",
           link: { href: "/login", label: "Sign in" },
         },
         {

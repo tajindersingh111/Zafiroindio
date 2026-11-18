@@ -323,7 +323,7 @@ export default function CheckoutClient() {
           <div className="lux-card" style={{ padding: "14px 18px", marginBottom: 20, display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", justifyContent: "space-between" }}>
             <span style={{ fontSize: 13.5 }}>Signing in saves your address and keeps all your orders in one place.</span>
             <Link className="btn" href="/login?next=/checkout" style={{ padding: "9px 18px", fontSize: 11.5 }}>
-              Sign in with WhatsApp
+              Sign in
             </Link>
           </div>
         )}

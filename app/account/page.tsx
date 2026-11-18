@@ -104,9 +104,9 @@ export default function AccountPage() {
 
         {!authLoading && !customer && (
           <div className="lux-card" style={{ padding: "16px 20px", marginBottom: 28, display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", justifyContent: "space-between" }}>
-            <span style={{ fontSize: 13.5 }}>Sign in with your mobile number to see every order in one place.</span>
+            <span style={{ fontSize: 13.5 }}>Sign in with your e-mail address to see every order in one place.</span>
             <Link className="btn gold" href="/login?next=/account/orders" style={{ fontSize: 11.5, padding: "10px 18px" }}>
-              Sign in with WhatsApp
+              Sign in
             </Link>
           </div>
         )}

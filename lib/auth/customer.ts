@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/db/prisma";
-import { getDoc, upsertDoc, findOneByField } from "@/lib/db/store";
-import { normalizeEmail, normalizePhone } from "@/lib/orders/contact";
+import { getDoc, upsertDoc } from "@/lib/db/store";
+import { normalizeEmail } from "@/lib/orders/contact";
 import type { Address, Customer } from "@/lib/db/types";
 import { CUSTOMER_COOKIE_NAME, parseCustomerSession, type CustomerSession } from "@/lib/auth/customer-token";
 
@@ -65,34 +65,6 @@ export async function requireCustomer(request: Request): Promise<CustomerAuth> {
     };
   }
   return { customer: found.customer, session: found.session, error: null };
-}
-
-/**
- * The customer record for a verified phone number, created on first sign-in.
- *
- * Phone is the identity here (it is what the OTP proved), so the lookup is by normalised phone and
- * never by the name or e-mail the shopper typed.
- */
-export async function findOrCreateCustomerByPhone(rawPhone: string): Promise<Customer> {
-  const phone = normalizePhone(rawPhone);
-  const existing = await findOneByField<Customer>("customers", "phone", phone);
-  if (existing) return existing;
-
-  const now = new Date().toISOString();
-  const customer: Customer = {
-    id: `cust-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-    type: "retail",
-    status: "active",
-    firstName: "Customer",
-    lastName: "",
-    email: "",
-    phone,
-    totalOrders: 0,
-    totalSpent: 0,
-    registeredAt: now,
-    updatedAt: now,
-  };
-  return upsertDoc("customers", customer);
 }
 
 /**

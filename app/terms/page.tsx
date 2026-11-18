@@ -47,7 +47,7 @@ export default async function TermsPage() {
       body: (
         <>
           <p>
-            You sign in with a one-time code sent to your mobile number or e-mail address. You are responsible for keeping that phone number or inbox secure and for
+            You sign in with a one-time code sent to your e-mail address. You are responsible for keeping that inbox secure and for
             everything done through your account. Never share a code with anyone; we will never ask you for one. Tell us straight away if you think someone else has
             used your account.
           </p>
