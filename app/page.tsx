@@ -371,8 +371,18 @@ export default async function Home() {
             <div className="hm-founder-photo hm-reveal">
               <span className="hm-founder-frame" aria-hidden="true" />
               <img
+                className="hm-founder-main"
                 src={founder?.photo || "/editorial/neelu.jpg"}
                 alt={founder ? `${founder.name}, ${founder.role} of Zafiro Indio` : "Founder of Zafiro Indio"}
+                loading="lazy"
+                decoding="async"
+              />
+              <img
+                className="hm-founder-inset"
+                src="/editorial/founders-together.jpg"
+                alt="The owners of Zafiro Indio"
+                width={720}
+                height={900}
                 loading="lazy"
                 decoding="async"
               />

@@ -49,3 +49,6 @@ next-env.d.ts
 
 # local dev database cluster
 /.pgdata/
+
+# local backups (db dumps, replaced assets) - never commit
+.backups/

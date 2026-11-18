@@ -701,7 +701,10 @@ export default function AboutContent({ founders = [] }: { founders?: Founder[] }
         /* Founder cards (Admin → Content → Founders). */
         .about-founders {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          /* Capped rather than 1fr: with a single founder a stretched card turned the portrait
+             into a wall-sized crop. Cards keep a portrait width and the row stays centred. */
+          grid-template-columns: repeat(auto-fit, minmax(240px, 330px));
+          justify-content: center;
           gap: 28px;
         }
         .about-founder-card {

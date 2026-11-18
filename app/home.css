@@ -155,7 +155,26 @@
 .hm-founder .container { position: relative; }
 .hm-founder-grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(40px, 6vw, 92px); align-items: center; }
 .hm-founder-photo { position: relative; width: 100%; max-width: 470px; margin-inline: auto; }
-.hm-founder-photo img { position: relative; display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: center top; border-radius: 4px; box-shadow: 0 30px 70px rgba(0, 0, 0, 0.4); }
+.hm-founder-main { position: relative; display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: center top; border-radius: 4px; box-shadow: 0 30px 70px rgba(0, 0, 0, 0.4); }
+/* The owners, tucked into the corner of the portrait. The border is the section's own navy, so the
+   photograph reads as a print laid on top rather than a second panel competing with the first. */
+.hm-founder-inset {
+  position: absolute;
+  right: -18px;
+  bottom: -22px;
+  z-index: 2;
+  display: block;
+  width: 42%;
+  max-width: 184px;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border: 6px solid #0b1326;
+  border-radius: 4px;
+  box-shadow: 0 22px 46px rgba(0, 0, 0, 0.5);
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hm-founder-photo:hover .hm-founder-inset { transform: translateY(-5px); }
 .hm-founder-frame { position: absolute; inset: -14px 14px 14px -14px; border: 1px solid rgba(197, 160, 40, 0.5); border-radius: 4px; pointer-events: none; }
 .hm-founder .eyebrow { color: var(--gold); }
 .hm-founder-copy h2 { color: #fff; font-size: clamp(32px, 4vw, 52px); line-height: 1.07; margin: 14px 0 28px; font-weight: 600; letter-spacing: -0.4px; }
@@ -255,6 +274,8 @@
   .hm-mosaic .hm-tile:first-child .hm-tile-text { padding: 22px 20px; }
 }
 @media (max-width: 560px) {
+  /* The portrait fills the container on a phone, so the inset tucks inside its edge. */
+  .hm-founder-inset { right: -6px; bottom: -16px; width: 38%; border-width: 5px; }
   .hm-steps { grid-template-columns: minmax(0, 1fr); gap: 30px 0; }
   .hm-step, .hm-step:first-child, .hm-step:nth-child(3) { border-left: 0; padding-left: 0; padding-right: 0; }
   .hm-step-num { right: 0; }
@@ -264,7 +285,8 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .hm-reveal { animation: none; }
-  .hm-tile img, .hm-review, .hm-tile-cta { transition: none; }
+  .hm-tile img, .hm-review, .hm-tile-cta, .hm-founder-inset { transition: none; }
+  .hm-founder-photo:hover .hm-founder-inset { transform: none; }
   .hm-tile:hover img { transform: none; }
 }
 
