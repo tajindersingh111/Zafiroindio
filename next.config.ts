@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { legacyPages } from "./lib/seo/legacy";
 
 const nextConfig: NextConfig = {
   devIndicators: false,
@@ -14,6 +15,19 @@ const nextConfig: NextConfig = {
     formats: ["image/webp"],
     qualities: [75],
     minimumCacheTTL: 2678400,
+  },
+  /**
+   * The old WordPress shop's pages: /about-us, /contact-us, /shipping and the rest. Google still has
+   * them indexed, so each is moved permanently rather than left to 404 (the products and categories,
+   * whose slugs need a lookup, are handled in app/product and app/product-category).
+   */
+  async redirects() {
+    return [
+      ...legacyPages.map(([source, destination]) => ({ source, destination, permanent: true })),
+      { source: "/product", destination: "/shop", permanent: true },
+      { source: "/product-category", destination: "/collections", permanent: true },
+      { source: "/product-tag/:slug*", destination: "/shop", permanent: true },
+    ];
   },
   async headers() {
     return [

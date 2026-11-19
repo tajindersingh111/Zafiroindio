@@ -26,7 +26,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://zafiroindio.com";
 export const metadata: Metadata = {
   title: "Zafiro Indio | Handblock Cotton Bedsheets from Jaipur",
   description:
-    "Shop authentic hand-block printed 100% cotton bedsheets by Zafiro Indio — crafted by traditional artisans in Jaipur, Rajasthan. Floral, minimal, luxury & printed bedsheets. Free shipping above ₹999.",
+    "Hand block printed 100% cotton bedsheets, rugs, table runners and sofa throws, made by traditional artisans in Jaipur, Rajasthan. Easy 7-day exchanges.",
   keywords: [
     "handblock bedsheets India",
     "cotton bedsheets Jaipur",

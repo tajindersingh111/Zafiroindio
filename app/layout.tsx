@@ -10,16 +10,24 @@ import { AuthProvider } from "@/components/AuthProvider";
 
 export const metadata: Metadata = {
   title: { default: "Zafiro Indio | Handblock Cotton Bedsheets from Jaipur", template: "%s | Zafiro Indio" },
-  description: "Shop authentic hand-block printed 100% cotton bedsheets by Zafiro Indio — crafted by traditional artisans in Jaipur, Rajasthan. Free shipping above ₹999. Easy 7-day exchanges.",
+  // No shipping threshold here: it changed once already, and a number quoted in every search result goes stale.
+  description: "Hand block printed 100% cotton bedsheets, rugs, table runners and sofa throws, made by traditional artisans in Jaipur, Rajasthan. Easy 7-day exchanges.",
   keywords: ["handblock bedsheets", "cotton bedsheets Jaipur", "block print bedsheets India", "Rajasthani bedsheets", "Zafiro Indio", "buy bedsheets online India"],
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://zafiroindio.com"),
-  openGraph: { title: "Zafiro Indio | Handblock Cotton Bedsheets from Jaipur", description: "Authentic hand-block printed cotton bedsheets from Jaipur artisans. Shop floral, minimal, luxury & printed collections.", type: "website" },
+  openGraph: {
+    title: "Zafiro Indio | Handblock Cotton Bedsheets from Jaipur",
+    description: "Authentic hand-block printed cotton bedsheets, rugs and table linen from Jaipur artisans.",
+    type: "website",
+    siteName: "Zafiro Indio",
+    locale: "en_IN",
+  },
+  twitter: { card: "summary_large_image" },
   robots: { index: true, follow: true }
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en-IN">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

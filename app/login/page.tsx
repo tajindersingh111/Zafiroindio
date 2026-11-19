@@ -4,7 +4,7 @@ import LoginClient from "./LoginClient";
 
 export const metadata: Metadata = {
   title: "Sign in",
-  description: "Sign in to Zafiro Indio with your mobile number to track orders, save addresses and check out faster.",
+  description: "Sign in to Zafiro Indio with your e-mail address to track orders, save addresses and check out faster.",
   robots: { index: false, follow: false },
 };
 

@@ -1,0 +1,195 @@
+{
+ "pages": [
+  [
+   "/about-us",
+   "/about"
+  ],
+  [
+   "/contact-us",
+   "/contact"
+  ],
+  [
+   "/shipping",
+   "/shipping-policy"
+  ],
+  [
+   "/refund",
+   "/return-policy"
+  ],
+  [
+   "/privacy",
+   "/privacy-policy"
+  ],
+  [
+   "/privacy-policy-2",
+   "/privacy-policy"
+  ],
+  [
+   "/my-account",
+   "/account"
+  ],
+  [
+   "/my-account-2",
+   "/account"
+  ],
+  [
+   "/cart-2",
+   "/cart"
+  ],
+  [
+   "/checkout-2",
+   "/checkout"
+  ],
+  [
+   "/shop-old",
+   "/shop"
+  ],
+  [
+   "/shipment-tracking",
+   "/track"
+  ],
+  [
+   "/order-tracking",
+   "/track"
+  ],
+  [
+   "/b2b-bulk-orders",
+   "/bulk-order"
+  ],
+  [
+   "/compare",
+   "/shop"
+  ],
+  [
+   "/sitemap_index.xml",
+   "/sitemap.xml"
+  ],
+  [
+   "/wp-sitemap.xml",
+   "/sitemap.xml"
+  ],
+  [
+   "/product-sitemap.xml",
+   "/sitemap.xml"
+  ]
+ ],
+ "categories": {
+  "bedsheets/handblock-bedsheets": "/collections/handblock-bedsheets",
+  "bedsheets": "/collections/bedsheets",
+  "dining-table-runners": "/collections/dining-table-runners",
+  "doharsets": "/shop",
+  "handblock-rugs": "/collections/handblock-rugs",
+  "bedsheets/handblock-bedsheets/marilyn": "/shop",
+  "quilted-bedcovers": "/collections/quilted-bedcovers",
+  "runner-table-mats": "/collections/runner-table-mats",
+  "sofa-throws": "/collections/sofa-throws",
+  "table-covers": "/shop",
+  "vinca-evergreen-bedsheet-set": "/collections/vinca-evergreen-bedsheet-set"
+ },
+ "products": {
+  "blossom-handblock-table-cover": "/shop",
+  "coral-handblock-table-cover": "/shop",
+  "petal-snow-handblock-table-cover": "/shop",
+  "meadow-handblock-table-cover": "/shop",
+  "alpha-handblock-table-cover": "/shop",
+  "dusty-peach-handblock-table-cover": "/shop",
+  "indigo-elegance-handblock-table-cover": "/shop",
+  "glory-handblock-table-runner-with-placemats-3": "/collections/runner-table-mats",
+  "glory-handblock-table-runner-with-placemats-2": "/collections/runner-table-mats",
+  "?post_type=product&p=10641": "/collections/runner-table-mats",
+  "?post_type=product&p=10523": "/collections/vinca-evergreen-bedsheet-set",
+  "vinca-evergreen-bedsheet-set-gifting-set-lace-pillow-covers-11": "/collections/vinca-evergreen-bedsheet-set",
+  "vinca-evergreen-bedsheet-set-gifting-set-lace-pillow-covers-10": "/collections/vinca-evergreen-bedsheet-set",
+  "vinca-evergreen-bedsheet-set-gifting-set-lace-pillow-covers-copy-2": "/collections/vinca-evergreen-bedsheet-set",
+  "vinca-evergreen-bedsheet-set-gifting-set-lace-pillow-covers-9": "/collections/vinca-evergreen-bedsheet-set",
+  "vinca-evergreen-bedsheet-set-gifting-set-lace-pillow-covers-8": "/collections/vinca-evergreen-bedsheet-set",
+  "?post_type=product&p=10463": "/collections/vinca-evergreen-bedsheet-set",
+  "vinca-evergreen-bedsheet-set-gifting-set-lace-pillow-covers-copy": "/collections/vinca-evergreen-bedsheet-set",
+  "?post_type=product&p=10440": "/collections/vinca-evergreen-bedsheet-set",
+  "vinca-evergreen-bedsheet-set-gifting-set-lace-pillow-covers-7": "/collections/vinca-evergreen-bedsheet-set",
+  "vinca-evergreen-bedsheet-set-gifting-set-lace-pillow-covers-6": "/collections/vinca-evergreen-bedsheet-set",
+  "vinca-evergreen-bedsheet-set-gifting-set-lace-pillow-covers-5": "/collections/vinca-evergreen-bedsheet-set",
+  "?post_type=product&p=10424": "/collections/vinca-evergreen-bedsheet-set",
+  "vinca-evergreen-bedsheet-set-gifting-set-lace-pillow-covers-4": "/collections/vinca-evergreen-bedsheet-set",
+  "vinca-evergreen-bedsheet-set-gifting-set-lace-pillow-covers-3": "/collections/vinca-evergreen-bedsheet-set",
+  "vinca-evergreen-bedsheet-set-gifting-set-lace-pillow-covers-2": "/collections/vinca-evergreen-bedsheet-set",
+  "vinca-evergreen-bedsheet-set-gifting-set-lace-pillow-covers": "/products/vinca-evergreen-bedsheet-set-gifting-set-lace-pillow-covers",
+  "?post_type=product&p=9542": "/collections/quilted-bedcovers",
+  "blush-bloom-quilted-bedcover-set-100x108-inches": "/products/blush-bloom-quilted-bedcover-set-100x108-inches",
+  "blossom-handblock-table-runner-with-placemats-2": "/products/blossom-handblock-table-runner-with-placemats",
+  "camilia-handblock-table-runner-with-placemats": "/products/camilia-handblock-table-runner-with-placemats",
+  "garden-bloom-quilted-bedcover": "/products/garden-bloom-quilted-bedcover-set-100x108-inches",
+  "olive-bloom-quilted-bedcover": "/products/olive-bloom-quilted-bedcover-set-100x108-inches",
+  "verdant-bloom-quilted-bedcover": "/products/verdant-bloom-quilted-bedcover-set-100x108-inches",
+  "rose-vine-quilted-bedcover": "/products/ros-vine-quilted-bedcover-set-100x108-inches",
+  "ivorybloom-quilted-bedcover": "/products/ivory-bloom-quilted-bedcover-set-100x108-inches",
+  "botanical-bloom-handblock-quilted-bedcover": "/products/botanical-bloom-quilted-bedcover-set-100x108-inches",
+  "marilyn-flora-300-tc-handblock-bedsheet-set": "/products/marilyn-flora-300-tc-handblock-bedsheet-set-export-bedsheet-set",
+  "marilyn-beezer-300-tc-handblock-bedsheet-set": "/products/marilyn-bloom-300-tc-handblock-bedsheet-set-export-bedsheet-set",
+  "marilyn-olive-300-tc-handblock-bedsheet-set": "/products/marilyn-olive-300-tc-handblock-bedsheet-set-export-bedsheet-set",
+  "marilyn-teal-300-tc-handblock-bedsheet": "/products/marilyn-teal-300-tc-handblock-bedsheet-set-export-bedsheet-set",
+  "vinca-handblock-table-runner-with-placemats": "/products/vinca-handblock-table-runner-with-placemats",
+  "teal-handblock-table-runner-with-placemats": "/products/teal-handblock-table-runner-with-placemats",
+  "glory-handblock-table-runner-with-placemats": "/products/glory-handblock-table-runner-with-placemats",
+  "coral-handblock-table-runner-with-placemats": "/products/coral-handblock-table-runner-with-placemats",
+  "petal-handblock-table-runner-with-placemats": "/products/petal-handblock-table-runner-with-placemats",
+  "lux-handblock-table-runner-with-placemats": "/products/lux-handblock-table-runner-with-placemats",
+  "meadow-handblock-table-runner-with-placemats": "/products/meadow-handblock-table-runner-with-placemats",
+  "blossom-handblock-table-runner-with-placemats": "/products/arch-handblock-table-runner-with-placemats",
+  "bloom-handblock-table-runner-with-placemats": "/products/alpha-handblock-table-runner-with-placemats",
+  "mocha-handblock-table-runner-with-placemats": "/products/mocha-handblock-table-runner-with-placemats",
+  "lilyhandblock-table-runner-with-placemats": "/products/lily-handblock-table-runner-with-placemats",
+  "handblock-table-runner-with-placemats-mocha": "/products/oak-handblock-table-runner-with-placemats",
+  "maliyn-olivia": "/products/marilyn-olivia-300-tc-handblock-bedsheet-set-export-bedsheet-set",
+  "marliyn-talc": "/products/marilyn-talc-300-tc-handblock-bedsheet-set-export-bedsheet-set",
+  "palm": "/products/marilyn-palm-300-tc-handblock-bedsheet-set-export-bedsheet-set",
+  "glory": "/products/marilyn-glory-300-tc-handblock-bedsheet-set-export-bedsheet-set",
+  "sunflower": "/products/marilyn-bloss-300-tc-handblock-bedsheet-set-export-bedsheet-set",
+  "marilyn-bloom-112″-x-112″-handblock-printed-cotton-bed-sheet-set": "/products/marilyn-breeze-300-tc-handblock-bedsheet-set-export-bedsheet-set",
+  "marilyn-luna-112″-x-112″-handblock-printed-cotton-bed-sheet-set": "/products/marilyn-luna-300-tc-handblock-bedsheet-set-export-bedsheet-set",
+  "runner-petalmeadow-1372-inches-for-6-seater-dining-table": "/products/runner-meadow-13-72-inches-for-6-seater-dining-table",
+  "runner-petal-1372-inches-for-6-seater-dining-table": "/products/runner-petal-13-72-inches-for-6-seater-dining-table",
+  "runner-indigo-1372-inches-for-6-seater-dining-table": "/products/runner-indigo-13-72-inches-for-6-seater-dining-table",
+  "runner-teal-1372-inches-for-6-seater-dining-table": "/products/runner-teal-13-72-inches-for-6-seater-dining-table",
+  "runner-saffron-1372-inches-for-6-seater-dining-table": "/products/runner-saffron-13-72-inches-for-6-seater-dining-table",
+  "runner-sunflower-1372-inches-for-6-seater-dining-table": "/products/runner-sunflower-13-72-inches-for-6-seater-dining-table",
+  "runner-midnight-1372-inches-for-6-seater-dining-table": "/products/runner-midnight-13-72-inches-for-6-seater-dining-table",
+  "runner-rose-1372-inches-for-6-seater-dining-table": "/products/runner-rose-13-72-inches-for-6-seater-dining-table",
+  "runner-blossom-1372-inches-for-6-seater-dining-table": "/products/runner-blossom-13-72-inches-for-6-seater-dining-table",
+  "runner-alpha": "/products/runner-alpha-13-72-inches-for-6-seater-dining-table",
+  "runner-amber": "/products/runner-amber-13-72-inches-for-6-seater-dining-table",
+  "runner-mocha": "/products/runner-mocha-13-72-inches-for-6-seater-dining-table",
+  "handblock-rugs-midnight-exclusive": "/products/midnight-hand-block-cotton-rug",
+  "handblock-rugs-meadow-exclusive": "/products/begonia-hand-block-cotton-rug",
+  "handblock-rugs-saffron-exclusive": "/products/cosmos-hand-block-cotton-rug",
+  "handblock-rugs-bloom": "/products/bloom-hand-block-cotton-rug",
+  "sofa-throw-meadow-exclusive-5070-inches": "/products/sofa-throw-meadow-exclusive-50-70-inches",
+  "sofa-throw-saffron-exclusive-5070-inches": "/products/sofa-throw-saffron-exclusive-50-70-inches",
+  "sofa-throw-spring-exclusive-5070-inches": "/products/sofa-throw-spring-exclusive-50-70-inches",
+  "sofa-throw-datetree-exclusive-5070-inches": "/products/sofa-throw-date-tree-exclusive-50-70-inches",
+  "sofa-throw-petal-exclusive-5070-inches": "/products/sofa-throw-petal-exclusive-50-70-inches",
+  "sofa-throw-amber-exclusive-5070-inches-copy": "/products/sofa-throw-amber-exclusive-50-70-inches-7249",
+  "sofa-throw-motif-exclusive-5070-inches": "/products/sofa-throw-desert-motif-exclusive-50-70-inches",
+  "sofa-throw-glory-exclusive-5070-inches": "/products/sofa-throw-glory-exclusive-50-70-inches",
+  "sofa-throw-neo-5070-inches": "/products/sofa-throw-neo-exclusive-50-70-inches",
+  "sofa-throw-aqua-5070-inches": "/products/sofa-throw-aqua-exclusive-50-70-inches",
+  "sofa-throw-amber-5070-inches": "/products/sofa-throw-amber-exclusive-50-70-inches",
+  "handblock-rugs-petal-exclusive": "/products/petal-hand-block-cotton-rug",
+  "handblock-indigo-exclusive": "/products/indigo-hand-block-cotton-rug",
+  "handblock-rugs-amber-exclusive": "/products/desert-rose-hand-block-cotton-rug",
+  "handblock-rugs-rose-exclusive": "/products/amber-hand-block-cotton-rug",
+  "handblock-rugs-floral-exclusive": "/products/floral-hand-block-cotton-rug",
+  "handblock-rugs-mocha-exclusive": "/products/camellia-hand-block-cotton-rug",
+  "handblock-rugs-teal-exclusive": "/products/blossom-hand-block-cotton-rug",
+  "handblock-rugs-blossom-exclusive": "/products/teal-hand-block-cotton-rug",
+  "sofa-throw-mocha-exclusive-5070-inches": "/products/sofa-throw-mocha-exclusive-50-70-inches",
+  "sofa-throw-coral-exclusive-5070-inches": "/products/sofa-throw-coral-exclusive-50-70-inches",
+  "sofa-throw-teal-exclusive-5070-inches": "/products/sofa-throw-teal-exclusive-50-70-inches",
+  "sofa-throw-blossom-exclusive-5070-inches": "/products/sofa-throw-blossom-exclusive-50-70-inches",
+  "marilyn-mimosa-112″-x-112″-handblock-printed-cotton-bed-sheet-set": "/products/marilyn-mimosa-300-tc-handblock-bedsheet-set-export-bedsheet-set",
+  "marilyn-mallow-112″-x-112″-handblock-printed-cotton-bed-sheet-set": "/products/marilyn-mallow-300-tc-handblock-bedsheet-set-export-bedsheet-set",
+  "marilyn-monarch-112″-x-112″-handblock-printed-cotton-bed-sheet-set": "/products/marilyn-monarch-300-tc-handblock-bedsheet-set-export-bedsheet-set",
+  "marilyn-mist-112″-x-112″-handblock-printed-cotton-bed-sheet-set": "/products/marilyn-mist-300-tc-handblock-bedsheet-set",
+  "marilyn-marigold-112″-x-112″-handblock-printed-cotton-bed-sheet-set": "/products/marilyn-marigold-300-tc-handblock-bedsheet-set-export-bedsheet-set"
+ }
+}

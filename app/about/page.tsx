@@ -5,9 +5,9 @@ import { getFounders } from "@/lib/storefront/founders";
 const BASE_URL = "https://zafiroindio.com";
 
 export const metadata: Metadata = {
-  title: "About Zafiro Indio | Jaipur Handblock Cotton Bedsheets",
+  title: "Our Story: Hand Block Printing from Jaipur",
   description:
-    "Discover the story of Zafiro Indio — a Jaipur-based home textile brand crafting hand-block printed cotton bedsheets with traditional Rajasthani artisans. Our philosophy, craft, and values.",
+    "The story of Zafiro Indio: a Jaipur home textile brand working with Rajasthani artisans to hand block print cotton bedsheets, rugs and table linen.",
   keywords: [
     "Zafiro Indio about",
     "Jaipur handblock bedsheets",
@@ -24,6 +24,7 @@ export const metadata: Metadata = {
       "A Jaipur-based home textile brand rooted in Rajasthani artisan craftsmanship. Discover our story.",
     type: "website",
     url: `${BASE_URL}/about`,
+    images: [{ url: "/opengraph-image.jpg", width: 1200, height: 630, alt: "Zafiro Indio hand block printed home textiles from Jaipur" }],
   },
 };
 

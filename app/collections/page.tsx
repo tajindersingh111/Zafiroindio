@@ -6,8 +6,8 @@ import SmartImg from "@/components/SmartImg";
 export const revalidate = 60;
 
 export const metadata = {
-  title: "Bedsheet Collections | Floral, Minimal, Luxury, Block Print | Zafiro Indio",
-  description: "Explore Zafiro Indio's curated bedsheet collections — hand-block printed floral, clean minimal, bold printed, premium luxury & everyday comfort cotton bedsheets from Jaipur.",
+  title: "Collections: Bedsheets, Rugs & Table Runners",
+  description: "Explore our hand block printed collections: cotton bedsheets, rugs, dining table runners, sofa throws and quilted bedcovers, made in Jaipur.",
   keywords: ["bedsheet collections India", "floral bedsheet collection", "minimal bedsheet collection", "luxury bedsheets online", "Jaipur block print collections"],
   alternates: { canonical: "https://zafiroindio.com/collections" },
 };
