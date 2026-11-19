@@ -5,14 +5,30 @@ import { getDoc, readCollection, updateDoc, upsertDoc } from "@/lib/db/store";
 import { sendTransactionalEmail } from "@/lib/email/service";
 import type { Order, RefundRecord } from "@/lib/db/types";
 import { isSuperAdmin } from "@/lib/auth/rbac";
+import { isRazorpayConfigured } from "@/lib/payments/razorpay";
 
 export const dynamic = "force-dynamic";
 
-/** Refund ledger. Staff only: this used to be callable by anyone on the internet. */
+/**
+ * Refund ledger. Staff only: this used to be callable by anyone on the internet.
+ *
+ * `?orderId=` narrows it to one order (the order page's Cancel & Refund box). `viewer` says what the
+ * caller may do with it — sending money is Super Admin only — so the page shows the right buttons rather
+ * than offering ones that would be refused.
+ */
 export async function GET(request: NextRequest) {
   const auth = await requireAdmin(request, "orders");
   if (auth.error) return auth.error;
-  return NextResponse.json({ refunds: await readCollection<RefundRecord>("refunds") });
+
+  const orderId = new URL(request.url).searchParams.get("orderId");
+  const all = await readCollection<RefundRecord>("refunds");
+  const refunds = (orderId ? all.filter((r) => r.orderId === orderId) : all).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
+  return NextResponse.json({
+    refunds,
+    viewer: { superAdmin: isSuperAdmin(auth.session.role), email: auth.session.email },
+    gatewayReady: isRazorpayConfigured(),
+  });
 }
 
 /** Record a refund request for an order (does not move money by itself). */
@@ -88,6 +104,23 @@ export async function PATCH(request: NextRequest) {
   if (!refund) return NextResponse.json({ error: "Only pending refunds can be updated." }, { status: 409 });
 
   const order = await getDoc<Order>("orders", refund.orderId);
+
+  // A request that is voided (REFUND_FAILED) frees the order from "refund pending", unless another
+  // request for it is still open or it has been refunded in full by others.
+  if (order && refund.status === "REFUND_FAILED") {
+    const rest = (await readCollection<RefundRecord>("refunds")).filter((r) => r.orderId === order.id && r.id !== refund.id);
+    const stillOpen = rest.some((r) => r.status === "REFUND_PENDING" || r.status === "REFUND_PROCESSING");
+    const refundedSoFar = rest.filter((r) => r.status === "REFUNDED").reduce((s, r) => s + r.amount, 0);
+    if (!stillOpen && order.paymentStatus === "refund_pending") {
+      await upsertDoc("orders", {
+        ...order,
+        paymentStatus: refundedSoFar + 0.01 >= order.total ? "refunded" : "paid",
+        notes: [{ id: `nte-${Date.now()}`, note: `Refund request of ₹${refund.amount} voided by ${auth.session.email}.`, isCustomerNote: false, createdAt: now }, ...(order.notes || [])],
+        updatedAt: now,
+      });
+    }
+  }
+
   if (order && refund.status === "REFUNDED") {
     const refunded = (await readCollection<RefundRecord>("refunds")).filter((r) => r.orderId === order.id && r.status === "REFUNDED").reduce((s, r) => s + r.amount, 0);
     const full = refunded + 0.01 >= order.total;

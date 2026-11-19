@@ -4,6 +4,7 @@ import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { PageShell, PageHeader, StatusBadge, Btn, SectionCard, FilterSelect, useToast, LoadingSpinner, ItemThumb } from "@/components/admin/Shared";
+import OrderMoneyPanel from "@/components/admin/OrderMoneyPanel";
 
 interface Address { firstName: string; lastName: string; company?: string; address1: string; address2?: string; city: string; state: string; postalCode: string; country: string; phone?: string; email?: string; }
 interface OrderItem { productId: string; variationId?: string; name: string; sku: string; quantity: number; price: number; costPrice?: number; discount: number; tax: number; total: number; image?: string; attributes?: { name: string; value: string }[]; }
@@ -26,7 +27,6 @@ interface CourierRate { courierId: string; name: string; price: number; eta?: st
 const STATUS_OPTIONS = [
   { label: "Pending Payment", value: "pending_payment" }, { label: "Processing", value: "processing" },
   { label: "On Hold", value: "on_hold" }, { label: "Completed", value: "completed" },
-  { label: "Cancelled", value: "cancelled" }, { label: "Refunded", value: "refunded" },
 ];
 
 function fmt(n: number) { return "₹" + n.toLocaleString("en-IN"); }
@@ -377,6 +377,9 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
             </div>
           </SectionCard>
 
+          {/* Cancel & Refund */}
+          <OrderMoneyPanel order={order as any} onChanged={reloadOrder} addToast={addToast} />
+
           {/* Status & Courier Dispatch Card */}
           <SectionCard title="Order Status & Courier Dispatch">
             <div className="space-y-4">
@@ -395,6 +398,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                   <FilterSelect value={newStatus} onChange={setNewStatus} options={STATUS_OPTIONS} placeholder="Change status…" />
                   <Btn size="sm" onClick={updateStatus} disabled={saving || !newStatus}>Update</Btn>
                 </div>
+                <p className="mt-1.5 text-[11px] text-stone">To cancel or refund, use the Cancel &amp; Refund box.</p>
               </div>
 
               {/* Courier Dispatch Section */}

@@ -6,6 +6,7 @@ import { createAuditLog } from "@/lib/db/audit";
 import { generateInvoiceForOrder } from "@/lib/db/invoices";
 import { cancelOrder } from "@/lib/orders/service";
 import { onOrderCancelled } from "@/lib/shipping/provider";
+import { sendTransactionalEmail } from "@/lib/email/service";
 import { guarded } from "@/lib/auth/guard";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -36,6 +37,9 @@ async function handlePATCH(request: NextRequest, { params }: Ctx) {
   }
   if (body.status !== undefined && !STATUSES.has(body.status)) return NextResponse.json({ error: "Invalid status." }, { status: 400 });
   if (body.paymentStatus !== undefined && !PAYMENT_STATUSES.has(body.paymentStatus)) return NextResponse.json({ error: "Invalid payment status." }, { status: 400 });
+  if (body.status === "refunded" || body.paymentStatus === "refunded" || body.paymentStatus === "refund_pending") {
+    return NextResponse.json({ error: "Refunds are issued from the order's Cancel & Refund box, which records the refund and sends the money. They cannot be set by hand." }, { status: 400 });
+  }
 
   const actor = session?.email || "admin";
   const existing = await getDoc<Order>("orders", id);
@@ -52,7 +56,8 @@ async function handlePATCH(request: NextRequest, { params }: Ctx) {
     });
     // Cancel the courier booking too; the outcome is written to the order notes.
     await onOrderCancelled(id).catch((e) => console.error("ShipMozo cancel failed:", e));
-    return NextResponse.json({ order: (await getDoc<Order>("orders", id)) ?? res.order });
+    if (!res.alreadyCancelled) await sendTransactionalEmail("ORDER_CANCELLED", res.order).catch((e) => console.error("Cancel e-mail failed:", e));
+    return NextResponse.json({ order: (await getDoc<Order>("orders", id)) ?? res.order, refund: res.refund });
   }
 
   const { result: updated } = await updateDoc<Order, Order | null>("orders", id, (o) => {
