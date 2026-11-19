@@ -99,10 +99,10 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
             <div className="flex items-center gap-2 text-amber-700 font-serif font-bold text-2xl tracking-tight">
               <Building2 className="w-7 h-7 text-amber-600" /> {b.storeName}
             </div>
-            <p className="text-xs text-slate-500 mt-1">{b.storeAddress.company || b.storeName}</p>
-            <p className="text-xs text-slate-600 mt-0.5">{b.storeAddress.address1}, {b.storeAddress.address2}</p>
+            <p className="text-xs text-slate-500 mt-1">{b.storeAddress.company || b.storeName}{b.legalName ? ` (Prop. ${b.legalName})` : ""}</p>
+            <p className="text-xs text-slate-600 mt-0.5">{[b.storeAddress.address1, b.storeAddress.address2].filter(Boolean).join(", ")}</p>
             <p className="text-xs text-slate-600">{b.storeAddress.city}, {b.storeAddress.state} {b.storeAddress.postalCode}, {b.storeAddress.country}</p>
-            <p className="text-xs text-slate-600 mt-1">Phone: {b.storePhone} | Email: {b.storeEmail}</p>
+            <p className="text-xs text-slate-600 mt-1">{b.storePhone ? `Phone: ${b.storePhone} | ` : ""}Email: {b.storeEmail}</p>
             {b.gstin && <p className="text-xs font-mono font-semibold text-slate-700 mt-1">GSTIN: {b.gstin}</p>}
           </div>
 

@@ -415,6 +415,8 @@ export interface BusinessSnapshot {
   storeEmail: string;
   storePhone: string;
   storeAddress: Address;
+  /** The proprietor, when the business trades under a different name (storeAddress.company). */
+  legalName?: string;
   gstin?: string;
   pan?: string;
   logoUrl?: string;

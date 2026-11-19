@@ -117,9 +117,11 @@ export async function GET(
       </div>
       <div>
         <div class="section-title">Seller Details</div>
-        <strong>${esc(b.storeName)}</strong><br>
-        ${esc(b.storeAddress.address1)}<br>
+        <strong>${esc(b.storeAddress.company || b.storeName)}</strong><br>
+        ${b.legalName ? `Prop. ${esc(b.legalName)}<br>` : ""}
+        ${esc(b.storeAddress.address1)}${b.storeAddress.address2 ? `, ${esc(b.storeAddress.address2)}` : ""}<br>
         ${esc(b.storeAddress.city)}, ${esc(b.storeAddress.state)} — ${esc(b.storeAddress.postalCode)}<br>
+        ${b.gstin ? `GSTIN: <strong>${esc(b.gstin)}</strong><br>` : ""}
         Email: ${esc(b.storeEmail)}<br>
         Payment Method: <strong>${esc(String(invoice.paymentMethod).toUpperCase())}</strong>
       </div>

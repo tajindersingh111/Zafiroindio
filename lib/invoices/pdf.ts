@@ -72,25 +72,26 @@ export function invoicePdf(invoice: Invoice): Promise<Buffer> {
     } else {
       doc.font("Helvetica-Bold").fontSize(20).fillColor(INK).text(latin(b.storeName), left, 46);
     }
-    doc.font("Helvetica").fontSize(7.5).fillColor(GOLD).text("HANDBLOCK PRINTED IN JAIPUR", left, 96, { characterSpacing: 1.3 });
+    doc.font("Helvetica").fontSize(7.5).fillColor(GOLD).text("HANDBLOCK PRINTED IN JAIPUR", left, 104, { characterSpacing: 1.3 });
 
     doc.font("Helvetica-Bold").fontSize(17).fillColor(INK).text("TAX INVOICE", left, 46, { width, align: "right" });
     doc.font("Helvetica-Bold").fontSize(9.5).fillColor(GOLD).text(latin(invoice.invoiceNumber), left, 68, { width, align: "right" });
     doc.font("Helvetica").fontSize(9).fillColor(MUTED).text(date(invoice.invoiceDate), left, 82, { width, align: "right" });
 
-    doc.rect(left, 112, width, 2.5).fillColor(GOLD).fill();
+    doc.rect(left, 120, width, 2.5).fillColor(GOLD).fill();
 
     // ── Who, and who to ───────────────────────────────────────────
     const addr = (a: { address1?: string; address2?: string; city?: string; state?: string; postalCode?: string }) =>
       [a.address1, a.address2, [a.city, a.state].filter(Boolean).join(", "), a.postalCode].filter(Boolean).map(latin);
 
-    const top = 132;
+    const top = 140;
     const colW = width / 2 - 14;
     const midX = left + width / 2 + 14;
 
     doc.font("Helvetica-Bold").fontSize(7.5).fillColor(FAINT).text("FROM", left, top, { characterSpacing: 1.2 });
     doc.font("Helvetica-Bold").fontSize(10.5).fillColor(INK).text(latin(b.storeAddress?.company || b.storeName), left, top + 13, { width: colW });
     doc.font("Helvetica").fontSize(8.5).fillColor(MUTED);
+    if (b.legalName) doc.text(`Prop. ${latin(b.legalName)}`, left, doc.y, { width: colW });
     for (const line of addr(b.storeAddress ?? {})) doc.text(line, left, doc.y, { width: colW });
     if (b.gstin) doc.font("Helvetica-Bold").fillColor(INK).text(`GSTIN  ${latin(b.gstin)}`, left, doc.y + 2, { width: colW });
     if (b.storeEmail) doc.font("Helvetica").fillColor(MUTED).text(latin(b.storeEmail), left, doc.y, { width: colW });
@@ -149,13 +150,16 @@ export function invoicePdf(invoice: Invoice): Promise<Buffer> {
         .filter(Boolean)
         .join("    ");
       if (detail) doc.font("Helvetica").fontSize(7.8).fillColor(FAINT).text(detail, col.item, doc.y + 2, { width: nameWidth });
+      // Where the name and its detail line end. Measured here, before the right-hand columns move the
+      // cursor back up, or the divider below gets drawn through the detail text.
+      const leftBottom = doc.y;
 
       doc.font("Helvetica").fontSize(9.5).fillColor(MUTED);
       doc.text(String(item.quantity), col.qty, y, { width: 36, align: "right" });
       doc.text(inr(item.price), col.rate, y, { width: 74, align: "right" });
       doc.font("Helvetica-Bold").fillColor(INK).text(inr(item.total), col.total, y, { width: 88, align: "right" });
 
-      y = Math.max(doc.y, y + nameHeight) + 12;
+      y = Math.max(leftBottom, y + nameHeight) + 12;
       doc.moveTo(left, y - 6).lineTo(right, y - 6).strokeColor(LINE).lineWidth(0.5).stroke();
     }
 
