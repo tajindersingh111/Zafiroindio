@@ -1,4 +1,5 @@
 import { readSettings } from "@/lib/db/store";
+import { computeGst, gstRateFor, DEFAULT_GST_RATE } from "@/lib/tax/gst";
 import { priceCart, CartError, type PricedLine } from "@/lib/pricing";
 import { calculateShippingAndCodFee } from "@/lib/shipping/calculator";
 import { validateCoupon } from "@/lib/checkout/coupon";
@@ -47,6 +48,8 @@ export interface CheckoutQuote {
   freeShippingRemaining: number;
   freeShippingThreshold: number;
   tax: number;
+  /** The GST contained in `total`. Prices already include it, so it is shown, never added. */
+  gstIncluded: number;
   total: number;
   paymentMethod: CheckoutPaymentMethod;
   codAvailable: boolean;
@@ -133,6 +136,19 @@ export async function buildCheckoutQuote(params: {
   const tax = 0; // prices are GST-inclusive; kept explicit so invoices can split it later
   const total = round2(Math.max(0, subtotal - discount + shippingCost + codFee + tax));
 
+  // The GST inside that total, so the shopper can see what they are paying. Each line takes its product's
+  // rate; shipping and any coupon are spread over the lines exactly as on the invoice, so the two agree.
+  const configuredRate = Number((settings as { defaultGstRate?: number } | undefined)?.defaultGstRate);
+  const gstIncluded = computeGst({
+    lines: priced.items.map((l) => ({
+      total: l.total,
+      rate: gstRateFor(priced.productsById.get(l.productId)?.taxClass, Number.isFinite(configuredRate) && configuredRate >= 0 ? configuredRate : DEFAULT_GST_RATE),
+    })),
+    invoiceTotal: total,
+    sellerGstin: "",
+    buyerState: "",
+  }).tax;
+
   return {
     lines: priced.items.map(toQuoteLine),
     pricedLines: priced.items,
@@ -149,6 +165,7 @@ export async function buildCheckoutQuote(params: {
     freeShippingRemaining: shipping.isFreeShipping ? 0 : round2(Math.max(0, freeShippingThreshold - subtotal)),
     freeShippingThreshold,
     tax,
+    gstIncluded,
     total,
     paymentMethod: effectiveMethod,
     codAvailable,

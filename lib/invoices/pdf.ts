@@ -103,6 +103,10 @@ export function invoicePdf(invoice: Invoice): Promise<Buffer> {
     for (const line of addr(c.billing ?? {})) doc.text(line, midX, doc.y, { width: colW });
     if (c.customerEmail) doc.text(latin(c.customerEmail), midX, doc.y, { width: colW });
     if (c.customerPhone) doc.text(latin(c.customerPhone), midX, doc.y, { width: colW });
+    if (invoice.gst?.placeOfSupply?.state) {
+      const pos = invoice.gst.placeOfSupply;
+      doc.font("Helvetica-Bold").fillColor(INK).text(`Place of supply  ${latin(pos.state)}${pos.code ? ` (${pos.code})` : ""}`, midX, doc.y + 3, { width: colW });
+    }
 
     // ── The order, on its own band ────────────────────────────────
     let y = Math.max(fromBottom, doc.y) + 16;
@@ -146,7 +150,12 @@ export function invoicePdf(invoice: Invoice): Promise<Buffer> {
       }
 
       doc.text(latin(item.name), col.item, y, { width: nameWidth });
-      const detail = [item.sku && `SKU ${latin(item.sku)}`, ...(item.attributes ?? []).map((a) => `${latin(a.name)}: ${latin(a.value)}`)]
+      const detail = [
+        item.sku && `SKU ${latin(item.sku)}`,
+        ...(item.attributes ?? []).map((a) => `${latin(a.name)}: ${latin(a.value)}`),
+        item.hsn && `HSN ${latin(item.hsn)}`,
+        typeof item.taxRate === "number" && `GST ${item.taxRate}%`,
+      ]
         .filter(Boolean)
         .join("    ");
       if (detail) doc.font("Helvetica").fontSize(7.8).fillColor(FAINT).text(detail, col.item, doc.y + 2, { width: nameWidth });
@@ -166,12 +175,13 @@ export function invoicePdf(invoice: Invoice): Promise<Buffer> {
     // ── Totals, set apart ─────────────────────────────────────────
     y += 6;
     const boxX = right - 250;
+    const inclusive = !!invoice.gst;
     const rows: [string, number][] = [
-      ["Subtotal", invoice.subtotal],
+      [inclusive ? "Items (incl. GST)" : "Subtotal", invoice.subtotal],
       ...(invoice.discount ? ([["Discount", -invoice.discount]] as [string, number][]) : []),
       ...(invoice.couponDiscount ? ([["Coupon", -invoice.couponDiscount]] as [string, number][]) : []),
-      ["Shipping", invoice.shipping],
-      ["Tax (GST)", invoice.tax],
+      [inclusive ? "Shipping (incl. GST)" : "Shipping", invoice.shipping],
+      ...(inclusive ? [] : ([["Tax (GST)", invoice.tax]] as [string, number][])),
     ];
 
     for (const [k, v] of rows) {
@@ -189,6 +199,60 @@ export function invoicePdf(invoice: Invoice): Promise<Buffer> {
     const paid = invoice.amountDue <= 0;
     doc.font("Helvetica-Bold").fontSize(8.5).fillColor(paid ? "#15803d" : "#b45309");
     doc.text(paid ? "PAID IN FULL" : `AMOUNT DUE   ${inr(invoice.amountDue)}`, boxX, y, { width: right - boxX - 14, align: "right", characterSpacing: 0.8 });
+    y = doc.y + 18;
+
+    // ── GST breakup ───────────────────────────────────────────────
+    const g = invoice.gst;
+    if (g && g.bands.length) {
+      const intra = g.regime === "intra";
+      // Room for the header, one row per rate and the total row, plus the foot.
+      const needed = 34 + (g.bands.length + 1) * 18 + 30;
+      if (y + needed > doc.page.height - 110) {
+        doc.addPage();
+        y = doc.page.margins.top;
+      }
+
+      doc.font("Helvetica-Bold").fontSize(7.5).fillColor(FAINT).text("GST BREAKUP", left, y, { characterSpacing: 1.2 });
+      doc.font("Helvetica").fontSize(7.5).fillColor(FAINT).text("Already included in the total above. Nothing is added to it.", left, y, { width, align: "right" });
+      y += 16;
+
+      // Rate | Taxable value | CGST | SGST (or IGST) | Total GST
+      const cols = intra
+        ? [
+            { head: "RATE", x: left + 10, w: 60, align: "left" as const },
+            { head: "TAXABLE VALUE", x: left + 80, w: 110, align: "right" as const },
+            { head: "CGST", x: left + 200, w: 100, align: "right" as const },
+            { head: "SGST", x: left + 310, w: 100, align: "right" as const },
+            { head: "TOTAL GST", x: right - 100, w: 100, align: "right" as const },
+          ]
+        : [
+            { head: "RATE", x: left + 10, w: 60, align: "left" as const },
+            { head: "TAXABLE VALUE", x: left + 80, w: 130, align: "right" as const },
+            { head: "IGST", x: left + 230, w: 120, align: "right" as const },
+            { head: "TOTAL GST", x: right - 120, w: 120, align: "right" as const },
+          ];
+
+      doc.rect(left, y - 5, width, 20).fillColor(CREAM).fill();
+      doc.font("Helvetica-Bold").fontSize(7).fillColor(MUTED);
+      for (const c2 of cols) doc.text(c2.head, c2.x, y, { width: c2.w, align: c2.align, characterSpacing: 0.6 });
+      y += 20;
+
+      const half = (n: number) => (Number.isInteger(n / 2) ? String(n / 2) : (n / 2).toFixed(1));
+      const rowsOut = g.bands.map((band) =>
+        intra
+          ? [`${band.rate}%`, inr(band.taxable), `${half(band.rate)}%   ${inr(band.cgst)}`, `${half(band.rate)}%   ${inr(band.sgst)}`, inr(band.tax)]
+          : [`${band.rate}%`, inr(band.taxable), `${band.rate}%   ${inr(band.igst)}`, inr(band.tax)]
+      );
+      const totalRow = intra ? ["Total", inr(g.taxable), inr(g.cgst), inr(g.sgst), inr(g.tax)] : ["Total", inr(g.taxable), inr(g.igst), inr(g.tax)];
+
+      [...rowsOut, totalRow].forEach((cells, n, all) => {
+        const isTotal = n === all.length - 1;
+        if (isTotal) doc.moveTo(left, y - 4).lineTo(right, y - 4).strokeColor(INK).lineWidth(0.6).stroke();
+        doc.font(isTotal ? "Helvetica-Bold" : "Helvetica").fontSize(8.5).fillColor(isTotal ? INK : MUTED);
+        cells.forEach((cell, k) => doc.text(cell, cols[k].x, y, { width: cols[k].w, align: cols[k].align }));
+        y += 18;
+      });
+    }
 
     // ── Foot ──────────────────────────────────────────────────────
     const footY = doc.page.height - 86;

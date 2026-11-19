@@ -228,7 +228,7 @@ function istDate(iso: string): string {
   return new Date(new Date(iso).getTime() + 330 * 60_000).toISOString().slice(0, 10);
 }
 
-function orderPayload(order: Order, parcel: Parcel, warehouseId?: string) {
+function orderPayload(order: Order, parcel: Parcel, warehouseId?: string, gstin = "") {
   const { a, phone, pin, name } = destination(order);
   return {
     order_id: order.orderNumber,
@@ -248,7 +248,7 @@ function orderPayload(order: Order, parcel: Parcel, warehouseId?: string) {
       sku_number: i.sku || i.productId,
       quantity: i.quantity,
       discount: "",
-      hsn: "",
+      hsn: i.hsn ?? "",
       unit_price: i.price,
       product_category: "Other",
     })),
@@ -261,7 +261,7 @@ function orderPayload(order: Order, parcel: Parcel, warehouseId?: string) {
     height: parcel.h,
     warehouse_id: warehouseId ?? "",
     gst_ewaybill_number: "",
-    gstin_number: "",
+    gstin_number: gstin,
   };
 }
 
@@ -306,7 +306,9 @@ export async function pushOrder(orderId: string, parcelIn?: Partial<Parcel>): Pr
   const order = await loadShippableOrder(orderId);
   const parcel = cleanParcel(parcelIn ?? order.shipmozo?.parcel, defaultParcel(order, cfg));
   const { warehouseId } = await pickupPoint(cfg);
-  const payload = orderPayload(order, parcel, warehouseId);
+  // The seller's GSTIN, from Admin -> Settings, so the courier has it for the consignment.
+  const gstin = String((await readSettings<Settings>("settings").catch(() => null))?.gstin ?? "").trim().toUpperCase();
+  const payload = orderPayload(order, parcel, warehouseId, gstin);
 
   let data: unknown;
   if (order.shipmozo?.pushedAt) {

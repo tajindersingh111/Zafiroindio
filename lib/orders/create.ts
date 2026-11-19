@@ -46,6 +46,7 @@ export function buildOrderItems(lines: PricedLine[], productsById: Map<string, P
       discount: 0,
       tax: 0,
       total: line.total,
+      hsn: product?.hsn || undefined,
       image: line.image,
       attributes: variation?.attributes,
     };

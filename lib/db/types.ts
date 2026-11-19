@@ -57,7 +57,10 @@ export interface Product {
   images: string[];   // URL array; first is thumbnail
   weight?: number;
   dimensions?: { l: number; w: number; h: number };
-  taxClass: TaxClass;
+  /** Blank means the store's default GST rate (Admin -> Settings, 5% unless changed). */
+  taxClass: TaxClass | "";
+  /** HSN code of the goods, printed on invoices and sent to the courier when set. */
+  hsn?: string;
   stock: number;
   stockStatus: StockStatus;
   lowStockThreshold: number;
@@ -145,6 +148,8 @@ export interface OrderItem {
   discount: number;       // per-item discount amount
   tax: number;            // per-item tax amount
   total: number;          // (price - discount + tax) * qty
+  /** HSN of the product when it was sold. */
+  hsn?: string;
   image?: string;
   attributes?: ProductVariationAttribute[];
 }
@@ -435,12 +440,32 @@ export interface InvoiceItemSnapshot {
   variationId?: string;
   name: string;
   sku: string;
+  hsn?: string;
+  /** GST rate in percent, and how this line's amount splits. Absent on invoices issued before GST was itemised. */
+  taxRate?: number;
+  taxableValue?: number;
+  cgst?: number;
+  sgst?: number;
+  igst?: number;
   quantity: number;
   price: number;
   discount: number;
   tax: number;
   total: number;
   attributes?: { name: string; value: string }[];
+}
+
+/** How the amount charged splits into taxable value and GST. The prices already include GST, so none of this is added on top. */
+export interface InvoiceGst {
+  regime: "intra" | "inter";
+  placeOfSupply: { state: string; code: string };
+  taxable: number;
+  cgst: number;
+  sgst: number;
+  igst: number;
+  /** All the GST contained in grandTotal. */
+  tax: number;
+  bands: { rate: number; taxable: number; cgst: number; sgst: number; igst: number; tax: number }[];
 }
 
 export interface Invoice {
@@ -459,6 +484,8 @@ export interface Invoice {
   shipping: number;
   tax: number;
   grandTotal: number;
+  /** Set on invoices issued once GST is itemised. */
+  gst?: InvoiceGst;
   amountPaid: number;
   amountDue: number;
   paymentMethod: PaymentMethod;

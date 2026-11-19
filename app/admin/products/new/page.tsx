@@ -24,7 +24,7 @@ interface ProductForm {
   categoryId: string; brandId?: string; tags: string;
   collections: string[];
   weight?: number; stock: number; stockStatus: string; lowStockThreshold: number;
-  taxClass: string; manageStock: boolean; backordersAllowed: boolean;
+  taxClass: string; hsn?: string; manageStock: boolean; backordersAllowed: boolean;
   codAllowed?: boolean; codShippingCharge?: number; freeShipping?: boolean;
   attributes: Record<string, string[]>;
   variations: Variation[];
@@ -34,7 +34,10 @@ const DEFAULT_FORM: ProductForm = {
   name: "", slug: "", type: "simple", status: "draft",
   description: "", shortDescription: "", sku: "",
   price: 0, stock: 0, stockStatus: "in_stock", lowStockThreshold: 10,
-  taxClass: "standard", manageStock: true, backordersAllowed: false,
+  // Blank = the store default rate (5% unless Settings says otherwise). A new product used to start on
+  // Standard, which is 18%, so every product added without touching this field was taxed at more than the
+  // shop has ever charged.
+  taxClass: "", hsn: "", manageStock: true, backordersAllowed: false,
   codAllowed: true, codShippingCharge: undefined, freeShipping: false,
   images: [],
   categoryId: "", tags: "", collections: [],
@@ -115,7 +118,8 @@ export default function ProductFormPage({ params }: { params: Promise<{ id: stri
               stock: Number(p.stock) || 0,
               stockStatus: p.stockStatus || "in_stock",
               lowStockThreshold: p.lowStockThreshold || 10,
-              taxClass: p.taxClass || "standard",
+              taxClass: p.taxClass || "",
+              hsn: p.hsn || "",
               manageStock: p.manageStock ?? true,
               backordersAllowed: p.backordersAllowed ?? false,
               codAllowed: p.codAllowed ?? true,
@@ -859,11 +863,22 @@ export default function ProductFormPage({ params }: { params: Promise<{ id: stri
               </Field>
               <Field label="Tax Class">
                 <select value={form.taxClass} onChange={(e) => set("taxClass", e.target.value)} className={selectCls}>
-                  <option value="standard">Standard (18% GST)</option>
+                  <option value="">Store default (5% GST)</option>
                   <option value="reduced">Reduced (5% GST)</option>
+                  <option value="standard">Standard (18% GST)</option>
                   <option value="zero">Zero Rated</option>
                   <option value="none">No Tax</option>
                 </select>
+              </Field>
+              <Field label="HSN Code">
+                <input
+                  value={form.hsn ?? ""}
+                  onChange={(e) => set("hsn", e.target.value.replace(/[^0-9]/g, "").slice(0, 8))}
+                  inputMode="numeric"
+                  placeholder="e.g. 6302"
+                  className={inputCls}
+                />
+                <p className="mt-1 text-[11px] text-stone">Printed on the invoice and sent to the courier. Leave blank if unsure.</p>
               </Field>
             </div>
           </SectionCard>

@@ -244,7 +244,7 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
           {/* Grand Totals */}
           <div className="space-y-2 text-xs font-mono text-slate-700 self-end">
             <div className="flex justify-between py-1">
-              <span className="text-slate-600 font-sans">Subtotal:</span>
+              <span className="text-slate-600 font-sans">{invoice.gst ? "Items (incl. GST):" : "Subtotal:"}</span>
               <span className="font-semibold text-slate-900">₹{invoice.subtotal.toLocaleString("en-IN")}</span>
             </div>
 
@@ -256,7 +256,7 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
             )}
 
             <div className="flex justify-between py-1">
-              <span className="text-slate-600 font-sans">Shipping Charges:</span>
+              <span className="text-slate-600 font-sans">{invoice.gst ? "Shipping (incl. GST):" : "Shipping Charges:"}</span>
               <span>₹{invoice.shipping.toLocaleString("en-IN")}</span>
             </div>
 
@@ -273,6 +273,62 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
             </div>
           </div>
         </div>
+
+        {/* GST breakup: the share of the total that was tax. Prices already include it, so nothing is added. */}
+        {invoice.gst && invoice.gst.bands.length > 0 && (
+          <div className="pt-2">
+            <h4 className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-2">
+              GST breakup <span className="font-normal normal-case tracking-normal text-slate-400">· included in the total · place of supply {invoice.gst.placeOfSupply.state}{invoice.gst.placeOfSupply.code ? ` (${invoice.gst.placeOfSupply.code})` : ""}</span>
+            </h4>
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="bg-slate-50 text-slate-500 text-left">
+                  <th className="py-2 px-3 font-semibold">Rate</th>
+                  <th className="py-2 px-3 font-semibold text-right">Taxable value</th>
+                  {invoice.gst.regime === "intra" ? (
+                    <>
+                      <th className="py-2 px-3 font-semibold text-right">CGST</th>
+                      <th className="py-2 px-3 font-semibold text-right">SGST</th>
+                    </>
+                  ) : (
+                    <th className="py-2 px-3 font-semibold text-right">IGST</th>
+                  )}
+                  <th className="py-2 px-3 font-semibold text-right">Total GST</th>
+                </tr>
+              </thead>
+              <tbody className="font-mono text-slate-700">
+                {invoice.gst.bands.map((band) => (
+                  <tr key={band.rate} className="border-b border-slate-100">
+                    <td className="py-2 px-3">{band.rate}%</td>
+                    <td className="py-2 px-3 text-right">₹{band.taxable.toLocaleString("en-IN")}</td>
+                    {invoice.gst!.regime === "intra" ? (
+                      <>
+                        <td className="py-2 px-3 text-right">₹{band.cgst.toLocaleString("en-IN")}</td>
+                        <td className="py-2 px-3 text-right">₹{band.sgst.toLocaleString("en-IN")}</td>
+                      </>
+                    ) : (
+                      <td className="py-2 px-3 text-right">₹{band.igst.toLocaleString("en-IN")}</td>
+                    )}
+                    <td className="py-2 px-3 text-right">₹{band.tax.toLocaleString("en-IN")}</td>
+                  </tr>
+                ))}
+                <tr className="font-bold text-slate-900">
+                  <td className="py-2 px-3">Total</td>
+                  <td className="py-2 px-3 text-right">₹{invoice.gst.taxable.toLocaleString("en-IN")}</td>
+                  {invoice.gst.regime === "intra" ? (
+                    <>
+                      <td className="py-2 px-3 text-right">₹{invoice.gst.cgst.toLocaleString("en-IN")}</td>
+                      <td className="py-2 px-3 text-right">₹{invoice.gst.sgst.toLocaleString("en-IN")}</td>
+                    </>
+                  ) : (
+                    <td className="py-2 px-3 text-right">₹{invoice.gst.igst.toLocaleString("en-IN")}</td>
+                  )}
+                  <td className="py-2 px-3 text-right">₹{invoice.gst.tax.toLocaleString("en-IN")}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        )}
 
         {/* Footer & Thank You */}
         <div className="border-t border-slate-200 pt-6 text-center text-xs text-slate-500 space-y-1">

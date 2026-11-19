@@ -38,6 +38,7 @@ interface Quote {
   freeShippingRemaining: number;
   freeShippingThreshold: number;
   tax: number;
+  gstIncluded?: number;
   total: number;
   codAvailable: boolean;
   codUnavailableReason?: string;
@@ -538,6 +539,12 @@ export default function CheckoutClient() {
                     {quoting && !quote ? "—" : rupees(quote?.total ?? 0)}
                   </strong>
                 </div>
+                {!!quote?.gstIncluded && (
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "var(--muted)" }}>
+                    <span>Includes GST</span>
+                    <span>{rupees(quote.gstIncluded)}</span>
+                  </div>
+                )}
               </div>
 
               {!!quote && !quote.isFreeShipping && quote.freeShippingRemaining > 0 && (

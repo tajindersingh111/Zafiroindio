@@ -62,6 +62,45 @@ export async function GET(
   const b = invoice.businessSnapshot;
   const c = invoice.customerSnapshot;
 
+  // GST breakup: how much of the (tax-inclusive) total was tax, by rate. CGST + SGST for a buyer in the
+  // seller's state, IGST for anyone else.
+  const g = invoice.gst;
+  const intra = g?.regime === "intra";
+  const half = (n: number) => (Number.isInteger(n / 2) ? String(n / 2) : (n / 2).toFixed(1));
+  const gstBlock = g?.bands?.length
+    ? `
+    <div style="margin: 8px 0 28px;">
+      <div class="section-title" style="margin-bottom:6px;">GST breakup <span style="font-weight:400; text-transform:none; letter-spacing:0; color:#94a3b8;">— already included in the total, nothing is added to it</span></div>
+      <table style="margin-bottom:0;">
+        <thead>
+          <tr>
+            <th>Rate</th>
+            <th style="text-align:right;">Taxable value</th>
+            ${intra ? `<th style="text-align:right;">CGST</th><th style="text-align:right;">SGST</th>` : `<th style="text-align:right;">IGST</th>`}
+            <th style="text-align:right;">Total GST</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${g.bands.map((band) => `
+          <tr>
+            <td>${band.rate}%</td>
+            <td style="text-align:right;">₹${inr(band.taxable)}</td>
+            ${intra
+              ? `<td style="text-align:right;">${half(band.rate)}% · ₹${inr(band.cgst)}</td><td style="text-align:right;">${half(band.rate)}% · ₹${inr(band.sgst)}</td>`
+              : `<td style="text-align:right;">${band.rate}% · ₹${inr(band.igst)}</td>`}
+            <td style="text-align:right;">₹${inr(band.tax)}</td>
+          </tr>`).join("")}
+          <tr style="font-weight:700; color:#0f172a;">
+            <td>Total</td>
+            <td style="text-align:right;">₹${inr(g.taxable)}</td>
+            ${intra ? `<td style="text-align:right;">₹${inr(g.cgst)}</td><td style="text-align:right;">₹${inr(g.sgst)}</td>` : `<td style="text-align:right;">₹${inr(g.igst)}</td>`}
+            <td style="text-align:right;">₹${inr(g.tax)}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>`
+    : "";
+
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -113,7 +152,7 @@ export async function GET(
         ${esc(c.shipping.address1)}${c.shipping.address2 ? `, ${esc(c.shipping.address2)}` : ""}<br>
         ${esc(c.shipping.city)}, ${esc(c.shipping.state)} — ${esc(c.shipping.postalCode)}<br>
         Email: ${esc(c.customerEmail)}<br>
-        Phone: ${esc(c.customerPhone || "N/A")}
+        Phone: ${esc(c.customerPhone || "N/A")}${g?.placeOfSupply?.state ? `<br>Place of supply: <strong>${esc(g.placeOfSupply.state)}${g.placeOfSupply.code ? ` (${esc(g.placeOfSupply.code)})` : ""}</strong>` : ""}
       </div>
       <div>
         <div class="section-title">Seller Details</div>
@@ -145,6 +184,7 @@ export async function GET(
             <td>
               <strong>${esc(item.name)}</strong>
               ${item.attributes?.length ? `<div style="font-size:11px; color:#64748b;">${item.attributes.map((a: any) => `${esc(a.name)}: ${esc(a.value)}`).join(" | ")}</div>` : ""}
+              ${item.hsn || typeof item.taxRate === "number" ? `<div style="font-size:11px; color:#94a3b8;">${[item.hsn && `HSN ${esc(item.hsn)}`, typeof item.taxRate === "number" && `GST ${item.taxRate}%`].filter(Boolean).join(" · ")}</div>` : ""}
             </td>
             <td><code>${esc(item.sku)}</code></td>
             <td style="text-align: right;">${esc(item.quantity)}</td>
@@ -157,7 +197,7 @@ export async function GET(
 
     <table class="total-table">
       <tr>
-        <td style="color:#64748b;">Subtotal:</td>
+        <td style="color:#64748b;">${g ? "Items (incl. GST):" : "Subtotal:"}</td>
         <td style="text-align: right;">₹${inr(invoice.subtotal)}</td>
       </tr>
       ${invoice.discount > 0 ? `
@@ -166,7 +206,7 @@ export async function GET(
         <td style="text-align: right; color:#166534;">-₹${inr(invoice.discount)}</td>
       </tr>` : ""}
       <tr>
-        <td style="color:#64748b;">Shipping:</td>
+        <td style="color:#64748b;">${g ? "Shipping (incl. GST):" : "Shipping:"}</td>
         <td style="text-align: right;">${invoice.shipping === 0 ? "FREE" : `₹${inr(invoice.shipping)}`}</td>
       </tr>
       <tr class="total-row">
@@ -174,6 +214,8 @@ export async function GET(
         <td style="text-align: right; color:#8c5e0f;">₹${inr(invoice.grandTotal)}</td>
       </tr>
     </table>
+
+    ${gstBlock}
 
     <div style="margin-top: 40px; border-top: 1px solid #f1f5f9; padding-top: 16px; font-size: 11px; color: #94a3b8; text-align: center;">
       Thank you for shopping with Zafiro Indio! This is a computer-generated tax invoice.

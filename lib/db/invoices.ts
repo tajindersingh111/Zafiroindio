@@ -1,5 +1,6 @@
-import type { Invoice, Order, BusinessSnapshot, Address } from "@/lib/db/types";
-import { readCollection, upsertDoc, nextSequence, readSettings } from "@/lib/db/store";
+import type { Invoice, InvoiceGst, Order, Product, BusinessSnapshot, Address } from "@/lib/db/types";
+import { readCollection, upsertDoc, nextSequence, readSettings, getDoc } from "@/lib/db/store";
+import { computeGst, gstRateFor, DEFAULT_GST_RATE } from "@/lib/tax/gst";
 
 /**
  * The registered business, exactly as on the GST registration certificate (REG-06, issued 18/11/2026).
@@ -87,6 +88,43 @@ const DEFAULT_ADDRESS: Address = {
   country: "India"
 };
 
+/**
+ * The GST an order contains, itemised line by line.
+ *
+ * The rate comes from each product's tax class (Reduced 5%, Standard 18%, Zero/None 0%), falling back to
+ * `defaultGstRate` in Admin -> Settings, or 5%, for a product that has none set. The buyer's state
+ * decides between CGST + SGST and IGST.
+ */
+export async function buildInvoiceGst(
+  order: { items: any[]; total: number; shipping?: Partial<Address> },
+  sellerGstin: string
+): Promise<{ gst: InvoiceGst; lines: ReturnType<typeof computeGst>["lines"]; hsn: (string | undefined)[] }> {
+  const settings = (await readSettings<{ defaultGstRate?: number }>("settings").catch(() => null)) ?? {};
+  const configured = Number(settings.defaultGstRate);
+  const fallback = Number.isFinite(configured) && configured >= 0 ? configured : DEFAULT_GST_RATE;
+
+  const products = await Promise.all(
+    (order.items || []).map((i) => (i.productId ? getDoc<Product>("products", String(i.productId)).catch(() => null) : Promise.resolve(null)))
+  );
+
+  const result = computeGst({
+    lines: (order.items || []).map((i, n) => ({
+      total: Number(i.total) || Number(i.price) * Number(i.quantity) || 0,
+      rate: gstRateFor(products[n]?.taxClass, fallback),
+    })),
+    invoiceTotal: order.total,
+    sellerGstin,
+    buyerState: String(order.shipping?.state ?? ""),
+  });
+
+  const { regime, placeOfSupply, taxable, cgst, sgst, igst, tax, bands } = result;
+  return {
+    gst: { regime, placeOfSupply, taxable, cgst, sgst, igst, tax, bands },
+    lines: result.lines,
+    hsn: (order.items || []).map((i, n) => (i.hsn || products[n]?.hsn || "").trim() || undefined),
+  };
+}
+
 export async function getAllInvoices(): Promise<Invoice[]> {
   return readCollection<Invoice>("invoices");
 }
@@ -137,6 +175,8 @@ export async function generateInvoiceForOrder(order: Partial<Order> & { id: stri
   }
 
   const now = new Date().toISOString();
+  const business = await getBusinessSnapshot();
+  const tax = await buildInvoiceGst({ items: order.items || [], total: grandTotal, shipping: order.shipping }, business.gstin || "");
 
   const newInvoice: Invoice = {
     id: `inv-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
@@ -145,7 +185,7 @@ export async function generateInvoiceForOrder(order: Partial<Order> & { id: stri
     orderNumber: order.orderNumber || order.id,
     customerId: order.customerId,
     invoiceDate: order.createdAt || now,
-    businessSnapshot: await getBusinessSnapshot(),
+    businessSnapshot: business,
     customerSnapshot: {
       customerName: order.customerName,
       customerEmail: order.customerEmail,
@@ -153,16 +193,22 @@ export async function generateInvoiceForOrder(order: Partial<Order> & { id: stri
       billing: order.billing || DEFAULT_ADDRESS,
       shipping: order.shipping || DEFAULT_ADDRESS
     },
-    itemsSnapshot: (order.items || []).map((item) => ({
+    itemsSnapshot: (order.items || []).map((item, n) => ({
       productId: item.productId,
       variationId: item.variationId,
       name: item.name,
       sku: item.sku,
+      hsn: tax.hsn[n],
       quantity: item.quantity,
       price: item.price,
       discount: item.discount || 0,
       tax: item.tax || 0,
       total: item.total || item.price * item.quantity,
+      taxRate: tax.lines[n].rate,
+      taxableValue: tax.lines[n].taxable,
+      cgst: tax.lines[n].cgst,
+      sgst: tax.lines[n].sgst,
+      igst: tax.lines[n].igst,
       attributes: item.attributes
     })),
     subtotal: order.subtotal,
@@ -171,6 +217,7 @@ export async function generateInvoiceForOrder(order: Partial<Order> & { id: stri
     shipping: order.shippingCost || 0,
     tax: order.tax || 0,
     grandTotal,
+    gst: tax.gst,
     amountPaid,
     amountDue,
     paymentMethod: order.paymentMethod || "cod",
