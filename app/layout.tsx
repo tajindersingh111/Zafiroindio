@@ -28,6 +28,12 @@ export const metadata: Metadata = {
 
 /** Google Tag Manager container. GA4, Ads and other tags are added inside GTM, not in this code. */
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID || "GTM-MLQDFKGV";
+/**
+ * Google Analytics 4 (stream "Zafiroindio"). Loaded here directly, so it must NOT also be added as a
+ * Google tag inside GTM, or every page view is counted twice. GA4's enhanced measurement counts the
+ * app's client-side page changes (browser history events) on its own.
+ */
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID || "G-SEY9N79563";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -46,6 +52,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <noscript>
               <iframe src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`} height="0" width="0" style={{ display: "none", visibility: "hidden" }} />
             </noscript>
+          </>
+        )}
+        {GA_ID && (
+          <>
+            <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
+            <Script id="ga4" strategy="afterInteractive">
+              {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');`}
+            </Script>
           </>
         )}
         <AuthProvider>
