@@ -6,6 +6,7 @@ import "./home.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WelcomeDiscountModal from "@/components/WelcomeDiscountModal";
+import WhatsAppButton from "@/components/WhatsAppButton";
 import { StoreProvider } from "@/components/StoreProvider";
 import { AuthProvider } from "@/components/AuthProvider";
 
@@ -68,6 +69,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {children}
             <Footer />
             <WelcomeDiscountModal />
+            <WhatsAppButton />
           </StoreProvider>
         </AuthProvider>
       </body>
