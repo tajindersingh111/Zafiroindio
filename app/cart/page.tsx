@@ -14,9 +14,18 @@ export default function Cart() {
   const { cart, wishlist, subtotal, setQty, remove, toggleWish, cartReady } = useStore();
   const count = cart.reduce((a, x) => a + x.qty, 0);
 
-  // Shipping, the free-shipping bar and the total now come from the same server calculation the
-  // checkout uses, so the cart cannot promise free shipping the checkout then charges for.
-  const [quote, setQuote] = useState<{ shippingCost: number; isFreeShipping: boolean; freeShippingThreshold: number; freeShippingRemaining: number; total: number } | null>(null);
+  // Shipping, the free-shipping bar, the subtotal and the total now come from the same server
+  // calculation the checkout uses, so the cart cannot show one price (possibly stale: a cart item
+  // keeps the price it was added at) and the checkout a different, correct one.
+  const [quote, setQuote] = useState<{
+    shippingCost: number;
+    isFreeShipping: boolean;
+    freeShippingThreshold: number;
+    freeShippingRemaining: number;
+    subtotal: number;
+    total: number;
+    lines: { slug: string; size?: string; color?: string; price: number; mrp: number }[];
+  } | null>(null);
 
   const items = useMemo(
     () => cart.map((x) => ({ productId: x.product.slug, qty: x.qty, size: x.size, color: x.color })),
@@ -43,6 +52,17 @@ export default function Cart() {
 
   const freeShippingFrom = quote?.freeShippingThreshold ?? FREE_SHIPPING_FALLBACK;
   const remaining = quote ? quote.freeShippingRemaining : Math.max(0, freeShippingFrom - subtotal);
+
+  // A cart item keeps the price it was added at (it can sit in localStorage for weeks), so once the
+  // live quote answers, every displayed price and the subtotal switch to it — the current, real price
+  // — instead of jumping only at "Estimated total" and surprising the shopper.
+  const quoteBySlug = useMemo(() => {
+    const m = new Map<string, { price: number; mrp: number }>();
+    quote?.lines?.forEach((l) => m.set(`${l.slug}|${l.size ?? ""}|${l.color ?? ""}`, { price: l.price, mrp: l.mrp }));
+    return m;
+  }, [quote]);
+  const priceFor = (x: (typeof cart)[number]) => quoteBySlug.get(`${x.product.slug}|${x.size}|${x.color}`)?.price ?? x.product.price;
+  const displaySubtotal = quote?.subtotal ?? subtotal;
 
   return (
     <main className="blockprint-bg">
@@ -74,7 +94,7 @@ export default function Cart() {
                   </strong>
                 )}
                 <div className="progress" style={{ marginTop: 10, marginBottom: 0 }}>
-                  <span style={{ width: `${Math.min(100, (subtotal / freeShippingFrom) * 100)}%` }} />
+                  <span style={{ width: `${Math.min(100, (displaySubtotal / freeShippingFrom) * 100)}%` }} />
                 </div>
               </div>
 
@@ -100,7 +120,7 @@ export default function Cart() {
                     </button>
                   </div>
                   <div className="cartPrice" style={{ textAlign: "center" }}>
-                    <strong style={{ fontSize: 15 }}>₹{x.product.price.toLocaleString("en-IN")}</strong>
+                    <strong style={{ fontSize: 15 }}>₹{priceFor(x).toLocaleString("en-IN")}</strong>
                     <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>each</div>
                   </div>
                   <div className="cartQty qty">
@@ -135,7 +155,7 @@ export default function Cart() {
               <h3 className="serif" style={{ fontSize: 24, margin: "0 0 14px", paddingBottom: 12, borderBottom: "1px solid var(--line)" }}>Order Summary</h3>
               <div className="summaryLine">
                 <span style={{ color: "var(--muted)" }}>Subtotal</span>
-                <span>₹{subtotal.toLocaleString("en-IN")}</span>
+                <span>₹{displaySubtotal.toLocaleString("en-IN")}</span>
               </div>
               <div className="summaryLine">
                 <span style={{ color: "var(--muted)" }}>Shipping</span>

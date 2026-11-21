@@ -18,6 +18,8 @@ import type { CartItemInput, CheckoutPaymentMethod } from "@/lib/checkout/schema
 export interface QuoteLine {
   productId: string;
   variationId?: string;
+  /** The product's slug — the stable, public way to match this line back to a cart item. */
+  slug: string;
   name: string;
   sku: string;
   image?: string;
@@ -61,6 +63,7 @@ const round2 = (n: number) => Math.round(n * 100) / 100;
 const toQuoteLine = (l: PricedLine): QuoteLine => ({
   productId: l.productId,
   variationId: l.variationId,
+  slug: l.slug,
   name: l.name,
   sku: l.sku,
   image: l.image,
