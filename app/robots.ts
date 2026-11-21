@@ -18,6 +18,9 @@ export default function robots(): MetadataRoute.Robots {
           "/account",
           "/track",
           "/wishlist",
+          // Trade/wholesale price list: shared by direct link only, not for search.
+          "/wholesale",
+          "/wholesale-catalogue.html",
           // /search and /login are not listed here on purpose: they carry a noindex tag, and a crawler only
           // honours a noindex on a page it is allowed to fetch.
         ],

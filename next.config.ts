@@ -29,8 +29,23 @@ const nextConfig: NextConfig = {
       { source: "/product-tag/:slug*", destination: "/shop", permanent: true },
     ];
   },
+  /**
+   * /wholesale: the trade/wholesale catalogue (a plain static page in public/, not an app route), under
+   * a clean URL. Not for search engines — see the noindex header below and the robots.ts disallow entry.
+   */
+  async rewrites() {
+    return [{ source: "/wholesale", destination: "/wholesale-catalogue.html" }];
+  },
   async headers() {
     return [
+      {
+        source: "/wholesale",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
+      {
+        source: "/wholesale-catalogue.html",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
       {
         source: "/:path*",
         headers: [
