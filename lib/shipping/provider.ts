@@ -4,7 +4,7 @@ import { applyShipmentEvent } from "@/lib/orders/service";
 import { sendTransactionalEmail } from "@/lib/email/service";
 import { sendOrderShippedWhatsApp } from "@/lib/notifications/whatsapp";
 import type { Order, OrderStatus, ShipmentRecord } from "@/lib/db/types";
-import { cancelShipment, fetchBookingFromPanel, getShipmozoConfig, pushOrder, shipOrder, trackAwb, type Parcel } from "./shipmozo";
+import { cancelShipment, fetchBookingFromPanel, getShipmozoConfig, manualShipOrder, pushOrder, shipOrder, trackAwb, type Parcel } from "./shipmozo";
 
 /**
  * Shipping is done through ShipMozo. This module ties it into the order lifecycle:
@@ -27,6 +27,39 @@ export async function createShipmentForOrder(params: CreateShipmentParams) {
   } catch (err) {
     console.error("createShipmentForOrder:", err);
     return { success: false as const, error: (err as Error).message || "Could not create the shipment." };
+  }
+}
+
+/**
+ * Records an AWB the admin booked by hand (ShipMozo's panel, or any other courier) — no API call.
+ * Marks the order shipped and tells the shopper, exactly as a courier scan would, because a courier
+ * booked outside ShipMozo may never report a scan back to us.
+ */
+export async function recordManualShipment(params: {
+  orderId: string;
+  awb: string;
+  courierName: string;
+  trackingUrl?: string;
+  markShipped?: boolean;
+  siteUrl?: string;
+}) {
+  try {
+    const { order, nowShipped } = await manualShipOrder(
+      params.orderId,
+      { awb: params.awb, courierName: params.courierName, trackingUrl: params.trackingUrl, markShipped: params.markShipped },
+      params.siteUrl
+    );
+    let notified = false;
+    if (nowShipped) {
+      await sendTransactionalEmail("ORDER_SHIPPED", order, { trackingNumber: order.trackingNumber, trackingUrl: order.trackingUrl })
+        .then(() => { notified = true; })
+        .catch((e) => console.error("Shipping e-mail failed:", e));
+      await sendOrderShippedWhatsApp(order).catch((e) => console.error("Shipping WhatsApp failed:", e));
+    }
+    return { success: true as const, awb: order.trackingNumber!, courierName: order.courierName!, shipped: nowShipped, notified };
+  } catch (err) {
+    console.error("recordManualShipment:", err);
+    return { success: false as const, error: (err as Error).message || "Could not save the AWB." };
   }
 }
 
@@ -100,7 +133,7 @@ export async function syncOrderTracking(orderOrId: Order | string): Promise<{ ok
     const email = newStatus && newStatus !== order.status ? STATUS_EMAIL[newStatus] : undefined;
     if (email) {
       const fresh = await getDoc<Order>("orders", order.id);
-      if (fresh) await sendTransactionalEmail(email, fresh).catch((e) => console.error("Shipping e-mail failed:", e));
+      if (fresh) await sendTransactionalEmail(email, fresh, { trackingNumber: fresh.trackingNumber, trackingUrl: fresh.trackingUrl }).catch((e) => console.error("Shipping e-mail failed:", e));
       if (fresh && newStatus === "shipped") await sendOrderShippedWhatsApp(fresh).catch((e) => console.error("Shipping WhatsApp failed:", e));
     }
     return { ok: true, status: newStatus, courierStatus: info.status };

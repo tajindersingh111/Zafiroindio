@@ -64,11 +64,16 @@ export async function sendTransactionalEmail(
       headline = "Your Tax Invoice Is Ready";
       bodyMessage = `Your official tax invoice for order ${order.orderNumber} has been generated.`;
       break;
-    case "ORDER_SHIPPED":
+    case "ORDER_SHIPPED": {
+      // The courier and AWB ride on the order itself, so every shipped e-mail carries them —
+      // whether the booking came from ShipMozo's API or was entered by hand in the admin.
+      const courier = order.courierName?.trim();
+      const awb = extraDetails?.trackingNumber?.trim() || order.trackingNumber?.trim();
       subject = `Your Order Has Shipped — ${order.orderNumber} | Zafiro Indio`;
       headline = "On Its Way!";
-      bodyMessage = `Great news! Order ${order.orderNumber} has been handed over to courier.`;
+      bodyMessage = `Great news! Order ${order.orderNumber} has been handed over to${courier ? ` ${courier}` : " the courier"}.${awb ? ` Your tracking number (AWB) is ${awb}.` : ""}`;
       break;
+    }
     case "OUT_FOR_DELIVERY":
       subject = `Out For Delivery Today — ${order.orderNumber} | Zafiro Indio`;
       headline = "Arriving Today!";

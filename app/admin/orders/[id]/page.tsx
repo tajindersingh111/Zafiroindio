@@ -61,6 +61,11 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
   const [loadingRates, setLoadingRates] = useState(false);
   const [dispatching, setDispatching] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [showManual, setShowManual] = useState(false);
+  const [manualAwb, setManualAwb] = useState("");
+  const [manualCourier, setManualCourier] = useState("");
+  const [manualNotify, setManualNotify] = useState(true);
+  const [savingManual, setSavingManual] = useState(false);
 
   const reloadOrder = () => {
     fetch(`/api/admin/orders/${id}`).then((r) => r.json()).then((d) => {
@@ -130,6 +135,32 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       addToast("Network error refreshing tracking.", "error");
     } finally {
       setSyncing(false);
+    }
+  }
+
+  async function saveManualAwb() {
+    if (!order || !manualAwb.trim() || !manualCourier.trim()) return;
+    setSavingManual(true);
+    try {
+      const res = await fetch("/api/shipments/manual", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: order.id, awb: manualAwb.trim(), courierName: manualCourier.trim(), markShipped: manualNotify }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        addToast(`Saved: ${data.shipment.courierName}, AWB ${data.shipment.trackingNumber}${data.shipment.shipped ? " · marked shipped, customer notified" : ""}`);
+        setShowManual(false);
+        setManualAwb("");
+        setManualCourier("");
+        reloadOrder();
+      } else {
+        addToast(data.error || "Could not save the AWB.", "error");
+      }
+    } catch {
+      addToast("Network error saving the AWB.", "error");
+    } finally {
+      setSavingManual(false);
     }
   }
 
@@ -484,6 +515,47 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                       <Btn size="sm" variant="ghost" onClick={refreshTracking} disabled={syncing} className="w-full justify-center">
                         {syncing ? "Checking ShipMozo…" : "↻ Booked in the ShipMozo panel? Fetch AWB"}
                       </Btn>
+                    )}
+
+                    {/* Fallback when ShipMozo's API won't book it for us (e.g. "order not valid") but the
+                        courier was booked by hand — on the ShipMozo panel itself, or with any other courier. */}
+                    {!showManual ? (
+                      <button type="button" onClick={() => setShowManual(true)} className="w-full text-center text-[11px] text-stone underline hover:text-ink pt-1">
+                        Booked with a different courier, or ShipMozo won&apos;t book it? Enter the AWB by hand
+                      </button>
+                    ) : (
+                      <div className="space-y-2 pt-2 border-t border-stone/15">
+                        <p className="text-[11px] text-stone">No ShipMozo call is made — this just records what you type and marks the order dispatched.</p>
+                        <input
+                          type="text"
+                          placeholder="Courier name (e.g. Delhivery, ShipMozo)"
+                          value={manualCourier}
+                          onChange={(e) => setManualCourier(e.target.value)}
+                          className="w-full px-2.5 py-1.5 border border-stone/30 rounded bg-paper text-xs text-ink"
+                        />
+                        <input
+                          type="text"
+                          placeholder="AWB / tracking number"
+                          value={manualAwb}
+                          onChange={(e) => setManualAwb(e.target.value)}
+                          className="w-full px-2.5 py-1.5 border border-stone/30 rounded bg-paper text-xs text-ink font-mono"
+                        />
+                        <label className="flex items-start gap-2 text-[11px] text-ink cursor-pointer">
+                          <input type="checkbox" checked={manualNotify} onChange={(e) => setManualNotify(e.target.checked)} className="mt-0.5 accent-madder" />
+                          <span>
+                            Mark the order <strong>shipped</strong> and e-mail / WhatsApp the customer the AWB.
+                            <span className="block text-stone">Keep this on: a courier booked by hand rarely reports back to us, so nothing else would tell them.</span>
+                          </span>
+                        </label>
+                        <div className="flex gap-2">
+                          <Btn size="sm" variant="secondary" onClick={() => { setShowManual(false); setManualAwb(""); setManualCourier(""); }} className="flex-1 justify-center">
+                            Cancel
+                          </Btn>
+                          <Btn size="sm" onClick={saveManualAwb} disabled={savingManual || !manualAwb.trim() || !manualCourier.trim()} className="flex-1 justify-center font-bold">
+                            {savingManual ? "Saving…" : "Save & mark dispatched"}
+                          </Btn>
+                        </div>
+                      </div>
                     )}
                   </div>
                 )}

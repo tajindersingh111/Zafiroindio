@@ -528,6 +528,59 @@ export async function fetchBookingFromPanel(order: Order, siteUrl?: string): Pro
   return awb;
 }
 
+/**
+ * Records a courier booked by hand — on the ShipMozo panel itself, or with any other courier — when
+ * ShipMozo's API won't book it for us (a stale/mismatched order_id, a courier its API rejects, or any
+ * other "order not valid"-style error). No ShipMozo API call is made here: this only saves what the
+ * admin typed. `saveShipmozoInfo` fills in `orderId` / `pushedAt` the same way a real push does when
+ * the order has no `shipmozo` record yet, so tracking can still refresh by AWB afterwards.
+ */
+export async function manualShipOrder(
+  orderId: string,
+  input: { awb: string; courierName: string; trackingUrl?: string; markShipped?: boolean },
+  siteUrl?: string
+): Promise<{ order: Order; nowShipped: boolean }> {
+  const order = await loadShippableOrder(orderId);
+  const awb = input.awb.trim();
+  if (!awb) throw new ShipmozoError("Enter the AWB / tracking number.");
+  const courierName = input.courierName.trim() || "Courier";
+  const site = (siteUrl || process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/$/, "");
+  const trackingUrl = input.trackingUrl?.trim() || (site ? `${site}/track?q=${encodeURIComponent(order.orderNumber)}` : order.trackingUrl);
+  const now = new Date().toISOString();
+
+  // Courier booked outside ShipMozo may never report a scan back, so its status would sit at
+  // "processing" for ever and the shopper would never hear that it shipped. Mark it shipped here
+  // (unless the admin unticked it), and let the caller send the usual shipped e-mail / WhatsApp.
+  const alreadyShipped = ["shipped", "out_for_delivery", "delivered", "completed"].includes(order.status);
+  const nowShipped = input.markShipped !== false && !alreadyShipped;
+  const status: OrderStatus = nowShipped ? "shipped" : order.status === "paid" ? "processing" : order.status;
+
+  const saved = await saveShipmozoInfo(
+    order.id,
+    { lastStatus: "SHIPMENT_CREATED" },
+    { trackingNumber: awb, courierName, trackingUrl, status, ...(nowShipped ? { shippingDate: now } : {}) },
+    `Courier booked manually: ${courierName}, AWB ${awb}.${nowShipped ? " Order marked shipped." : ""}`
+  );
+
+  const prev = await getDoc<ShipmentRecord>("shipments", `shp-${order.id}`);
+  await upsertDoc<ShipmentRecord>("shipments", {
+    ...prev,
+    id: `shp-${order.id}`,
+    orderId: order.id,
+    orderNumber: order.orderNumber,
+    courierName,
+    trackingNumber: awb,
+    trackingUrl,
+    isLiveCourier: true,
+    status: nowShipped ? "PICKED_UP" : prev?.status ?? "SHIPMENT_CREATED",
+    shippedAt: nowShipped ? now : prev?.shippedAt,
+    createdAt: prev?.createdAt ?? now,
+    updatedAt: now,
+  });
+
+  return { order: saved ?? order, nowShipped };
+}
+
 /** Cancels the ShipMozo booking of a cancelled order (best effort; the courier must not have picked it up). */
 export async function cancelShipment(order: Order): Promise<{ ok: boolean; message?: string }> {
   if (!order.shipmozo?.pushedAt) return { ok: true };
