@@ -5,6 +5,7 @@ import { Heart, Sparkles, Check } from "lucide-react";
 import { Product } from "@/lib/data";
 import { useStore } from "./StoreProvider";
 import { img, imgSrcSet, fallbackToOriginal } from "@/lib/img";
+import { trackAddToCart } from "@/lib/analytics/pixel";
 
 export default function ProductCard({ p }: { p: Product }) {
   const { add, wishlist, toggleWish } = useStore();
@@ -32,6 +33,7 @@ export default function ProductCard({ p }: { p: Product }) {
 
     add(p, selectedSize, p.colors[0] || "");
     setAddedSuccess(true);
+    trackAddToCart({ id: p.slug, name: p.name, price: p.price, quantity: 1 });
     setTimeout(() => setAddedSuccess(false), 1800);
   }
 

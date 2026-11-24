@@ -9,6 +9,7 @@ import { useCatalog } from "@/lib/storefront/useCatalog";
 import { useStore } from "./StoreProvider";
 import CheckoutButton from "./CheckoutButton";
 import { img as optimizedImg, imgSrcSet, fallbackToOriginal } from "@/lib/img";
+import { trackAddToCart, trackViewContent } from "@/lib/analytics/pixel";
 
 const SPEC_ICONS: Record<string, LucideIcon> = {
   fabric: Layers,
@@ -24,6 +25,9 @@ const SPEC_ICONS: Record<string, LucideIcon> = {
 export default function ProductClient({ p, story, makers }: { p: Product; story?: React.ReactNode; makers?: React.ReactNode }) {
   const [img, setImg] = useState(0);
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => trackViewContent({ id: p.slug, name: p.name, price: p.price, quantity: 1 }), [p.slug]);
 
   // Extract all variation attributes safely across variations
   const variationAttributeMap = useMemo(() => {
@@ -132,6 +136,7 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
     const productToAdd = matchingVariation ? { ...p, price: currentPrice, oldPrice: currentOldPrice } : p;
     for (let i = 0; i < qty; i++) add(productToAdd, size, color);
     setAddedQty(qty);
+    trackAddToCart({ id: matchingVariation?.sku || p.slug, name: p.name, price: currentPrice, quantity: qty });
   };
   const share = async () => {
     const url = window.location.href;

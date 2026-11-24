@@ -6,6 +6,7 @@ import { Lock } from "lucide-react";
 import { useStore } from "@/components/StoreProvider";
 import { stashBuyNow, type BuyNowItem } from "@/lib/checkout/buy-now";
 import { preloadRazorpaySdk } from "@/lib/checkout/razorpay-launch";
+import { trackInitiateCheckout } from "@/lib/analytics/pixel";
 
 export type CheckoutSource = "cart" | "buy-now";
 
@@ -46,9 +47,19 @@ export default function CheckoutButton({
     setBusy(true);
     onBeforeStart?.();
     if (source === "buy-now" && items?.length) {
+      // Buy-it-now stashes only ids and quantities, so that is all the event can carry; the real
+      // money is reported by Purchase, which reads the priced order.
+      trackInitiateCheckout(
+        items.map((i) => ({ id: i.productId, name: i.productId, price: undefined, quantity: i.qty })),
+        undefined
+      );
       stashBuyNow(items);
       router.push("/checkout?mode=buy-now");
     } else {
+      trackInitiateCheckout(
+        cart.map((x) => ({ id: x.product.slug, name: x.product.name, price: x.product.price, quantity: x.qty })),
+        cart.reduce((sum, x) => sum + x.product.price * x.qty, 0)
+      );
       router.push("/checkout");
     }
   }
