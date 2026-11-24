@@ -8,6 +8,7 @@ import { sendTransactionalEmail } from "@/lib/email/service";
 import { onOrderConfirmed } from "@/lib/shipping/provider";
 import { sendOrderConfirmationWhatsApp } from "@/lib/notifications/whatsapp";
 import { redeemCoupon } from "@/lib/checkout/coupon";
+import { markCartsRecovered } from "@/lib/checkout/abandoned";
 import type { PricedLine } from "@/lib/pricing";
 import type { Address, Customer, Order, OrderItem, OrderNote, OrderStatus, PaymentMethod, PaymentStatus, Product } from "@/lib/db/types";
 import type { CheckoutSnapshot } from "@/lib/checkout/session";
@@ -294,6 +295,9 @@ async function postOrderTasks(order: Order, snapshot: CheckoutSnapshot, onHold: 
     updatedData: { total: order.total, status: order.status, paymentMethod: order.paymentMethod },
     riskLevel: onHold ? "HIGH" : "LOW",
   }).catch((e) => console.error("Audit log failed:", e));
+
+  // This shopper may have been sitting in the abandoned-cart list; they have bought now.
+  await markCartsRecovered(order).catch((e) => console.error("Abandoned-cart recovery marking failed:", e));
 
   await generateInvoiceForOrder(order).catch((e) => console.error("Invoice generation failed:", e));
   await sendTransactionalEmail(order.paymentStatus === "paid" ? "PAYMENT_SUCCESS" : "ORDER_CREATED", order).catch((e) =>

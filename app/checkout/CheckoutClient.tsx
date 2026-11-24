@@ -179,6 +179,34 @@ export default function CheckoutClient() {
     void refreshQuote(appliedCoupon, method);
   }, [refreshQuote, appliedCoupon, method]);
 
+  /**
+   * Abandoned-cart capture.
+   *
+   * The cart itself lives only in this browser, so the shop can never chase it unless we hand over
+   * who to contact — which we do as soon as a valid mobile number is on the form, long before the
+   * shopper reaches the payment screen. Debounced, re-sent only when the cart or the contact details
+   * actually change, and `keepalive` so it still lands if they close the tab a moment later.
+   */
+  const lastCapture = useRef("");
+  useEffect(() => {
+    const phone = address.phone.trim();
+    if (!hasLines || !/^[6-9]\d{9}$/.test(phone)) return;
+    const name = [address.firstName, address.lastName].filter(Boolean).join(" ").trim();
+    const email = address.email.trim();
+    const signature = JSON.stringify({ items, phone, email, name, appliedCoupon });
+    if (signature === lastCapture.current) return;
+    const timer = setTimeout(() => {
+      lastCapture.current = signature;
+      void fetch("/api/checkout/abandon", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items, name, phone, email, couponCode: appliedCoupon || undefined }),
+        keepalive: true,
+      }).catch(() => {});
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, [items, hasLines, address.phone, address.email, address.firstName, address.lastName, appliedCoupon]);
+
   function set<K extends keyof AddressForm>(key: K, value: AddressForm[K]) {
     setAddress((a) => ({ ...a, [key]: value }));
     setFieldErrors((e) => (e[key] ? { ...e, [key]: "" } : e));

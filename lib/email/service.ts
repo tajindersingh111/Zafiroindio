@@ -13,7 +13,8 @@ export type EmailEventType =
   | "REFUND_COMPLETED"
   | "RETURN_REQUESTED"
   | "RETURN_APPROVED"
-  | "RETURN_REJECTED";
+  | "RETURN_REJECTED"
+  | "CART_ABANDONED";
 
 /** The e-mails that carry the tax invoice as a PDF. */
 const INVOICE_EVENTS: EmailEventType[] = ["ORDER_CREATED", "PAYMENT_SUCCESS", "INVOICE_GENERATED"];
@@ -109,18 +110,29 @@ export async function sendTransactionalEmail(
       headline = "We could not accept your request";
       bodyMessage = `Sorry, your ${extraDetails?.requestKind || "return"} request for order ${order.orderNumber} could not be accepted.${extraDetails?.note ? ` Reason: ${extraDetails.note}` : ""} Please see our return and exchange policy or reply to this email if you have questions.`;
       break;
+    case "CART_ABANDONED":
+      // Not about an order at all — nothing was placed. This is the recovery nudge for a cart the
+      // shopper left behind, so it must not quote an order number or offer a tracking link.
+      subject = `You left something behind | Zafiro Indio`;
+      headline = "Your cart is waiting";
+      bodyMessage = `You left ₹${order.total.toLocaleString("en-IN")} worth of handblock pieces in your cart.${
+        extraDetails?.note ? ` ${extraDetails.note}` : ""
+      } They are still reserved for you — pick up where you left off whenever you are ready.`;
+      break;
   }
 
   const esc = (v: string) => v.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string));
   const site = process.env.NEXT_PUBLIC_SITE_URL || "";
   const trackLink = extraDetails?.trackingUrl ? `<p><a href="${esc(extraDetails.trackingUrl)}">Track your shipment</a></p>` : "";
+  // A cart reminder sends them back to the cart; everything else is about an order they can track.
+  const cta = eventType === "CART_ABANDONED" ? { href: `${site}/cart`, label: "Return to my cart" } : { href: `${site}/track`, label: "Track order" };
   const html = `<!doctype html><html><body style="margin:0;background:#f7f1e6;font-family:Georgia,serif;color:#1b1f3b">
 <div style="max-width:560px;margin:0 auto;padding:32px 24px;background:#fffdf8;border-top:4px solid #b08d3c">
 <p style="letter-spacing:4px;font-size:12px;color:#b08d3c;margin:0">ZAFIRO INDIO</p>
 <h1 style="font-weight:normal;font-size:26px;margin:12px 0">${esc(headline)}</h1>
 <p>Namaste ${esc((order.customerName || "").split(" ")[0] || "")},</p>
 <p>${esc(bodyMessage)}</p>${trackLink}
-${site ? `<p><a href="${esc(site)}/track">Track order</a></p>` : ""}
+${site ? `<p><a href="${esc(cta.href)}">${esc(cta.label)}</a></p>` : ""}
 <p style="font-size:12px;color:#777;margin-top:32px">Handblock bedding, Jaipur.</p></div></body></html>`;
 
   /**

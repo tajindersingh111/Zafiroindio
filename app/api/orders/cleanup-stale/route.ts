@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
+import { expireStaleCarts, syncAbandonedFromPaymentSessions } from "@/lib/checkout/abandoned";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,17 @@ export async function POST(request: NextRequest) {
   const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
   const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
+  // Keep the lead before the evidence is thrown away: an unfinished payment is an abandoned cart,
+  // and the session row that holds the shopper's details is deleted a few lines below.
+  const abandonedCaptured = await syncAbandonedFromPaymentSessions().catch((e) => {
+    console.error("[cleanup] abandoned-cart capture failed:", e);
+    return 0;
+  });
+  const abandonedExpired = await expireStaleCarts().catch((e) => {
+    console.error("[cleanup] abandoned-cart expiry failed:", e);
+    return 0;
+  });
+
   const [sessions, links, payments, paymentLinks, otps, limits, events] = await Promise.all([
     prisma.document.deleteMany({ where: { collection: "checkout-sessions", createdAt: { lt: dayAgo }, data: { path: ["status"], equals: "pending" } } }),
     prisma.document.deleteMany({ where: { collection: "checkout-sessions-by-sr", createdAt: { lt: monthAgo } } }),
@@ -38,6 +50,8 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({
     success: true,
+    abandonedCartsCaptured: abandonedCaptured,
+    abandonedCartsExpired: abandonedExpired,
     prunedCheckoutSessions: sessions.count,
     prunedSessionLinks: links.count,
     prunedPaymentSessions: payments.count,
