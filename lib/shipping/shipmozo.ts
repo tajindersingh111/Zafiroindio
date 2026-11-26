@@ -600,6 +600,19 @@ export async function cancelShipment(order: Order): Promise<{ ok: boolean; messa
 // ───────────────────────── Serviceability ─────────────────────────
 
 const yes = (v: unknown) => v === true || ["1", "y", "yes", "true", "available"].includes(String(v ?? "").trim().toLowerCase());
+/** An explicit "no". A value that is neither yes nor no counts as unknown, never as a refusal. */
+const no = (v: unknown) =>
+  v === false ||
+  ["0", "n", "no", "false", "unavailable", "not available", "non-serviceable", "not serviceable"].includes(String(v ?? "").trim().toLowerCase());
+
+/**
+ * Only a ShipMozo error that is clearly about this PIN counts as "we don't deliver there". A generic
+ * failure (bad keys, validation, service down) must NOT reach the shopper as a refusal: it used to,
+ * because the pattern matched a bare "not available", so every PIN — Jaipur included — was told we
+ * don't deliver. Anything else is rethrown, which leaves serviceability unknown and the product page
+ * then says delivery is available.
+ */
+const PIN_REFUSED = /not serviceable|non[- ]?serviceable|no courier|not deliverable|(?:pin ?code|pincode|delivery)[^.]{0,40}not (?:available|supported|serviceable)/i;
 
 /**
  * Whether any ShipMozo courier delivers from our pickup point to `deliveryPin` (cached 12 h).
@@ -616,7 +629,7 @@ export async function checkServiceability(deliveryPin: string): Promise<{ servic
       try {
         data = await call(cfg, "POST", "pincode-serviceability", { pickup_pincode: Number(pincode), delivery_pincode: Number(deliveryPin) });
       } catch (e) {
-        if (e instanceof ShipmozoError && /not serviceable|non[- ]?serviceable|not available|no courier/i.test(e.message)) return { serviceable: false };
+        if (e instanceof ShipmozoError && PIN_REFUSED.test(e.message)) return { serviceable: false };
         throw e;
       }
       if (Array.isArray(data)) {
@@ -624,8 +637,11 @@ export async function checkServiceability(deliveryPin: string): Promise<{ servic
       }
       const flag = find(data, ["serviceable", "is_serviceable", "serviceability", "prepaid", "prepaid_available"]);
       const cod = find(data, ["cod", "cod_available", "is_cod_available", "cod_serviceable"]);
-      if (flag === undefined && cod === undefined) throw new ShipmozoError("unrecognised serviceability answer");
-      return { serviceable: flag === undefined ? yes(cod) : yes(flag), cod: cod === undefined ? undefined : yes(cod) };
+      const answer = flag === undefined ? cod : flag;
+      if (answer === undefined) throw new ShipmozoError("unrecognised serviceability answer");
+      // A value we can read neither way is unknown, not a refusal — throw so the caller falls back.
+      if (!yes(answer) && !no(answer)) throw new ShipmozoError(`unrecognised serviceability value: ${String(answer).slice(0, 40)}`);
+      return { serviceable: yes(answer), cod: cod === undefined || (!yes(cod) && !no(cod)) ? undefined : yes(cod) };
     });
   } catch (e) {
     console.warn(`[shipmozo] serviceability ${deliveryPin}:`, (e as Error).message);

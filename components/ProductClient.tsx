@@ -1196,7 +1196,9 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
               <div>
                 <strong>{p.name}</strong>
                 <span>{[size, color].filter(Boolean).join(" · ")}{size || color ? " · " : ""}Qty {addedQty}</span>
-                <b>₹{(p.price * addedQty).toLocaleString("en-IN")}</b>
+                {/* The chosen size's price, not the product's base price: a 6-seater set added at
+                    ₹1,199 used to read ₹999 here while the subtotal below said ₹1,199. */}
+                <b>₹{(currentPrice * addedQty).toLocaleString("en-IN")}</b>
               </div>
             </div>
             <div className="pdp-added-total">

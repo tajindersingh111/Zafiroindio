@@ -101,6 +101,13 @@ export default function CheckoutClient() {
   const [method, setMethod] = useState<PaymentMethod>("razorpay");
   const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState("");
+  /**
+   * Why the last code was refused, kept outside the quote on purpose. A refused code is detached from
+   * the order straight away (keeping it attached makes /checkout/create answer 409 and the shopper
+   * cannot pay at all), and that detaching re-prices the cart — which used to wipe `quote.couponError`
+   * a blink after it appeared, so Apply looked like it did nothing.
+   */
+  const [couponMessage, setCouponMessage] = useState("");
   const [quote, setQuote] = useState<Quote | null>(null);
   const [onlineAvailable, setOnlineAvailable] = useState(true);
   const [quoting, setQuoting] = useState(true);
@@ -165,7 +172,12 @@ export default function CheckoutClient() {
         setOnlineAvailable(data.onlinePaymentAvailable !== false);
         // The server may refuse COD for this cart; follow its decision.
         if (!data.quote.codAvailable && paymentMethod === "cod") setMethod("razorpay");
-        if (data.quote.couponError) setAppliedCoupon("");
+        if (data.quote.couponError) {
+          setCouponMessage(data.quote.couponError);
+          setAppliedCoupon("");
+        } else if (data.quote.coupon) {
+          setCouponMessage("");
+        }
       } catch {
         setError("Network error. Please try again.");
       } finally {
@@ -515,6 +527,7 @@ export default function CheckoutClient() {
                       onClick={() => {
                         setAppliedCoupon("");
                         setCouponInput("");
+                        setCouponMessage("");
                       }}
                       style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted)", display: "flex", padding: 2 }}
                       aria-label="Remove coupon"
@@ -526,6 +539,7 @@ export default function CheckoutClient() {
                   <form
                     onSubmit={(e) => {
                       e.preventDefault();
+                      setCouponMessage("");
                       setAppliedCoupon(couponInput.trim().toUpperCase());
                     }}
                     style={{ display: "flex", gap: 8 }}
@@ -534,7 +548,10 @@ export default function CheckoutClient() {
                       style={{ ...inputStyle, padding: "10px 12px", fontSize: 13, textTransform: "uppercase" }}
                       placeholder="Coupon code"
                       value={couponInput}
-                      onChange={(e) => setCouponInput(e.target.value)}
+                      onChange={(e) => {
+                        setCouponInput(e.target.value);
+                        setCouponMessage("");
+                      }}
                       aria-label="Coupon code"
                     />
                     <button type="submit" className="btn" style={{ padding: "10px 16px", fontSize: 11.5, whiteSpace: "nowrap" }} disabled={!couponInput.trim() || quoting}>
@@ -542,9 +559,9 @@ export default function CheckoutClient() {
                     </button>
                   </form>
                 )}
-                {quote?.couponError && (
+                {(quote?.couponError || couponMessage) && (
                   <p role="alert" style={{ color: "var(--danger)", fontSize: 12, marginTop: 8 }}>
-                    {quote.couponError}
+                    {quote?.couponError || couponMessage}
                   </p>
                 )}
               </div>
