@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     }
     await upsertDoc("subscribers", { id, email: cleanEmail, name: cleanName, phone: cleanPhone, source: cleanSource, subscribedAt: new Date().toISOString() } satisfies Subscriber);
 
-    return NextResponse.json({ success: true, message: "Thank you for subscribing! Use code WELCOME10 at checkout for 10% off your first order." });
+    return NextResponse.json({ success: true, message: "Thank you for subscribing! Use code WELCOME10 at checkout for ₹250 off your first order of ₹1,500 or more." });
   } catch {
     return NextResponse.json({ error: "Failed to process subscription." }, { status: 500 });
   }

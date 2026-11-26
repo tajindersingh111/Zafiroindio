@@ -1155,10 +1155,10 @@ export default function ProductClient({ p, story, makers }: { p: Product; story?
             </div>
             <div>
               <strong style={{ display: "block", fontSize: 14, fontWeight: 800, color: "#1c1917", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                10% OFF ON YOUR FIRST ORDER
+                ₹250 OFF ON YOUR FIRST ORDER
               </strong>
               <span style={{ fontSize: 12, color: "#666" }}>
-                Use code: <strong style={{ color: "#a67c37" }}>WELCOME10</strong>
+                Use code: <strong style={{ color: "#a67c37" }}>WELCOME10</strong> on orders of ₹1,500+
               </span>
             </div>
           </div>

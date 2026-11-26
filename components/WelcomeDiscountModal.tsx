@@ -177,7 +177,7 @@ export default function WelcomeDiscountModal() {
                 lineHeight: 1.25
               }}
             >
-              Save 10% On Your First Order
+              Save ₹250 On Your First Order
             </h2>
             <p
               style={{
@@ -380,7 +380,7 @@ export default function WelcomeDiscountModal() {
               🎉 Discount Code Unlocked!
             </h3>
             <p style={{ fontSize: 13.5, color: "#555", marginBottom: 20 }}>
-              Use coupon code <strong style={{ color: "#a67c37" }}>WELCOME10</strong> at checkout to enjoy 10% off your purchase.
+              Use coupon code <strong style={{ color: "#a67c37" }}>WELCOME10</strong> at checkout for ₹250 off orders of ₹1,500 or more.
             </p>
 
             {/* Coupon Code Display Box */}
