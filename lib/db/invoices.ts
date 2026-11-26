@@ -12,7 +12,7 @@ import { computeGst, gstRateFor, DEFAULT_GST_RATE } from "@/lib/tax/gst";
  */
 const DEFAULT_BUSINESS_SNAPSHOT: BusinessSnapshot = {
   storeName: "Zafiro Indio",
-  storeEmail: "support@zafiroindio.com",
+  storeEmail: "info@zafiroindio.com",
   storePhone: "",
   storeAddress: {
     firstName: "Zafiro",

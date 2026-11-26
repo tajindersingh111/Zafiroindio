@@ -532,7 +532,7 @@ export default function BulkOrderPage() {
                 Speak directly with our Wholesale Director on WhatsApp for urgent queries and instant physical fabric samples.
               </p>
               <a
-                href={waLink(storeContact, "Hi Zafiro Team, I am interested in Bulk Wholesale Orders.") || `mailto:${storeContact?.email || "hello@zafiroindio.com"}?subject=Bulk%20order%20enquiry`}
+                href={waLink(storeContact, "Hi Zafiro Team, I am interested in Bulk Wholesale Orders.") || `mailto:${storeContact?.email || "info@zafiroindio.com"}?subject=Bulk%20order%20enquiry`}
                 target="_blank"
                 rel="noreferrer"
                 style={{

@@ -20,7 +20,7 @@ export type StoreContact = {
   social: { instagram: string; facebook: string; youtube: string };
 };
 
-const FALLBACK_EMAIL = "hello@zafiroindio.com";
+const FALLBACK_EMAIL = "info@zafiroindio.com";
 const FALLBACK_HOURS = "Mon–Sat · 10AM–7PM IST";
 const FALLBACK_ADDRESS = "Jaipur, Rajasthan, India";
 

@@ -78,7 +78,7 @@ const organizationJsonLd = {
   contactPoint: {
     "@type": "ContactPoint",
     contactType: "customer service",
-    email: "support@zafiroindio.com",
+    email: "info@zafiroindio.com",
     availableLanguage: ["English", "Hindi"],
   },
   sameAs: [],

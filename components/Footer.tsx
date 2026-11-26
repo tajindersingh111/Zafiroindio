@@ -46,7 +46,7 @@ export default function Footer() {
   if (pathname?.startsWith("/admin")) return null;
 
   // Shown until the real settings load, so the footer is never empty or jumpy.
-  const supportEmail = contact?.email || "hello@zafiroindio.com";
+  const supportEmail = contact?.email || "info@zafiroindio.com";
   const hours = contact?.hours || "Mon–Sat · 10AM–7PM IST";
   const address = contact?.address || "Jaipur, Rajasthan, India";
   const wa = waLink(contact, "Hi Zafiro Indio, I need some help.");

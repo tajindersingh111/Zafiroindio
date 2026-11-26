@@ -311,7 +311,7 @@ function TrackContent() {
                 Need help with your shipment? Contact support 10 AM - 7 PM IST.
               </div>
               <a
-                href={waLink(storeContact, "Hi Zafiro Support, I need help tracking my shipment") || `mailto:${storeContact?.email || "hello@zafiroindio.com"}`}
+                href={waLink(storeContact, "Hi Zafiro Support, I need help tracking my shipment") || `mailto:${storeContact?.email || "info@zafiroindio.com"}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
