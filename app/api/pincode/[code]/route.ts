@@ -3,7 +3,23 @@ import { cached } from "@/lib/cache";
 import { rateLimit } from "@/lib/security/rate-limit";
 import { checkServiceability } from "@/lib/shipping/shipmozo";
 
-const METROS = ["Bengaluru", "Mumbai", "Delhi", "Jaipur", "Kolkata", "Chennai", "Hyderabad", "Pune", "Ahmedabad"];
+// India Post still answers with the older city names, so both spellings are listed or the match
+// silently fails: 560001 came back as "Bangalore" and was quoted 4–5 days instead of 2–3.
+const METROS = [
+  "Bengaluru",
+  "Bangalore",
+  "Mumbai",
+  "Bombay",
+  "Delhi",
+  "Jaipur",
+  "Kolkata",
+  "Calcutta",
+  "Chennai",
+  "Madras",
+  "Hyderabad",
+  "Pune",
+  "Ahmedabad",
+];
 
 type Place = { area: string; city: string; state: string } | null;
 
