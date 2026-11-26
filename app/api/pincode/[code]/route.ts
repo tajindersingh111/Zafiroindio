@@ -39,8 +39,19 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   const [place, courier] = await Promise.all([lookupPlace(pin), checkServiceability(pin)]);
 
+  /**
+   * ShipMozo's refusal is logged, not shown.
+   *
+   * On 26 Nov 2026 `pincode-serviceability` refused every PIN we tried — Mumbai, Delhi, Bengaluru,
+   * Chennai, Kolkata, Pune, Chandigarh and Jaipur 302001, next door to our own pickup warehouse —
+   * while the account itself reports as connected. Every shopper who checked their PIN was told we
+   * don't deliver to them, which is the worst thing this page can say and is plainly untrue: we ship
+   * pan-India and the courier is only picked at dispatch. Nothing else reads this answer (it gates no
+   * order: see the single call site of checkServiceability), so an unverified "no" must not turn a
+   * buyer away. Restore the refusal here once ShipMozo answers correctly for a known-good PIN.
+   */
   if (courier && !courier.serviceable) {
-    return NextResponse.json({ available: false, pincode: pin, message: "Sorry, our couriers don't deliver to this PIN code yet. Please try another address." });
+    console.warn(`[pincode] ShipMozo says ${pin} is not serviceable — ignoring; check the ShipMozo account if this is real.`);
   }
   if (!place && !courier) {
     // Neither source answered (India Post down, ShipMozo not connected): accept any well-formed PIN.
@@ -50,7 +61,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const isMetro = !!place && METROS.some((m) => `${place.city} ${place.state}`.toLowerCase().includes(m.toLowerCase()));
   const days = isMetro ? "2–3 business days" : "4–5 business days";
   const location = place ? [place.area, place.city, place.state].filter(Boolean).join(", ") : `PIN code ${pin}`;
-  const codNote = courier?.cod === false ? " · Cash on Delivery not available here (prepaid only)" : "";
+  // Only from an answer we trust: while ShipMozo refuses every PIN, its COD flag is not worth quoting.
+  const cod = courier?.serviceable ? courier.cod : undefined;
+  const codNote = cod === false ? " · Cash on Delivery not available here (prepaid only)" : "";
 
   return NextResponse.json({
     available: true,
@@ -60,7 +73,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     state: place?.state,
     location,
     estimatedDays: days,
-    cod: courier?.cod,
+    cod,
     message: `Delivery available to ${location} · Usually delivered in ${days}${codNote}`,
   });
 }
