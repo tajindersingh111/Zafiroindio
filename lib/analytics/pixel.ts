@@ -22,6 +22,12 @@ function push(event: string, data: Record<string, unknown>) {
   if (typeof window === "undefined") return;
   (window as unknown as { dataLayer?: unknown[] }).dataLayer = (window as unknown as { dataLayer?: unknown[] }).dataLayer || [];
   (window as unknown as { dataLayer: unknown[] }).dataLayer.push({ event, ...data });
+  // The Meta Pixel is loaded directly in app/layout.tsx (the GTM container has no Meta tag).
+  const fbq = (window as unknown as { fbq?: (...a: unknown[]) => void }).fbq;
+  if (fbq) {
+    const eventID = typeof data.order_id === "string" ? `purchase-${data.order_id}` : undefined;
+    fbq("track", event, data, eventID ? { eventID } : undefined);
+  }
 }
 
 /** A shopper opened a product page. */

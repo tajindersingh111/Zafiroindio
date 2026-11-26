@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Check, ShoppingBag, ArrowRight, Package, FileText, Truck, RotateCcw } from "lucide-react";
 import { useStore } from "@/components/StoreProvider";
 import { img } from "@/lib/img";
+import { trackPurchase } from "@/lib/analytics/pixel";
 
 type PublicOrder = {
   orderNumber: string;
@@ -47,6 +48,19 @@ function OrderSuccessContent() {
           setOrder(data.order);
           setInvoiceUrl(data.invoiceUrl);
           setState("ready");
+          // Meta Pixel Purchase, once per order even if the page is reloaded.
+          try {
+            const key = `zafiro-px-purchase:${data.order.orderNumber}`;
+            if (!localStorage.getItem(key)) {
+              const o: PublicOrder = data.order;
+              trackPurchase(
+                o.orderNumber,
+                o.items.map((i) => ({ id: i.name, name: i.name, price: i.price, quantity: i.quantity })),
+                o.total
+              );
+              localStorage.setItem(key, "1");
+            }
+          } catch {}
           // Buy it now never touched the cart, so only a cart checkout empties it.
           let source = "cart";
           try {

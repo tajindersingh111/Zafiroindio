@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WelcomeDiscountModal from "@/components/WelcomeDiscountModal";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import MetaPixelPageView from "@/components/MetaPixelPageView";
 import { StoreProvider } from "@/components/StoreProvider";
 import { AuthProvider } from "@/components/AuthProvider";
 
@@ -35,6 +36,12 @@ const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID || "GTM-MLQDFKGV";
  * app's client-side page changes (browser history events) on its own.
  */
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID || "G-SEY9N79563";
+/**
+ * Meta Pixel (dataset "woocommerce zafiro indio"). Loaded here directly because the GTM container has
+ * no Meta tag: since the move off WooCommerce the pixel received almost no events. Do NOT also add a
+ * Meta Pixel tag in GTM, or every event is counted twice.
+ */
+const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || "1843181940374293";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -61,6 +68,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Script id="ga4" strategy="afterInteractive">
               {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');`}
             </Script>
+          </>
+        )}
+        {META_PIXEL_ID && (
+          <>
+            <Script id="meta-pixel" strategy="afterInteractive">
+              {`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${META_PIXEL_ID}');fbq('track','PageView');`}
+            </Script>
+            <MetaPixelPageView />
           </>
         )}
         <AuthProvider>
